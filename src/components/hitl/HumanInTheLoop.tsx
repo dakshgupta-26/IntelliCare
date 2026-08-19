@@ -10,79 +10,79 @@ export const HumanInTheLoop: React.FC = () => {
   const resetHitl = useSimStore((state) => state.resetHitl);
 
   const workflowSteps = [
-    { step: '01', title: 'Telemetry & Forecast', sub: 'LSTM Ingestion' },
-    { step: '02', title: 'MILP Optimization', sub: 'OR-Tools Solver' },
-    { step: '03', title: 'Contextual RAG', sub: 'SOP Justification' },
-    { step: '04', title: 'Clinical Coordinator Review', sub: 'Human Authority', highlight: true },
-    { step: '05', title: 'Authorized Execution', sub: 'Signed Action Log' },
+    { step: '01', title: 'Telemetry Ingest', sub: 'EHR / HL7 Stream' },
+    { step: '02', title: 'Neural Forecast', sub: 'LSTM Time-Series' },
+    { step: '03', title: 'MILP Optimization', sub: 'OR-Tools Balancing' },
+    { step: '04', title: 'Coordinator Review', sub: 'Human Gate', highlight: true },
+    { step: '05', title: 'Signed Execution', sub: 'Immutable Audit Log' },
   ];
 
   return (
-    <section className="relative py-28 bg-navy-900/70 border-t border-b border-slate-800/80 overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-emerald-500/5 blur-[150px] pointer-events-none" />
+    <section className="relative py-32 bg-section-softMint text-slate-900 border-t border-emerald-100 overflow-hidden">
+      {/* Background soft glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-emerald-200/40 blur-[150px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <Badge variant="emerald" size="md" className="mb-4">
-            GOVERNANCE & CLINICAL TRUST
+          <Badge variant="emerald" size="md" className="mb-4 bg-emerald-100 text-emerald-800 border-emerald-300">
+            CLINICAL GOVERNANCE & TRUST
           </Badge>
 
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
-            AI recommends. <span className="text-gradient-cyan">Humans decide.</span>
+          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
+            AI recommends. <span className="text-emerald-700">People decide.</span>
           </h2>
 
-          <p className="mt-4 text-base sm:text-lg text-slate-400 leading-relaxed">
-            IntelliCare is strictly an operational decision-support system. Every automated forecast, resource reallocation, and bed transfer advisory requires explicit human verification, authorization, or modification before execution.
+          <p className="mt-4 text-xl text-slate-600 font-normal leading-relaxed">
+            IntelliCare is strictly an operational decision-support platform. Every predictive alert and staffing reallocation requires affirmative human authorization before execution.
           </p>
         </div>
 
-        {/* 5-Step Visual Workflow */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 p-3 rounded-2xl bg-surface-100/80 border border-slate-800 backdrop-blur-md mb-12">
+        {/* 5-Step Governance Flow */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 p-3 rounded-2xl bg-white border border-emerald-200/80 shadow-md mb-12">
           {workflowSteps.map((w, idx) => (
             <div
               key={idx}
               className={`p-4 rounded-xl border transition-all duration-300 ${
                 w.highlight
-                  ? 'bg-emerald-950/30 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
-                  : 'bg-surface-200/50 border-slate-800'
+                  ? 'bg-emerald-50 border-emerald-400 shadow-sm'
+                  : 'bg-slate-50 border-slate-200'
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
                   {w.step}
                 </span>
                 {w.highlight && (
-                  <span className="text-[10px] font-mono text-emerald-400 font-bold">
+                  <span className="text-[10px] font-mono text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded">
                     HUMAN GATE
                   </span>
                 )}
               </div>
-              <span className="text-sm font-bold text-white block mb-1">
+              <span className="text-sm font-bold text-slate-900 block mb-1 font-display">
                 {w.title}
               </span>
-              <span className="text-xs font-mono text-slate-400">
+              <span className="text-xs font-mono text-slate-500">
                 {w.sub}
               </span>
             </div>
           ))}
         </div>
 
-        {/* Interactive Human Governance Approval Terminal */}
-        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-emerald-500/30 shadow-2xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-slate-800">
+        {/* Interactive Human Governance Authorization Terminal */}
+        <div className="bg-white p-6 sm:p-10 rounded-3xl border border-emerald-200/80 shadow-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-emerald-100">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Badge variant="emerald" size="sm">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
                   OPERATIONAL DISPATCH AUTHORIZATION
-                </Badge>
+                </span>
                 <span className="text-[11px] font-mono text-slate-500">
                   ORDER ID: #DISP-2026-0818-B4
                 </span>
               </div>
-              <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
-                Pending Coordinator Authorization
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-slate-900 mt-2">
+                Pending Clinical Coordinator Authorization
               </h3>
             </div>
 
@@ -102,53 +102,53 @@ export const HumanInTheLoop: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             {/* Left: Summary Order & Constraint Checks (7 Cols) */}
             <div className="lg:col-span-7 flex flex-col gap-4">
-              <div className="p-4 rounded-xl bg-surface-100 border border-slate-800 text-xs font-mono">
-                <div className="flex items-center justify-between text-slate-400 pb-2 border-b border-slate-800">
-                  <span>PROPOSED DISPATCH SUMMARY</span>
-                  <span className="text-cyan-400">MILP Objective: 148.2</span>
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-mono">
+                <div className="flex items-center justify-between text-slate-600 pb-2.5 border-b border-slate-200">
+                  <span className="font-bold">PROPOSED REALLOCATION SUMMARY</span>
+                  <span className="text-emerald-700 font-bold">MILP Objective: 148.2</span>
                 </div>
-                <div className="mt-3 flex flex-col gap-1.5 text-slate-200">
+                <div className="mt-3.5 flex flex-col gap-2 text-slate-800">
                   <div className="flex justify-between">
                     <span>&bull; Reallocate Floater Nurses:</span>
-                    <strong className="text-emerald-400">+4 to ED (Intake Bay 6-9)</strong>
+                    <strong className="text-emerald-800 font-bold">+4 to ED (Intake Bay 6-9)</strong>
                   </div>
                   <div className="flex justify-between">
                     <span>&bull; ICU Bed Standby Escalation:</span>
-                    <strong className="text-cyan-400">+2 Intensivists (Shift B)</strong>
+                    <strong className="text-cyan-800 font-bold">+2 Intensivists (Shift B)</strong>
                   </div>
                   <div className="flex justify-between">
                     <span>&bull; Ward Early Discharge Protocol:</span>
-                    <strong className="text-slate-300">Authorize 3 step-downs</strong>
+                    <strong className="text-slate-700">Authorize 3 step-downs</strong>
                   </div>
                 </div>
               </div>
 
               {/* Status Outcome Banner */}
               {hitlStatus === 'approved' && (
-                <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/50 text-xs font-mono text-emerald-300 flex items-center gap-3 animate-fade-in">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                <div className="p-4 rounded-xl bg-emerald-100 border border-emerald-300 text-xs font-mono text-emerald-900 flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0" />
                   <div>
-                    <strong className="block text-white font-bold">DISPATCH ORDER AUTHORIZED & SIGNED</strong>
-                    <span>Logged to immutable audit ledger with Clinical Director cryptographic token.</span>
+                    <strong className="block text-slate-900 font-bold">DISPATCH ORDER AUTHORIZED & SIGNED</strong>
+                    <span>Logged to immutable audit ledger with Clinical Director cryptographic credentials.</span>
                   </div>
                 </div>
               )}
 
               {hitlStatus === 'modified' && (
-                <div className="p-4 rounded-xl bg-amber-950/40 border border-amber-500/50 text-xs font-mono text-amber-300 flex items-center gap-3 animate-fade-in">
-                  <Edit3 className="w-5 h-5 text-amber-400 shrink-0" />
+                <div className="p-4 rounded-xl bg-amber-100 border border-amber-300 text-xs font-mono text-amber-900 flex items-center gap-3">
+                  <Edit3 className="w-5 h-5 text-amber-700 shrink-0" />
                   <div>
-                    <strong className="block text-white font-bold">DISPATCH MODIFIED BY CLINICAL COORDINATOR</strong>
+                    <strong className="block text-slate-900 font-bold">DISPATCH MODIFIED BY CLINICAL COORDINATOR</strong>
                     <span>Nurse transfer reduced from +4 to +2. Re-solving secondary bounds with zero penalty.</span>
                   </div>
                 </div>
               )}
 
               {hitlStatus === 'rejected' && (
-                <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-500/50 text-xs font-mono text-rose-300 flex items-center gap-3 animate-fade-in">
-                  <XCircle className="w-5 h-5 text-rose-400 shrink-0" />
+                <div className="p-4 rounded-xl bg-rose-100 border border-rose-300 text-xs font-mono text-rose-900 flex items-center gap-3">
+                  <XCircle className="w-5 h-5 text-rose-700 shrink-0" />
                   <div>
-                    <strong className="block text-white font-bold">DISPATCH OVERRULED BY SUPERVISOR</strong>
+                    <strong className="block text-slate-900 font-bold">DISPATCH OVERRULED BY SUPERVISOR</strong>
                     <span>Current shift roster maintained. Overrule justification recorded in compliance log.</span>
                   </div>
                 </div>
@@ -156,18 +156,18 @@ export const HumanInTheLoop: React.FC = () => {
             </div>
 
             {/* Right: Interactive Action Buttons (5 Cols) */}
-            <div className="lg:col-span-5 flex flex-col gap-3 bg-surface-50/70 p-6 rounded-2xl border border-slate-800">
-              <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-300">
+            <div className="lg:col-span-5 flex flex-col gap-3 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
                 Coordinator Action Gates
               </span>
 
               <button
                 onClick={() => setHitlAction('approved', 'Clinical Director approved full reallocation plan.')}
                 disabled={hitlStatus === 'approved'}
-                className="w-full flex items-center justify-between p-3.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-bold transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-between p-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-mono font-bold transition-all cursor-pointer shadow-sm disabled:opacity-50"
               >
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <CheckCircle2 className="w-4 h-4" />
                   <span>Approve Full Reallocation</span>
                 </div>
                 <ArrowRight className="w-4 h-4" />
@@ -176,10 +176,10 @@ export const HumanInTheLoop: React.FC = () => {
               <button
                 onClick={() => setHitlAction('modified', 'Adjusted nurse allocation to maintain PACU buffer.')}
                 disabled={hitlStatus === 'modified'}
-                className="w-full flex items-center justify-between p-3.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 text-xs font-mono font-bold transition-all cursor-pointer disabled:opacity-50"
               >
                 <div className="flex items-center gap-2">
-                  <Edit3 className="w-4 h-4 text-amber-400" />
+                  <Edit3 className="w-4 h-4 text-amber-600" />
                   <span>Modify Resource Bounds</span>
                 </div>
                 <ArrowRight className="w-4 h-4" />
@@ -188,10 +188,10 @@ export const HumanInTheLoop: React.FC = () => {
               <button
                 onClick={() => setHitlAction('rejected', 'Clinical supervisor opted for internal ward deferral.')}
                 disabled={hitlStatus === 'rejected'}
-                className="w-full flex items-center justify-between p-3.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-mono font-bold transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white hover:bg-rose-50 border border-rose-200 text-rose-700 text-xs font-mono font-bold transition-all cursor-pointer disabled:opacity-50"
               >
                 <div className="flex items-center gap-2">
-                  <XCircle className="w-4 h-4 text-rose-400" />
+                  <XCircle className="w-4 h-4 text-rose-600" />
                   <span>Overrule Recommendation</span>
                 </div>
                 <ArrowRight className="w-4 h-4" />

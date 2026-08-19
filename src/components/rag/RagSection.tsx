@@ -1,66 +1,66 @@
 import React from 'react';
 import { Badge } from '../ui/Badge';
 import { RagInteractiveAssistant } from './RagInteractiveAssistant';
+import { FileText, Database, BookOpen, MessageSquare, ArrowRight } from 'lucide-react';
+import { useRouterStore } from '../../store/useRouterStore';
 
 export const RagSection: React.FC = () => {
+  const navigate = useRouterStore((state) => state.navigate);
+
+  const ragSteps = [
+    { icon: <FileText className="w-4 h-4" />, label: 'Hospital SOPs & Playbooks' },
+    { icon: <Database className="w-4 h-4" />, label: 'Dense Vector & BM25 Index' },
+    { icon: <BookOpen className="w-4 h-4" />, label: 'Relevant Context Retrieval' },
+    { icon: <MessageSquare className="w-4 h-4" />, label: 'Grounded Recommendation' },
+  ];
+
   return (
-    <section id="rag" className="relative py-28 bg-navy-900/60 border-t border-b border-slate-800/80 overflow-hidden">
+    <section id="rag" className="relative py-32 bg-section-softLavender text-slate-900 border-t border-purple-100 overflow-hidden">
       {/* Background illumination */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-indigo-600/5 blur-[160px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-purple-200/40 blur-[160px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="max-w-3xl mb-14">
-          <Badge variant="indigo" size="md" className="mb-4">
-            CONTEXTUAL KNOWLEDGE GROUNDING
-          </Badge>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-14">
+          <div className="max-w-3xl">
+            <Badge variant="indigo" size="md" className="mb-4 bg-indigo-100 text-indigo-800 border-indigo-300">
+              CONTEXTUAL KNOWLEDGE GROUNDING
+            </Badge>
 
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
-            Decisions need context.
-          </h2>
+            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
+              Good decisions need context.
+            </h2>
 
-          <p className="mt-4 text-base sm:text-lg text-slate-400 leading-relaxed">
-            IntelliCare retrieves relevant hospital policies, standard operating procedures (SOPs), and clinical escalation playbooks to contextualize mathematical recommendations.
-          </p>
+            <p className="mt-4 text-xl text-slate-600 font-normal leading-relaxed">
+              Mathematical algorithms alone lack hospital nuance. IntelliCare retrieves verified clinical operating guidelines, surge protocols, and union staffing rules to explain why decisions are made.
+            </p>
+          </div>
+
+          <button
+            onClick={() => navigate('/platform')}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-indigo-900 text-white hover:bg-indigo-800 text-xs font-mono font-bold transition-all shadow-md cursor-pointer shrink-0"
+          >
+            <span>Explore RAG Knowledge</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Technical RAG Pipeline Diagram */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 p-3 rounded-2xl bg-surface-100/70 border border-slate-800 backdrop-blur-md mb-12 text-center text-xs font-mono">
-          <div className="p-2.5 rounded-xl bg-surface-200/40 border border-slate-800">
-            <span className="text-slate-500 block mb-1">Step 1</span>
-            <span className="text-white font-bold">Hospital Docs</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-surface-200/40 border border-slate-800">
-            <span className="text-slate-500 block mb-1">Step 2</span>
-            <span className="text-white font-bold">PDF Parsing</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-surface-200/40 border border-slate-800">
-            <span className="text-slate-500 block mb-1">Step 3</span>
-            <span className="text-white font-bold">Semantic Chunks</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-surface-200/40 border border-slate-800">
-            <span className="text-slate-500 block mb-1">Step 4</span>
-            <span className="text-white font-bold">Vector Embed</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-surface-200/40 border border-slate-800">
-            <span className="text-slate-500 block mb-1">Step 5</span>
-            <span className="text-white font-bold">Dense Search</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-surface-200/40 border border-slate-800">
-            <span className="text-slate-500 block mb-1">Step 6</span>
-            <span className="text-white font-bold">BM25 Sparse</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-surface-200/40 border border-slate-800">
-            <span className="text-slate-500 block mb-1">Step 7</span>
-            <span className="text-indigo-300 font-bold">Hybrid Rerank</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-500/40 text-indigo-300">
-            <span className="text-indigo-400 block mb-1">Step 8</span>
-            <span className="font-bold">LLM Justify</span>
-          </div>
+        {/* Minimal RAG Flow Strip: Documents -> Knowledge -> Relevant Context -> Grounded Explanation */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 rounded-2xl bg-white border border-purple-200/80 shadow-md mb-10 text-xs font-mono">
+          {ragSteps.map((s, idx) => (
+            <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold shrink-0">
+                {s.icon}
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 block uppercase font-bold">Step 0{idx + 1}</span>
+                <span className="text-slate-800 font-bold leading-tight block">{s.label}</span>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Interactive RAG Assistant Component */}
+        {/* Interactive Grounded Assistant Visualizer */}
         <RagInteractiveAssistant />
       </div>
     </section>

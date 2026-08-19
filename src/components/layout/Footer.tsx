@@ -1,20 +1,14 @@
 import React from 'react';
-import { Activity, Shield, Cpu } from 'lucide-react';
+import { Activity, Shield, Cpu, ExternalLink } from 'lucide-react';
+import { useRouterStore } from '../../store/useRouterStore';
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-
-  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    const target = document.querySelector(href);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const navigate = useRouterStore((state) => state.navigate);
 
   return (
-    <footer className="relative bg-navy-950 border-t border-slate-800/80 pt-16 pb-12 overflow-hidden">
-      {/* Subtle background glow */}
+    <footer className="relative bg-navy-950 border-t border-slate-800/80 pt-16 pb-12 overflow-hidden text-slate-100">
+      {/* Background illumination */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-cyan-500/5 blur-[120px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -31,154 +25,122 @@ export const Footer: React.FC = () => {
             </div>
 
             <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
-              AI-powered hospital operational intelligence combining multi-horizon time-series forecasting, Mixed-Integer Linear Programming optimization, and contextual knowledge retrieval for resilient healthcare logistics.
+              An intelligent operating layer for modern hospital resource planning. Combining multi-horizon forecasting, mathematical optimization, contextual RAG, and scenario simulation.
             </p>
 
             <div className="flex items-center gap-3 pt-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-100 border border-slate-800 text-[11px] font-mono text-slate-300">
                 <Shield className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Human-in-the-Loop Governance</span>
+                <span>Human Governance</span>
               </span>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-100 border border-slate-800 text-[11px] font-mono text-slate-300">
                 <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-                <span>OR-Tools MILP</span>
+                <span>Google OR-Tools MILP</span>
               </span>
             </div>
           </div>
 
-          {/* Col 3: Intelligence Platform */}
+          {/* Col 3: Core Platform */}
           <div className="flex flex-col gap-3">
-            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-200">
-              Platform & Models
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-200">
+              Product Suite
             </span>
             <ul className="flex flex-col gap-2 text-sm text-slate-400">
               <li>
-                <a
-                  href="#intelligence"
-                  onClick={(e) => handleSmoothScroll(e, '#intelligence')}
-                  className="hover:text-cyan-300 transition-colors"
+                <button
+                  onClick={() => navigate('/platform')}
+                  className="hover:text-cyan-300 transition-colors text-left cursor-pointer"
                 >
-                  LSTM Demand Forecasting
-                </a>
+                  Platform Overview
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigate('/intelligence')}
+                  className="hover:text-cyan-300 transition-colors text-left cursor-pointer"
+                >
+                  Demand Forecasting
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigate('/optimization')}
+                  className="hover:text-cyan-300 transition-colors text-left cursor-pointer"
+                >
+                  Resource Optimization
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigate('/scenarios')}
+                  className="hover:text-cyan-300 transition-colors text-left cursor-pointer"
+                >
+                  Scenario Simulation
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 4: Systems & Specs */}
+          <div className="flex flex-col gap-3">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-200">
+              Architecture & Stack
+            </span>
+            <ul className="flex flex-col gap-2 text-sm text-slate-400">
+              <li>
+                <button
+                  onClick={() => navigate('/architecture')}
+                  className="hover:text-cyan-300 transition-colors text-left cursor-pointer"
+                >
+                  System Architecture
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigate('/technology')}
+                  className="hover:text-cyan-300 transition-colors text-left cursor-pointer"
+                >
+                  Technology Ecosystem
+                </button>
               </li>
               <li>
                 <a
-                  href="#intelligence"
-                  onClick={(e) => handleSmoothScroll(e, '#intelligence')}
-                  className="hover:text-cyan-300 transition-colors"
+                  href="https://github.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-cyan-300 transition-colors inline-flex items-center gap-1.5"
                 >
-                  XGBoost Baseline Model
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#optimization"
-                  onClick={(e) => handleSmoothScroll(e, '#optimization')}
-                  className="hover:text-cyan-300 transition-colors"
-                >
-                  MILP Resource Allocation
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#rag"
-                  onClick={(e) => handleSmoothScroll(e, '#rag')}
-                  className="hover:text-cyan-300 transition-colors"
-                >
-                  Hybrid RAG & SOP Grounding
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#scenarios"
-                  onClick={(e) => handleSmoothScroll(e, '#scenarios')}
-                  className="hover:text-cyan-300 transition-colors"
-                >
-                  What-If Scenario Sandbox
+                  <span>GitHub Repository</span>
+                  <ExternalLink className="w-3 h-3 text-slate-500" />
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* Col 4: Systems & Integration */}
+          {/* Col 5: Performance & Standards */}
           <div className="flex flex-col gap-3">
-            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-200">
-              Architecture & Protocols
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-200">
+              Engineering Standards
             </span>
             <ul className="flex flex-col gap-2 text-sm text-slate-400">
-              <li>
-                <a
-                  href="#architecture"
-                  onClick={(e) => handleSmoothScroll(e, '#architecture')}
-                  className="hover:text-cyan-300 transition-colors"
-                >
-                  Layered System Architecture
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#technology"
-                  onClick={(e) => handleSmoothScroll(e, '#technology')}
-                  className="hover:text-cyan-300 transition-colors"
-                >
-                  gRPC & WebSocket Pipelines
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#security"
-                  onClick={(e) => handleSmoothScroll(e, '#security')}
-                  className="hover:text-cyan-300 transition-colors"
-                >
-                  RBAC & Audit Logging
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#realtime"
-                  onClick={(e) => handleSmoothScroll(e, '#realtime')}
-                  className="hover:text-cyan-300 transition-colors"
-                >
-                  Live Telemetry Ingestion
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Col 5: Developers & Code */}
-          <div className="flex flex-col gap-3">
-            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-200">
-              Technology Stack
-            </span>
-            <ul className="flex flex-col gap-2 text-sm text-slate-400">
-              <li className="flex items-center gap-1">
-                <span>React 18 + Vite + TS</span>
-              </li>
-              <li className="flex items-center gap-1">
-                <span>GSAP 3 + Lenis Smooth</span>
-              </li>
-              <li className="flex items-center gap-1">
-                <span>Three.js WebGL Engine</span>
-              </li>
-              <li className="flex items-center gap-1">
-                <span>Google OR-Tools MILP</span>
-              </li>
-              <li className="flex items-center gap-1">
-                <span>Python FastAPI & Kafka</span>
-              </li>
+              <li className="font-mono text-xs text-slate-400">PyTorch GPU Inference</li>
+              <li className="font-mono text-xs text-slate-400">OR-Tools MILP Convergence</li>
+              <li className="font-mono text-xs text-slate-400">pgvector Hybrid Search</li>
+              <li className="font-mono text-xs text-slate-400">Three.js Spatial Intelligence</li>
+              <li className="font-mono text-xs text-slate-400">Airgapped VPC Security</li>
             </ul>
           </div>
         </div>
 
         {/* Disclaimer & Copyright */}
         <div className="pt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="max-w-2xl text-xs text-slate-500 leading-relaxed">
+          <div className="max-w-2xl text-xs text-slate-500 leading-relaxed font-sans">
             <span className="font-semibold text-slate-400">Operational Disclaimer: </span>
-            IntelliCare is a software platform designed for hospital resource forecasting, mathematical optimization, and operational decision support. It is engineered to assist healthcare administrative personnel and clinical operations coordinators in capacity planning. It does not provide autonomous clinical triage or medical diagnosis. All interactive interface data shown is illustrative demonstration telemetry.
+            IntelliCare is designed for operational decision support and does not provide autonomous clinical diagnosis or treatment decisions.
           </div>
 
           <div className="text-xs font-mono text-slate-500 shrink-0">
-            &copy; {currentYear} IntelliCare AI. Built for resilient hospital operations.
+            &copy; {currentYear} IntelliCare. Built for modern hospital resource planning.
           </div>
         </div>
       </div>

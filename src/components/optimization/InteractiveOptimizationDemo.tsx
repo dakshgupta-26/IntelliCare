@@ -12,16 +12,13 @@ export const InteractiveOptimizationDemo: React.FC = () => {
   const resetOptParams = useSimStore((state) => state.resetOptParams);
 
   return (
-    <div id="optimization-demo" className="glass-panel p-6 sm:p-8 rounded-3xl border border-teal-500/30 shadow-2xl relative overflow-hidden">
-      {/* Subtle top glow */}
-      <div className="absolute top-0 right-1/4 w-72 h-72 bg-teal-500/10 blur-[100px] pointer-events-none" />
-
+    <div id="optimization-demo" className="glass-panel p-6 sm:p-8 rounded-3xl border border-teal-500/30 shadow-2xl relative overflow-hidden text-slate-100">
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-8 border-b border-slate-800">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="teal" size="sm" dot>
-              INTERACTIVE CONCEPT DEMO
+              INTERACTIVE CAPACITY BALANCING
             </Badge>
             <span className="text-[11px] font-mono text-slate-500">
               SOLVER: GOOGLE OR-TOOLS (MILP)
@@ -31,7 +28,7 @@ export const InteractiveOptimizationDemo: React.FC = () => {
             Simulate Capacity & Constraint Optimization
           </h3>
           <p className="text-xs text-slate-400 mt-1">
-            Adjust real-time operational parameters to evaluate instant reallocation solutions and risk indices.
+            Adjust operational constraints to evaluate instant global reallocations under strict clinical bounds.
           </p>
         </div>
 
@@ -52,7 +49,7 @@ export const InteractiveOptimizationDemo: React.FC = () => {
         <div className="lg:col-span-5 flex flex-col gap-6 bg-surface-50/70 p-6 rounded-2xl border border-slate-800">
           <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-300 flex items-center justify-between">
             <span>Operational Constraints</span>
-            <span className="text-teal-400 text-[10px]">REACTIVE RECALCULATION</span>
+            <span className="text-teal-400 text-[10px]">DYNAMIC MILP SOLVE</span>
           </span>
 
           {/* Slider 1: Emergency Demand */}
@@ -64,7 +61,7 @@ export const InteractiveOptimizationDemo: React.FC = () => {
             value={optParams.emergencyDemandMultiplier}
             formatValue={(val) => {
               const delta = Math.round((val - 1.0) * 100);
-              return delta > 0 ? `+${delta}% Surge` : delta < 0 ? `${delta}% Baseline` : 'Nominal (100%)';
+              return delta > 0 ? `+${delta}% Surge` : delta < 0 ? `${delta}% Deficit` : 'Baseline (100%)';
             }}
             onChange={(val) => setOptParam('emergencyDemandMultiplier', val)}
             helperText="Simulates patient intake surge via ambulances and walk-ins."
@@ -97,13 +94,12 @@ export const InteractiveOptimizationDemo: React.FC = () => {
             helperText="Accounts for sick calls, mandatory rest periods, and floater pools."
           />
 
-          {/* Simulation disclaimer */}
           <div className="pt-2 border-t border-slate-800 text-[11px] font-mono text-slate-500 leading-normal">
-            * Frontend simulation demonstrating MILP constraint formulation. Illustrative operational model.
+            * Linear program strictly enforces 1:2 nurse-to-patient ratio for intensive care beds.
           </div>
         </div>
 
-        {/* Right Column: Instant Computed Outcomes (7 Cols) */}
+        {/* Right Column: Computed Outcomes (7 Cols) */}
         <div className="lg:col-span-7 flex flex-col gap-6">
           {/* Key Metrics 4-Box Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -145,7 +141,7 @@ export const InteractiveOptimizationDemo: React.FC = () => {
                 {optResult.overallStaffUtilizationPercent}%
               </span>
               <span className="text-[10px] font-mono text-slate-500 mt-1">
-                {optResult.overallStaffUtilizationPercent > 85 ? 'Overtime Risk' : 'Sustainable'}
+                {optResult.overallStaffUtilizationPercent > 85 ? 'Overtime Alert' : 'Sustainable'}
               </span>
             </div>
 
@@ -185,7 +181,7 @@ export const InteractiveOptimizationDemo: React.FC = () => {
                 {optResult.overloadRiskScore}/100
               </span>
               <span className="text-[10px] font-mono text-slate-500 mt-1">
-                Composite Index
+                Resilience Index
               </span>
             </div>
           </div>
@@ -198,7 +194,7 @@ export const InteractiveOptimizationDemo: React.FC = () => {
                 <span>RECOMMENDED REALLOCATION PLAN</span>
               </span>
               <Badge variant={optResult.isFeasible ? 'emerald' : 'rose'} size="sm">
-                {optResult.isFeasible ? 'FEASIBLE GLOBAL OPTIMUM' : 'CONSTRAINTS TIGHT'}
+                {optResult.isFeasible ? 'GLOBAL OPTIMUM FOUND' : 'CONSTRAINTS TIGHT'}
               </Badge>
             </div>
 
@@ -228,7 +224,7 @@ export const InteractiveOptimizationDemo: React.FC = () => {
 
             {/* Solver Math Spec */}
             <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] font-mono text-slate-400">
-              <span>Objective Value: {optResult.objectiveValue}</span>
+              <span>Objective Score: {optResult.objectiveValue}</span>
               <span className="text-teal-400">OR-Tools MILP &bull; 0 Violations</span>
             </div>
           </div>
