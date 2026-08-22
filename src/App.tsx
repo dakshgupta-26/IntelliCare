@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useLenis } from './hooks/useLenis';
 import { useLiveTelemetry } from './hooks/useLiveTelemetry';
 import { useRouterStore } from './store/useRouterStore';
+import { useThemeStore } from './store/useThemeStore';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 
@@ -18,20 +19,46 @@ import { ProductPreview } from './components/preview/ProductPreview';
 import { TechStrip } from './components/technology/TechStrip';
 import { FinalCTA } from './components/cta/FinalCTA';
 
-// Dedicated Sub-Pages
+// Marketing / Architectural Sub-Pages
 import { PlatformPage } from './pages/PlatformPage';
 import { IntelligencePage } from './pages/IntelligencePage';
-import { OptimizationPage } from './pages/OptimizationPage';
-import { ScenariosPage } from './pages/ScenariosPage';
+import { OptimizationPage as MarketingOptimizationPage } from './pages/OptimizationPage';
+import { ScenariosPage as MarketingScenariosPage } from './pages/ScenariosPage';
 import { ArchitecturePage } from './pages/ArchitecturePage';
 import { TechnologyPage } from './pages/TechnologyPage';
 
+// Auth Pages
+import { LoginPage } from './pages/auth/LoginPage';
+
+// Authenticated Enterprise Application Shell & Pages
+import { AppShell } from './components/app/AppShell';
+import { DashboardPage } from './pages/app/DashboardPage';
+import { ResourcesPage } from './pages/app/ResourcesPage';
+import { ForecastingPage } from './pages/app/ForecastingPage';
+import { OptimizationPage as AppOptimizationPage } from './pages/app/OptimizationPage';
+import { ScenariosPage as AppScenariosPage } from './pages/app/ScenariosPage';
+import { KnowledgePage } from './pages/app/KnowledgePage';
+import { KnowledgeAssistantPage } from './pages/app/KnowledgeAssistantPage';
+import { RecommendationsPage } from './pages/app/RecommendationsPage';
+import { AnalyticsPage } from './pages/app/AnalyticsPage';
+import { AlertsPage } from './pages/app/AlertsPage';
+import { ActivityPage } from './pages/app/ActivityPage';
+import { SettingsPage } from './pages/app/SettingsPage';
+import { ProfilePage } from './pages/app/ProfilePage';
+import { AdminPage } from './pages/app/AdminPage';
+
 export function App() {
-  // Initialize smooth scrolling and GSAP ticker synchronization
+  // Initialize smooth scrolling for editorial marketing pages
   useLenis();
 
   // Initialize background simulated WebSocket stream for telemetry
   useLiveTelemetry();
+
+  // Initialize Theme Store
+  const initTheme = useThemeStore((state) => state.initTheme);
+  useEffect(() => {
+    initTheme();
+  }, [initTheme]);
 
   // Router store integration
   const currentPath = useRouterStore((state) => state.currentPath);
@@ -42,17 +69,62 @@ export function App() {
     return cleanup;
   }, [initRouter]);
 
-  // Render sub-pages when on dedicated routes
-  const renderCurrentView = () => {
+  // Check if current route is within the authenticated application shell
+  const isAppRoute = currentPath.startsWith('/app') || currentPath === '/admin';
+
+  if (isAppRoute) {
+    let appContent = <DashboardPage />;
+
+    if (currentPath === '/app/resources' || currentPath.startsWith('/app/resources/')) {
+      appContent = <ResourcesPage />;
+    } else if (currentPath === '/app/forecasting') {
+      appContent = <ForecastingPage />;
+    } else if (currentPath === '/app/optimization') {
+      appContent = <AppOptimizationPage />;
+    } else if (currentPath === '/app/scenarios') {
+      appContent = <AppScenariosPage />;
+    } else if (currentPath === '/app/knowledge') {
+      appContent = <KnowledgePage />;
+    } else if (currentPath === '/app/knowledge/assistant') {
+      appContent = <KnowledgeAssistantPage />;
+    } else if (currentPath === '/app/recommendations') {
+      appContent = <RecommendationsPage />;
+    } else if (currentPath === '/app/analytics') {
+      appContent = <AnalyticsPage />;
+    } else if (currentPath === '/app/alerts') {
+      appContent = <AlertsPage />;
+    } else if (currentPath === '/app/activity') {
+      appContent = <ActivityPage />;
+    } else if (currentPath === '/app/settings') {
+      appContent = <SettingsPage />;
+    } else if (currentPath === '/app/profile') {
+      appContent = <ProfilePage />;
+    } else if (currentPath === '/admin') {
+      appContent = <AdminPage />;
+    } else {
+      // Default to /app/dashboard
+      appContent = <DashboardPage />;
+    }
+
+    return <AppShell>{appContent}</AppShell>;
+  }
+
+  // Auth pages
+  if (currentPath === '/login' || currentPath === '/signup') {
+    return <LoginPage />;
+  }
+
+  // Marketing and Deep-Dive Pages
+  const renderMarketingView = () => {
     switch (currentPath) {
       case '/platform':
         return <PlatformPage />;
       case '/intelligence':
         return <IntelligencePage />;
       case '/optimization':
-        return <OptimizationPage />;
+        return <MarketingOptimizationPage />;
       case '/scenarios':
-        return <ScenariosPage />;
+        return <MarketingScenariosPage />;
       case '/architecture':
         return <ArchitecturePage />;
       case '/technology':
@@ -105,7 +177,7 @@ export function App() {
 
       {/* Main Dynamic View */}
       <main className="flex-grow flex flex-col">
-        {renderCurrentView()}
+        {renderMarketingView()}
       </main>
 
       {/* Enterprise Footer */}

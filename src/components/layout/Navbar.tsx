@@ -109,11 +109,19 @@ export const Navbar: React.FC = () => {
 
           <Button
             size="sm"
+            variant="secondary"
+            onClick={() => handleNav('/login')}
+          >
+            Sign In
+          </Button>
+
+          <Button
+            size="sm"
             variant="primary"
             icon={<ArrowRight className="w-3.5 h-3.5" />}
-            onClick={() => handleNav('/platform')}
+            onClick={() => handleNav('/app/dashboard')}
           >
-            Explore Platform
+            Launch Workspace
           </Button>
         </div>
 

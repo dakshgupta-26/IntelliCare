@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'cyan' | 'teal' | 'indigo' | 'emerald' | 'amber' | 'rose' | 'slate' | 'violet';
+  variant?: 'cyan' | 'teal' | 'indigo' | 'emerald' | 'amber' | 'rose' | 'slate' | 'violet' | 'purple';
   className?: string;
   size?: 'sm' | 'md' | 'lg';
   dot?: boolean;
@@ -22,6 +22,7 @@ export const Badge: React.FC<BadgeProps> = ({
     teal: 'bg-teal-500/10 text-teal-400 border-teal-500/20 shadow-[0_0_12px_rgba(20,184,166,0.15)]',
     indigo: 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20 shadow-[0_0_12px_rgba(99,102,241,0.15)]',
     violet: 'bg-violet-500/10 text-violet-300 border-violet-500/20 shadow-[0_0_12px_rgba(139,92,246,0.15)]',
+    purple: 'bg-purple-500/10 text-purple-300 border-purple-500/20 shadow-[0_0_12px_rgba(168,85,247,0.15)]',
     emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.15)]',
     amber: 'bg-amber-500/10 text-amber-300 border-amber-500/20 shadow-[0_0_12px_rgba(245,158,11,0.15)]',
     rose: 'bg-rose-500/10 text-rose-300 border-rose-500/20 shadow-[0_0_12px_rgba(244,63,94,0.15)]',
@@ -39,6 +40,7 @@ export const Badge: React.FC<BadgeProps> = ({
     teal: 'bg-teal-400 shadow-[0_0_8px_rgba(20,184,166,0.8)]',
     indigo: 'bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.8)]',
     violet: 'bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.8)]',
+    purple: 'bg-purple-400 shadow-[0_0_8px_rgba(168,85,247,0.8)]',
     emerald: 'bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]',
     amber: 'bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]',
     rose: 'bg-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.8)]',

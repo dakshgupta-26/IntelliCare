@@ -313,11 +313,9 @@ const HospitalSceneContent: React.FC<{ prefersReducedMotion: boolean; isTabActiv
   isTabActive,
 }) => {
   const sceneGroupRef = useRef<THREE.Group>(null);
-  const dataLineRef = useRef<THREE.Line>(null);
 
   // Dynamic Data Stream Waveform Line from Bedside Monitor to AI Core
   const dataLineGeometry = useMemo(() => {
-    const points: THREE.Vector3[] = [];
     const p1 = new THREE.Vector3(0.9, 0.4, -0.8);
     const p2 = new THREE.Vector3(0.5, 1.2, -0.4);
     const p3 = new THREE.Vector3(-0.2, 1.8, 0.2);
@@ -327,7 +325,7 @@ const HospitalSceneContent: React.FC<{ prefersReducedMotion: boolean; isTabActiv
     return new THREE.BufferGeometry().setFromPoints(curve.getPoints(50));
   }, []);
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (prefersReducedMotion || !isTabActive) return;
 
     if (sceneGroupRef.current) {

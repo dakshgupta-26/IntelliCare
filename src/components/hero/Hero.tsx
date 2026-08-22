@@ -15,13 +15,6 @@ export const Hero: React.FC = () => {
     }
   };
 
-  const scrollToPipeline = () => {
-    const el = document.querySelector('#product-flow');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <section className="relative min-h-[96vh] flex flex-col justify-between pt-28 pb-12 overflow-hidden bg-section-dark text-slate-100 selection:bg-brand-cyan/20 selection:text-brand-cyan">
       {/* Background illumination & grid */}
@@ -61,10 +54,10 @@ export const Hero: React.FC = () => {
               size="lg"
               variant="primary"
               icon={<ArrowRight className="w-4 h-4" />}
-              onClick={() => navigate('/platform')}
+              onClick={() => navigate('/app/dashboard')}
               className="w-full sm:w-auto shadow-[0_0_30px_rgba(22,199,243,0.4)] text-sm sm:text-base font-bold"
             >
-              Explore IntelliCare
+              Launch Workspace
             </Button>
 
             <Button
@@ -72,10 +65,10 @@ export const Hero: React.FC = () => {
               variant="secondary"
               icon={<Play className="w-3.5 h-3.5 text-cyan-400 fill-cyan-400" />}
               iconPosition="left"
-              onClick={scrollToPipeline}
+              onClick={() => navigate('/platform')}
               className="w-full sm:w-auto text-sm sm:text-base"
             >
-              See How It Works
+              Explore Platform
             </Button>
           </div>
 

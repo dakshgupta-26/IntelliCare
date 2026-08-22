@@ -1,0 +1,326 @@
+// IntelliCare — PostgreSQL Prisma Schema
+// Hybrid AI-RAG and Operations Research Framework
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgvector(map: "vector")]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+enum RoleType {
+  SUPER_ADMIN
+  HOSPITAL_ADMIN
+  DEPARTMENT_MANAGER
+  OPERATIONS_COORDINATOR
+  AUTHORIZED_STAFF
+}
+
+enum ResourceCategory {
+  BED
+  ICU_BED
+  PHYSICIAN
+  NURSE
+  EQUIPMENT
+  OPERATING_THEATRE
+}
+
+enum ResourceStatus {
+  OPTIMAL
+  HIGH_UTILIZATION
+  CRITICAL
+  MAINTENANCE
+  OFFLINE
+}
+
+enum RecommendationStatus {
+  PENDING
+  APPROVED
+  MODIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum AlertSeverity {
+  CRITICAL
+  WARNING
+  INFO
+}
+
+enum AlertStatus {
+  ACTIVE
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum SolverStatus {
+  OPTIMAL
+  FEASIBLE
+  INFEASIBLE
+  TIMED_OUT
+}
+
+// --------------------------------------------------------------------------
+// Organization & RBAC Models
+// --------------------------------------------------------------------------
+model Organization {
+  id          String       @id @default(uuid())
+  name        String
+  code        String       @unique
+  city        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  users       User[]
+  departments Department[]
+  resources   Resource[]
+  scenarios   Scenario[]
+  documents   Document[]
+}
+
+model Department {
+  id             String         @id @default(uuid())
+  organizationId String
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  code           String
+  name           String
+  leadPhysician  String?
+  chargeNurse    String?
+  totalBeds      Int            @default(0)
+  nominalStaff   Int            @default(0)
+  acuityScore    Float          @default(3.0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  resources      Resource[]
+  users          User[]
+  forecastRuns   ForecastRun[]
+  alerts         Alert[]
+  documents      Document[]
+
+  @@unique([organizationId, code])
+}
+
+model User {
+  id             String         @id @default(uuid())
+  organizationId String
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  departmentId   String?
+  department     Department?    @relation(fields: [departmentId], references: [id])
+  email          String         @unique
+  name           String
+  title          String
+  avatarUrl      String?
+  passwordHash   String
+  role           RoleType       @default(AUTHORIZED_STAFF)
+  isActive       Boolean        @default(true)
+  lastLoginAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  sessions       Session[]
+  auditLogs      AuditLog[]
+  reviews        RecommendationReview[]
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token        String   @unique
+  refreshToken String   @unique
+  expiresAt    DateTime
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+}
+
+// --------------------------------------------------------------------------
+// Operational Resource Models
+// --------------------------------------------------------------------------
+model Resource {
+  id             String           @id @default(uuid())
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  departmentId   String
+  department     Department       @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  code           String           @unique
+  name           String
+  category       ResourceCategory
+  totalCapacity  Int
+  allocated      Int              @default(0)
+  available      Int              @default(0)
+  status         ResourceStatus   @default(OPTIMAL)
+  location       String
+  unit           String
+  specifications Json?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  allocations    ResourceAllocation[]
+  demandRecords  DemandRecord[]
+
+  @@index([departmentId, category])
+}
+
+model ResourceAllocation {
+  id         String   @id @default(uuid())
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  quantity   Int
+  allocatedAt DateTime @default(now())
+  expiresAt  DateTime?
+}
+
+model DemandRecord {
+  id         String   @id @default(uuid())
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  timestamp  DateTime
+  loadValue  Float
+  acuityLevel Float   @default(1.0)
+}
+
+// --------------------------------------------------------------------------
+// Neural Demand Forecasting
+// --------------------------------------------------------------------------
+model ForecastRun {
+  id             String      @id @default(uuid())
+  departmentId   String
+  department     Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  modelType      String      // LSTM, XGBoost
+  horizonHours   Int         @default(24)
+  mae            Float
+  rmse           Float
+  mape           Float
+  r2Score        Float
+  predictions    Json        // Array of hourly forecasted points with CI bands
+  executedAt     DateTime    @default(now())
+}
+
+// --------------------------------------------------------------------------
+// Operations Research & MILP Optimization Models
+// --------------------------------------------------------------------------
+model OptimizationRun {
+  id               String       @id @default(uuid())
+  solverEngine     String       @default("Google OR-Tools MILP")
+  status           SolverStatus @default(OPTIMAL)
+  solveDurationMs  Int
+  variablesCount   Int
+  constraintsCount Int
+  objectiveValue   Float
+  objectiveWeights Json
+  recommendedShifts Json        // Before vs After allocation vectors
+  executedAt       DateTime     @default(now())
+}
+
+// --------------------------------------------------------------------------
+// What-If Scenario Simulations
+// --------------------------------------------------------------------------
+model Scenario {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  description    String
+  category       String
+  parameters     Json         // Emergency surge %, bed delta, nurse delta
+  lastResult     Json?        // Impact metrics and mitigation actions
+  createdBy      String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+// --------------------------------------------------------------------------
+// Hybrid RAG & Operational Documents
+// --------------------------------------------------------------------------
+model Document {
+  id             String          @id @default(uuid())
+  organizationId String
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  departmentId   String?
+  department     Department?     @relation(fields: [departmentId], references: [id])
+  code           String          @unique
+  title          String
+  category       String
+  version        String
+  status         String          @default("ACTIVE")
+  uploadedBy     String
+  summary        String
+  fullText       String
+  tags           String[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  chunks         DocumentChunk[]
+}
+
+model DocumentChunk {
+  id         String    @id @default(uuid())
+  documentId String
+  document   Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  chunkIndex Int
+  content    String
+  // embedding  Unsupported("vector(768)")?
+  createdAt  DateTime  @default(now())
+}
+
+// --------------------------------------------------------------------------
+// Human-in-the-Loop Recommendations & Reviews
+// --------------------------------------------------------------------------
+model Recommendation {
+  id                     String               @id @default(uuid())
+  title                  String
+  departmentId           String
+  urgency                String
+  status                 RecommendationStatus @default(PENDING)
+  issueDescription       String
+  empiricalEvidence      String
+  recommendedAction      String
+  suggestedResourceDelta Json
+  impacts                Json
+  confidenceScore        Float
+  createdAt              DateTime             @default(now())
+  expiresAt              DateTime
+  reviews                RecommendationReview[]
+}
+
+model RecommendationReview {
+  id               String         @id @default(uuid())
+  recommendationId String
+  recommendation   Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+  reviewerId       String
+  reviewer         User           @relation(fields: [reviewerId], references: [id])
+  actionTaken      String         // APPROVED, MODIFIED, REJECTED
+  modifiedPayload  Json?
+  reviewNotes      String?
+  reviewedAt       DateTime       @default(now())
+}
+
+// --------------------------------------------------------------------------
+// Alerts & Cryptographic Immutable Audit Ledger
+// --------------------------------------------------------------------------
+model Alert {
+  id           String        @id @default(uuid())
+  departmentId String
+  department   Department    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  title        String
+  description  String
+  severity     AlertSeverity
+  status       AlertStatus   @default(ACTIVE)
+  targetUrl    String?
+  createdAt    DateTime      @default(now())
+  resolvedAt   DateTime?
+}
+
+model AuditLog {
+  id                String   @id @default(uuid())
+  timestamp         DateTime @default(now())
+  action            String
+  actorId           String
+  actor             User     @relation(fields: [actorId], references: [id])
+  targetEntityId    String
+  targetEntityType  String
+  details           String
+  cryptographicHash String   // SHA-256 tamper-evident digest
+  ipAddress         String?
+}

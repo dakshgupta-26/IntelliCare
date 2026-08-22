@@ -1,45 +1,59 @@
 import { create } from 'zustand';
 
-export type AppRoute = 
-  | '/' 
-  | '/platform' 
-  | '/intelligence' 
-  | '/optimization' 
-  | '/scenarios' 
-  | '/architecture' 
-  | '/technology';
+export type AppRoute =
+  // Public Marketing & Deep Dive Routes
+  | '/'
+  | '/platform'
+  | '/intelligence'
+  | '/optimization'
+  | '/scenarios'
+  | '/architecture'
+  | '/technology'
+  // Auth Routes
+  | '/login'
+  | '/signup'
+  // Authenticated Enterprise Application Routes
+  | '/app'
+  | '/app/dashboard'
+  | '/app/resources'
+  | '/app/resources/:id'
+  | '/app/forecasting'
+  | '/app/optimization'
+  | '/app/scenarios'
+  | '/app/knowledge'
+  | '/app/knowledge/assistant'
+  | '/app/recommendations'
+  | '/app/analytics'
+  | '/app/alerts'
+  | '/app/activity'
+  | '/app/settings'
+  | '/app/profile'
+  | '/admin';
 
 interface RouterStore {
-  currentPath: AppRoute;
-  navigate: (path: AppRoute) => void;
+  currentPath: string;
+  routeParams: Record<string, string>;
+  navigate: (path: string) => void;
   initRouter: () => () => void;
 }
 
-const normalizePath = (path: string): AppRoute => {
+const normalizePath = (path: string): string => {
   const cleanPath = path.toLowerCase().replace(/\/$/, '') || '/';
-  const validRoutes: AppRoute[] = [
-    '/',
-    '/platform',
-    '/intelligence',
-    '/optimization',
-    '/scenarios',
-    '/architecture',
-    '/technology',
-  ];
-  return (validRoutes.includes(cleanPath as AppRoute) ? cleanPath : '/') as AppRoute;
+  return cleanPath;
 };
 
 export const useRouterStore = create<RouterStore>((set) => ({
   currentPath: typeof window !== 'undefined' ? normalizePath(window.location.pathname) : '/',
+  routeParams: {},
 
-  navigate: (path: AppRoute) => {
+  navigate: (path: string) => {
     if (typeof window !== 'undefined') {
       if (window.location.pathname !== path) {
         window.history.pushState({}, '', path);
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    set({ currentPath: path });
+    set({ currentPath: normalizePath(path) });
   },
 
   initRouter: () => {
