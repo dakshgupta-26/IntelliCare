@@ -6,11 +6,11 @@ import { useReducedMotion } from './useReducedMotion';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function useLenis() {
+export function useLenis(enabled: boolean = true) {
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
-    if (prefersReducedMotion || typeof window === 'undefined') {
+    if (!enabled || prefersReducedMotion || typeof window === 'undefined') {
       return;
     }
 
@@ -40,5 +40,5 @@ export function useLenis() {
       gsap.ticker.remove(updateTicker);
       lenis.destroy();
     };
-  }, [prefersReducedMotion]);
+  }, [enabled, prefersReducedMotion]);
 }

@@ -48,18 +48,6 @@ import { ProfilePage } from './pages/app/ProfilePage';
 import { AdminPage } from './pages/app/AdminPage';
 
 export function App() {
-  // Initialize smooth scrolling for editorial marketing pages
-  useLenis();
-
-  // Initialize background simulated WebSocket stream for telemetry
-  useLiveTelemetry();
-
-  // Initialize Theme Store
-  const initTheme = useThemeStore((state) => state.initTheme);
-  useEffect(() => {
-    initTheme();
-  }, [initTheme]);
-
   // Router store integration
   const currentPath = useRouterStore((state) => state.currentPath);
   const initRouter = useRouterStore((state) => state.initRouter);
@@ -69,8 +57,22 @@ export function App() {
     return cleanup;
   }, [initRouter]);
 
-  // Check if current route is within the authenticated application shell
+  // Check route categories
   const isAppRoute = currentPath.startsWith('/app') || currentPath === '/admin';
+  const isAuthRoute = currentPath === '/login' || currentPath === '/signup';
+  const isMarketingRoute = !isAppRoute && !isAuthRoute;
+
+  // Initialize smooth scrolling for editorial marketing pages only (native scrolling for dashboard)
+  useLenis(isMarketingRoute);
+
+  // Initialize background simulated WebSocket stream for telemetry
+  useLiveTelemetry();
+
+  // Initialize Theme Store
+  const initTheme = useThemeStore((state) => state.initTheme);
+  useEffect(() => {
+    initTheme();
+  }, [initTheme]);
 
   if (isAppRoute) {
     let appContent = <DashboardPage />;
