@@ -3,8 +3,16 @@ import { useLenis } from './hooks/useLenis';
 import { useLiveTelemetry } from './hooks/useLiveTelemetry';
 import { useRouterStore } from './store/useRouterStore';
 import { useThemeStore } from './store/useThemeStore';
+import { useCopilotStore } from './store/useCopilotStore';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
+
+// IntelliCare AI Copilot
+import { 
+  CopilotFloatingButton, 
+  CopilotWindow, 
+  CopilotTourSpotlight 
+} from './components/copilot';
 
 // Homepage Story Sections
 import { Hero } from './components/hero/Hero';
@@ -74,6 +82,39 @@ export function App() {
     initTheme();
   }, [initTheme]);
 
+  // Synchronize Copilot context with active route
+  const setContextScope = useCopilotStore((state) => state.setContextScope);
+  useEffect(() => {
+    const pageTitleMap: Record<string, string> = {
+      '/': 'Platform Overview',
+      '/platform': 'Platform Core',
+      '/intelligence': 'Predictive Intelligence',
+      '/optimization': 'Resource Optimization',
+      '/scenarios': 'What-If Scenarios',
+      '/architecture': 'System Architecture',
+      '/technology': 'Technology Ecosystem',
+      '/app/dashboard': 'Command Dashboard',
+      '/app/resources': 'Resource Telemetry',
+      '/app/forecasting': 'Demand Forecasting',
+      '/app/optimization': 'MILP Allocation',
+      '/app/scenarios': 'Capacity Simulation',
+      '/app/knowledge': 'SOP Knowledge Base',
+      '/app/knowledge/assistant': 'RAG Assistant',
+      '/app/recommendations': 'Clinical Directives',
+      '/app/analytics': 'Analytics & KPIs',
+      '/app/alerts': 'Operational Alerts',
+      '/app/activity': 'Audit Trail',
+      '/app/settings': 'System Settings',
+      '/app/profile': 'User Profile',
+      '/admin': 'Admin Console'
+    };
+
+    const title = pageTitleMap[currentPath] || 'Operations';
+    setContextScope({ page: currentPath, pageTitle: title });
+  }, [currentPath, setContextScope]);
+
+  let mainView: React.ReactNode = null;
+
   if (isAppRoute) {
     let appContent = <DashboardPage />;
 
@@ -108,84 +149,93 @@ export function App() {
       appContent = <DashboardPage />;
     }
 
-    return <AppShell>{appContent}</AppShell>;
+    mainView = <AppShell>{appContent}</AppShell>;
+  } else if (currentPath === '/login' || currentPath === '/signup') {
+    mainView = <LoginPage />;
+  } else {
+    // Marketing and Deep-Dive Pages
+    const renderMarketingView = () => {
+      switch (currentPath) {
+        case '/platform':
+          return <PlatformPage />;
+        case '/intelligence':
+          return <IntelligencePage />;
+        case '/optimization':
+          return <MarketingOptimizationPage />;
+        case '/scenarios':
+          return <MarketingScenariosPage />;
+        case '/architecture':
+          return <ArchitecturePage />;
+        case '/technology':
+          return <TechnologyPage />;
+        case '/':
+        default:
+          return (
+            <>
+              {/* 1. Hero: Modern 3D Hospital Operations Environment */}
+              <Hero />
+
+              {/* 2. Problem: Warm Off-White Editorial Storytelling */}
+              <CoreStory />
+
+              {/* 3. Product Flow: Soft Blue Horizontal Transformation */}
+              <PipelineSection />
+
+              {/* 4. Forecasting: Crisp Light SVG Time-Series Horizon */}
+              <ForecastingSection />
+
+              {/* 5. Optimization: Deep Midnight Navy Resource Allocation */}
+              <OptimizationSection />
+
+              {/* 6. Contextual RAG: Soft Lavender Document Grounding */}
+              <RagSection />
+
+              {/* 7. What-If: Clean Light Gray Capacity Sandbox */}
+              <WhatIfSimulator />
+
+              {/* 8. Human in the Loop: Soft Mint Clinical Governance */}
+              <HumanInTheLoop />
+
+              {/* 9. Product Preview: 3D Perspective Command Center */}
+              <ProductPreview />
+
+              {/* 10. Minimal Technology Strip */}
+              <TechStrip />
+
+              {/* 11. Final Cinematic Closing CTA */}
+              <FinalCTA />
+            </>
+          );
+      }
+    };
+
+    mainView = (
+      <div className="relative min-h-screen bg-midnight-950 text-slate-100 flex flex-col selection:bg-brand-cyan/20 selection:text-brand-cyan">
+        {/* Sticky Top Navigation */}
+        <Navbar />
+
+        {/* Main Dynamic View */}
+        <main className="flex-grow flex flex-col">
+          {renderMarketingView()}
+        </main>
+
+        {/* Enterprise Footer */}
+        <Footer />
+      </div>
+    );
   }
-
-  // Auth pages
-  if (currentPath === '/login' || currentPath === '/signup') {
-    return <LoginPage />;
-  }
-
-  // Marketing and Deep-Dive Pages
-  const renderMarketingView = () => {
-    switch (currentPath) {
-      case '/platform':
-        return <PlatformPage />;
-      case '/intelligence':
-        return <IntelligencePage />;
-      case '/optimization':
-        return <MarketingOptimizationPage />;
-      case '/scenarios':
-        return <MarketingScenariosPage />;
-      case '/architecture':
-        return <ArchitecturePage />;
-      case '/technology':
-        return <TechnologyPage />;
-      case '/':
-      default:
-        return (
-          <>
-            {/* 1. Hero: Modern 3D Hospital Operations Environment */}
-            <Hero />
-
-            {/* 2. Problem: Warm Off-White Editorial Storytelling */}
-            <CoreStory />
-
-            {/* 3. Product Flow: Soft Blue Horizontal Transformation */}
-            <PipelineSection />
-
-            {/* 4. Forecasting: Crisp Light SVG Time-Series Horizon */}
-            <ForecastingSection />
-
-            {/* 5. Optimization: Deep Midnight Navy Resource Allocation */}
-            <OptimizationSection />
-
-            {/* 6. Contextual RAG: Soft Lavender Document Grounding */}
-            <RagSection />
-
-            {/* 7. What-If: Clean Light Gray Capacity Sandbox */}
-            <WhatIfSimulator />
-
-            {/* 8. Human in the Loop: Soft Mint Clinical Governance */}
-            <HumanInTheLoop />
-
-            {/* 9. Product Preview: 3D Perspective Command Center */}
-            <ProductPreview />
-
-            {/* 10. Minimal Technology Strip */}
-            <TechStrip />
-
-            {/* 11. Final Cinematic Closing CTA */}
-            <FinalCTA />
-          </>
-        );
-    }
-  };
 
   return (
-    <div className="relative min-h-screen bg-midnight-950 text-slate-100 flex flex-col selection:bg-brand-cyan/20 selection:text-brand-cyan">
-      {/* Sticky Top Navigation */}
-      <Navbar />
+    <>
+      {mainView}
 
-      {/* Main Dynamic View */}
-      <main className="flex-grow flex flex-col">
-        {renderMarketingView()}
-      </main>
-
-      {/* Enterprise Footer */}
-      <Footer />
-    </div>
+      {/* Global IntelliCare AI Copilot Components */}
+      <CopilotFloatingButton />
+      <CopilotWindow />
+      <CopilotTourSpotlight />
+    </>
   );
 }
 
 export default App;
+

@@ -47,6 +47,31 @@ app.get('/api/v1/status', (req, res) => {
   });
 });
 
+// Copilot Chat API endpoint
+app.post('/api/v1/copilot/chat', (req, res) => {
+  const { prompt, context } = req.body;
+  res.json({
+    status: 'success',
+    timestamp: new Date().toISOString(),
+    response: `Processed query for ${context?.department || 'Hospital Operations'}: ${prompt}`,
+    groundedInSOP: true,
+    confidenceScore: 0.96
+  });
+});
+
+// Copilot Autocomplete Suggestions endpoint
+app.get('/api/v1/copilot/suggestions', (req, res) => {
+  res.json({
+    suggestions: [
+      'forecast ICU demand for next 24 hours',
+      'explain MILP optimization and Google OR-Tools solver',
+      'show hospital microservice architecture',
+      'what are the statutory nurse-to-patient staffing ratios?',
+      'simulate mass casualty surge (+35% intake)'
+    ]
+  });
+});
+
 // Realtime WebSocket Gateway
 const wss = new WebSocketServer({ server, path: '/ws' });
 
@@ -54,7 +79,7 @@ wss.on('connection', (ws: WebSocket) => {
   console.log('[WebSocket] Client connected to telemetry stream');
 
   // Push periodic live telemetry heartbeat
-  const timer = setInterval(() => {
+  const heartbeatTimer = setInterval(() => {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({
         type: 'HEARTBEAT',
@@ -63,10 +88,25 @@ wss.on('connection', (ws: WebSocket) => {
         icuPressure: 90.6
       }));
     }
-  }, 10000);
+  }, 8000);
+
+  // Broadcast occasional live operational events (e.g. Optimization Solved, Forecast Spike)
+  const eventTimer = setInterval(() => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({
+        type: 'OPTIMIZATION_COMPLETED',
+        title: 'MILP Solver Reallocation Solved',
+        description: 'Google OR-Tools dispatched 4 floater nurses to ICU High Acuity (0 statutory violations).',
+        timestamp: new Date().toISOString(),
+        actionLabel: 'Inspect Reallocation',
+        actionPayload: 'Explain how the MILP solver optimized the 4 floater nurses reallocation.'
+      }));
+    }
+  }, 25000);
 
   ws.on('close', () => {
-    clearInterval(timer);
+    clearInterval(heartbeatTimer);
+    clearInterval(eventTimer);
     console.log('[WebSocket] Client disconnected');
   });
 });
@@ -79,3 +119,4 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 export { app, server };
+

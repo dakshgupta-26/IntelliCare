@@ -144,6 +144,18 @@
   }
 }
 
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 120;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -120;
+  }
+}
+
 /* Reduced motion accessibility */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
@@ -153,3 +165,4 @@
     scroll-behavior: auto !important;
   }
 }
+
