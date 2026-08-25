@@ -42,6 +42,8 @@ import { LoginPage } from './pages/auth/LoginPage';
 import { AppShell } from './components/app/AppShell';
 import { DashboardPage } from './pages/app/DashboardPage';
 import { ResourcesPage } from './pages/app/ResourcesPage';
+import { MLStudioPage } from './pages/app/MLStudioPage';
+import { ClinicalAIPage } from './pages/app/ClinicalAIPage';
 import { ForecastingPage } from './pages/app/ForecastingPage';
 import { OptimizationPage as AppOptimizationPage } from './pages/app/OptimizationPage';
 import { ScenariosPage as AppScenariosPage } from './pages/app/ScenariosPage';
@@ -95,6 +97,8 @@ export function App() {
       '/technology': 'Technology Ecosystem',
       '/app/dashboard': 'Command Dashboard',
       '/app/resources': 'Resource Telemetry',
+      '/app/models': 'ML Model Studio',
+      '/app/clinical-ai': 'Clinical Deterioration & Risk AI',
       '/app/forecasting': 'Demand Forecasting',
       '/app/optimization': 'MILP Allocation',
       '/app/scenarios': 'Capacity Simulation',
@@ -120,6 +124,10 @@ export function App() {
 
     if (currentPath === '/app/resources' || currentPath.startsWith('/app/resources/')) {
       appContent = <ResourcesPage />;
+    } else if (currentPath === '/app/models') {
+      appContent = <MLStudioPage />;
+    } else if (currentPath === '/app/clinical-ai') {
+      appContent = <ClinicalAIPage />;
     } else if (currentPath === '/app/forecasting') {
       appContent = <ForecastingPage />;
     } else if (currentPath === '/app/optimization') {

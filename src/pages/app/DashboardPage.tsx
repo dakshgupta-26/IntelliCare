@@ -183,6 +183,77 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
+      {/* 2.5. Modern AI / ML Feature Intelligence Spotlight Strip */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* ML Model Studio Spotlight */}
+        <div
+          onClick={() => navigate('/app/models')}
+          className="p-5 rounded-3xl bg-gradient-to-r from-cyan-950/40 via-surface-100 to-surface-100 dark:from-cyan-950/30 dark:via-[#0a1628] dark:to-[#0a1628] border border-cyan-500/30 hover:border-cyan-400/60 shadow-lg hover:shadow-cyan-500/10 transition-all cursor-pointer group flex flex-col justify-between"
+        >
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="p-2 rounded-xl bg-cyan-500/20 text-cyan-300">
+                  <Sparkles className="w-4 h-4" />
+                </span>
+                <span className="text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider">
+                  AI / ML Model Laboratory
+                </span>
+              </div>
+              <Badge variant="cyan" size="sm">
+                4 ARCHITECTURES ACTIVE
+              </Badge>
+            </div>
+            <h3 className="text-lg font-display font-bold text-white group-hover:text-cyan-300 transition-colors">
+              Random Forest, XGBoost & Multi-Horizon LSTM
+            </h3>
+            <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+              Interactive hyperparameter sandbox, live epoch loss backpropagation, and SHAP Explainable AI feature attribution.
+            </p>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs font-mono text-cyan-400">
+            <span>Validation $R^2$: 96.8% &bull; 14ms Inference</span>
+            <span className="flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              Launch Studio →
+            </span>
+          </div>
+        </div>
+
+        {/* Clinical AI Deterioration Engine Spotlight */}
+        <div
+          onClick={() => navigate('/app/clinical-ai')}
+          className="p-5 rounded-3xl bg-gradient-to-r from-emerald-950/40 via-surface-100 to-surface-100 dark:from-emerald-950/30 dark:via-[#0a1628] dark:to-[#0a1628] border border-emerald-500/30 hover:border-emerald-400/60 shadow-lg hover:shadow-emerald-500/10 transition-all cursor-pointer group flex flex-col justify-between"
+        >
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="p-2 rounded-xl bg-emerald-500/20 text-emerald-300">
+                  <Activity className="w-4 h-4" />
+                </span>
+                <span className="text-xs font-mono font-bold text-emerald-300 uppercase tracking-wider">
+                  Clinical Decision Support (CDSS)
+                </span>
+              </div>
+              <Badge variant="emerald" size="sm">
+                SOFA &bull; NEWS2
+              </Badge>
+            </div>
+            <h3 className="text-lg font-display font-bold text-white group-hover:text-emerald-300 transition-colors">
+              Patient Deterioration Risk & Drug Matrix
+            </h3>
+            <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+              Real-time physiological vital simulation, 12-hour LSTM collapse trajectory forecast, and GNN contraindication checker.
+            </p>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs font-mono text-emerald-400">
+            <span>Surviving Sepsis Protocols Active</span>
+            <span className="flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              Evaluate Patients →
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* 3. Main Operational Resource Utilization Visual & Live Forecast */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Interactive Resource Utilization Trajectory */}

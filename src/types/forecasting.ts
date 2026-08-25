@@ -1,4 +1,4 @@
-export type ForecastModelType = 'LSTM' | 'XGBOOST' | 'ENSEMBLE' | 'SEASONAL_ARIMA';
+export type ForecastModelType = 'LSTM' | 'XGBOOST' | 'RANDOM_FOREST' | 'TRANSFORMER' | 'ENSEMBLE' | 'SEASONAL_ARIMA';
 
 export type ForecastHorizon = '6H' | '12H' | '24H' | '48H' | '72H';
 
@@ -8,6 +8,9 @@ export interface ForecastPoint {
   actualDemand?: number;
   lstmPredicted: number;
   xgboostPredicted: number;
+  randomForestPredicted?: number;
+  transformerPredicted?: number;
+  ensemblePredicted?: number;
   ciLower95: number;
   ciUpper95: number;
   ciLower90: number;

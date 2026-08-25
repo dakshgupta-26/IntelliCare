@@ -47,6 +47,18 @@ export const AppSidebar: React.FC = () => {
       icon: <Boxes className="w-4 h-4" />
     },
     {
+      id: 'models',
+      label: 'ML Model Studio',
+      path: '/app/models',
+      icon: <Sparkles className="w-4 h-4 text-cyan-400" />
+    },
+    {
+      id: 'clinical-ai',
+      label: 'Clinical AI & Risk',
+      path: '/app/clinical-ai',
+      icon: <Activity className="w-4 h-4 text-emerald-400" />
+    },
+    {
       id: 'forecasting',
       label: 'Forecasting',
       path: '/app/forecasting',

@@ -32,7 +32,8 @@ export const ForecastingPage: React.FC = () => {
   const models: { type: ForecastModelType; label: string; tag: string }[] = [
     { type: 'LSTM', label: 'Multi-Horizon LSTM (Primary)', tag: 'Neural Recurrent' },
     { type: 'XGBOOST', label: 'XGBoost Regressor (Baseline)', tag: 'Gradient Boosted Trees' },
-    { type: 'ENSEMBLE', label: 'Hybrid Neural Ensemble', tag: 'Weighted Average' }
+    { type: 'RANDOM_FOREST', label: 'Random Forest Regressor', tag: 'Bootstrap Bagged Trees' },
+    { type: 'ENSEMBLE', label: 'Bayesian Super-Ensemble', tag: 'Dynamic Stacking' }
   ];
 
   return (
@@ -66,6 +67,15 @@ export const ForecastingPage: React.FC = () => {
             disabled={isGeneratingForecast}
           >
             {isGeneratingForecast ? 'Inferring...' : 'Refresh Inference'}
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={<Cpu className="w-3.5 h-3.5 text-cyan-400" />}
+            onClick={() => navigate('/app/models')}
+          >
+            ML Model Studio →
           </Button>
 
           <Button
@@ -169,7 +179,7 @@ export const ForecastingPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-mono">
+          <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-0.5 bg-slate-300 rounded-full" />
               <span className="text-slate-400">Historical Actual</span>
@@ -181,6 +191,10 @@ export const ForecastingPage: React.FC = () => {
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-0.5 bg-indigo-400 rounded-full border-dashed" />
               <span className="text-indigo-300">XGBoost Baseline</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-0.5 bg-emerald-400 rounded-full" />
+              <span className="text-emerald-300">Random Forest</span>
             </div>
           </div>
         </div>
@@ -238,6 +252,15 @@ export const ForecastingPage: React.FC = () => {
               stroke="#cbd5e1"
               strokeWidth="2.5"
               points="0,178 60,184 120,190 180,170 240,142 300,123 360,105 400,90"
+            />
+
+            {/* Random Forest Baseline Forecast Line (16:00 to 06:00) */}
+            <polyline
+              fill="none"
+              stroke="#10b981"
+              strokeWidth="1.8"
+              strokeDasharray="2 2"
+              points="400,94 460,86 530,78 600,90 670,120 740,148 800,152"
             />
 
             {/* XGBoost Baseline Forecast Line (16:00 to 06:00) */}

@@ -17,6 +17,8 @@ export type AppRoute =
   | '/app/dashboard'
   | '/app/resources'
   | '/app/resources/:id'
+  | '/app/models'
+  | '/app/clinical-ai'
   | '/app/forecasting'
   | '/app/optimization'
   | '/app/scenarios'

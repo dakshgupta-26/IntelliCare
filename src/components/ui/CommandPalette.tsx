@@ -17,7 +17,8 @@ import {
   Sun,
   ArrowRight,
   Sparkles,
-  Command
+  Command,
+  Activity
 } from 'lucide-react';
 import { useCommandPaletteStore } from '../../store/useCommandPaletteStore';
 import { useRouterStore } from '../../store/useRouterStore';
@@ -65,6 +66,8 @@ export const CommandPalette: React.FC = () => {
     () => [
       { id: 'nav-dash', category: 'Navigation', title: 'Go to Command Dashboard', icon: <LayoutDashboard className="w-4 h-4 text-cyan-400" />, path: '/app/dashboard' },
       { id: 'nav-res', category: 'Navigation', title: 'Manage Hospital Resources & Beds', icon: <Boxes className="w-4 h-4 text-blue-400" />, path: '/app/resources' },
+      { id: 'nav-ml', category: 'Intelligence', title: 'ML Model Studio (Random Forest, XGBoost, LSTM)', icon: <Sparkles className="w-4 h-4 text-cyan-400" />, path: '/app/models' },
+      { id: 'nav-clin', category: 'Intelligence', title: 'Clinical AI & Patient Deterioration Risk', icon: <Activity className="w-4 h-4 text-emerald-400" />, path: '/app/clinical-ai' },
       { id: 'nav-fore', category: 'Navigation', title: 'Demand Intelligence Forecasting', icon: <TrendingUp className="w-4 h-4 text-teal-400" />, path: '/app/forecasting' },
       { id: 'nav-opt', category: 'Navigation', title: 'MILP Resource Optimization Solver', icon: <Cpu className="w-4 h-4 text-indigo-400" />, path: '/app/optimization' },
       { id: 'nav-scen', category: 'Navigation', title: 'What-If Crisis Scenario Simulator', icon: <Sliders className="w-4 h-4 text-purple-400" />, path: '/app/scenarios' },

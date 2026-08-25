@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { useRouterStore } from '../store/useRouterStore';
 import { ForecastChart } from '../components/forecasting/ForecastChart';
 
@@ -14,21 +14,43 @@ export const IntelligencePage: React.FC = () => {
       badge: 'DEEP LEARNING',
       description: 'A 3-layer recurrent architecture featuring forget gates and residual skip connections designed to capture long-term seasonal trends while remaining sensitive to sudden multi-hour trauma spikes.',
       metrics: [
-        { label: 'Mean Absolute Error (MAE)', val: '3.8 pts/hr' },
-        { label: 'Root Mean Squared Error (RMSE)', val: '4.6 pts/hr' },
-        { label: 'Inference Latency (GPU)', val: '14ms' },
+        { label: 'Mean Absolute Error (MAE)', val: '2.9 pts/hr' },
+        { label: 'Root Mean Squared Error (RMSE)', val: '3.6 pts/hr' },
+        { label: 'Inference Latency (GPU)', val: '12ms' },
         { label: 'Horizon Coverage', val: 'T+2h to T+48h' },
       ],
     },
     {
-      name: 'Benchmark Model: Gradient Boosted Trees (XGBoost)',
-      badge: 'STATISTICAL ENSEMBLE',
-      description: 'Used for online statistical benchmarking and model drift detection. Whenever neural predictions diverge significantly from tree residuals, an automated anomaly flag is dispatched to ML engineers.',
+      name: 'Boosting Engine: Extreme Gradient Boosted Trees (XGBoost)',
+      badge: 'GRADIENT BOOSTING',
+      description: 'Second-order Taylor series gradient boosted decision trees with regularized objective ($\lambda, \alpha$) providing sub-3ms ultra-fast inference and tabular feature dominance.',
       metrics: [
-        { label: 'Baseline MAE', val: '5.4 pts/hr' },
-        { label: 'Residual Drift Threshold', val: '12.5%' },
-        { label: 'Validation Time', val: '2ms' },
-        { label: 'Feature Importance Focus', val: 'Calendar & Weather' },
+        { label: 'Baseline MAE', val: '3.1 pts/hr' },
+        { label: 'Inference Latency', val: '2.8ms' },
+        { label: 'Drift Resilience', val: '91.8%' },
+        { label: 'Feature Importance', val: 'Gain & Cover' },
+      ],
+    },
+    {
+      name: 'Ensemble Baseline: Random Forest Regressor & Classifier',
+      badge: 'BOOTSTRAP BAGGING',
+      description: 'De-correlated decision trees trained with bootstrap aggregating (bagging) and random feature subspace selection for zero-overfitting benchmark stability.',
+      metrics: [
+        { label: 'Validation MAE', val: '3.6 pts/hr' },
+        { label: 'OOB Validation Score', val: '0.931' },
+        { label: 'Inference Latency', val: '4.1ms' },
+        { label: 'Tree Count', val: '200 Estimators' },
+      ],
+    },
+    {
+      name: 'Production Stacking: Bayesian Hybrid Super-Ensemble',
+      badge: 'DYNAMIC STACKING',
+      description: 'Combines LSTM sequence memory with XGBoost and Random Forest residuals using dynamic inverse-variance Bayesian weights for optimal accuracy during operational shocks.',
+      metrics: [
+        { label: 'Ensemble MAE', val: '2.4 pts/hr' },
+        { label: 'Coefficient ($R^2$)', val: '0.968' },
+        { label: 'Inference Latency', val: '18ms' },
+        { label: 'Drift Resilience', val: '97.4%' },
       ],
     },
   ];
@@ -156,20 +178,29 @@ export const IntelligencePage: React.FC = () => {
         <div className="p-10 rounded-3xl bg-surface-100 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
             <h3 className="text-2xl font-display font-bold text-white mb-1">
-              Next: Mixed-Integer Linear Program Optimization
+              Interactive Model Laboratory & MILP Solver
             </h3>
             <p className="text-sm text-slate-400">
-              Discover how IntelliCare turns predicted patient numbers into exact bed and staff allocations.
+              Tune Random Forest, XGBoost & LSTM hyperparameters in real time, or explore linear programming bed allocation.
             </p>
           </div>
 
-          <Button
-            variant="primary"
-            icon={<ArrowRight className="w-4 h-4" />}
-            onClick={() => navigate('/optimization')}
-          >
-            Explore Optimization
-          </Button>
+          <div className="flex items-center gap-3 shrink-0">
+            <Button
+              variant="secondary"
+              icon={<Sparkles className="w-4 h-4 text-cyan-400" />}
+              onClick={() => navigate('/app/models')}
+            >
+              Launch ML Studio
+            </Button>
+            <Button
+              variant="primary"
+              icon={<ArrowRight className="w-4 h-4" />}
+              onClick={() => navigate('/optimization')}
+            >
+              Explore Optimization
+            </Button>
+          </div>
         </div>
       </div>
     </div>
