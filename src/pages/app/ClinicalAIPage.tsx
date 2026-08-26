@@ -127,10 +127,10 @@ export const ClinicalAIPage: React.FC = () => {
       </div>
 
       {/* 3. Navigation Tabs: Patient Vitals & Risk vs Drug Matrix */}
-      <div className="flex items-center border-b border-slate-800 space-x-2 text-xs font-mono">
+      <div className="flex items-center border-b border-slate-800 space-x-2 text-xs font-mono max-w-full overflow-x-auto whitespace-nowrap custom-scrollbar pb-0.5">
         <button
           onClick={() => setActiveTab('risk')}
-          className={`pb-3 px-3 transition-colors cursor-pointer border-b-2 font-bold flex items-center gap-2 ${
+          className={`pb-3 px-3 transition-colors cursor-pointer border-b-2 font-bold flex items-center gap-2 shrink-0 ${
             activeTab === 'risk'
               ? 'border-cyan-400 text-cyan-300'
               : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -142,7 +142,7 @@ export const ClinicalAIPage: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('drugs')}
-          className={`pb-3 px-3 transition-colors cursor-pointer border-b-2 font-bold flex items-center gap-2 ${
+          className={`pb-3 px-3 transition-colors cursor-pointer border-b-2 font-bold flex items-center gap-2 shrink-0 ${
             activeTab === 'drugs'
               ? 'border-cyan-400 text-cyan-300'
               : 'border-transparent text-slate-400 hover:text-slate-200'

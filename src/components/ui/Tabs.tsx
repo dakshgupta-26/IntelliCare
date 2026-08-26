@@ -25,7 +25,7 @@ export const Tabs: React.FC<TabsProps> = ({
 }) => {
   if (variant === 'underline') {
     return (
-      <div className={`flex items-center gap-6 border-b border-slate-800 ${className}`}>
+      <div className={`flex items-center gap-4 sm:gap-6 border-b border-slate-800 max-w-full overflow-x-auto whitespace-nowrap custom-scrollbar pb-0.5 ${className}`}>
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab;
           return (
@@ -33,7 +33,7 @@ export const Tabs: React.FC<TabsProps> = ({
               key={tab.id}
               disabled={tab.disabled}
               onClick={() => onChange(tab.id)}
-              className={`pb-3 text-sm font-medium transition-all relative flex items-center gap-2 cursor-pointer ${
+              className={`pb-3 text-xs sm:text-sm font-medium transition-all relative flex items-center gap-2 cursor-pointer shrink-0 ${
                 isActive
                   ? 'text-cyan-300 font-bold'
                   : 'text-slate-400 hover:text-slate-200'
@@ -63,7 +63,7 @@ export const Tabs: React.FC<TabsProps> = ({
   // Default 'pills' or 'boxed'
   return (
     <div
-      className={`inline-flex items-center gap-1 p-1 bg-surface-200/60 dark:bg-[#07111f] border border-slate-800 rounded-xl ${className}`}
+      className={`inline-flex items-center gap-1 p-1 bg-surface-200/60 dark:bg-[#07111f] border border-slate-800 rounded-xl max-w-full overflow-x-auto whitespace-nowrap custom-scrollbar ${className}`}
       role="tablist"
     >
       {tabs.map((tab) => {
@@ -75,7 +75,7 @@ export const Tabs: React.FC<TabsProps> = ({
             aria-selected={isActive}
             disabled={tab.disabled}
             onClick={() => onChange(tab.id)}
-            className={`px-3.5 py-1.5 text-xs font-mono font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-3 py-1.5 sm:px-3.5 text-xs font-mono font-medium rounded-lg transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 ${
               isActive
                 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-surface-300/40'

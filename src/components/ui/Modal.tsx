@@ -43,7 +43,7 @@ export const Modal: React.FC<ModalProps> = ({
   }[maxWidth];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-navy-950/80 backdrop-blur-md transition-opacity duration-300 animate-fade-in"
@@ -53,25 +53,25 @@ export const Modal: React.FC<ModalProps> = ({
 
       {/* Modal Card */}
       <div
-        className={`relative w-full ${maxWidthClasses} bg-surface-100 dark:bg-[#0c1626] border border-slate-700/80 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-10 my-8 transition-all duration-300 animate-slide-up`}
+        className={`relative w-full ${maxWidthClasses} bg-surface-100 dark:bg-[#0c1626] border border-slate-700/80 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-10 my-4 sm:my-8 transition-all duration-300 animate-slide-up`}
         role="dialog"
         aria-modal="true"
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-6 border-b border-slate-800/80 bg-surface-200/30">
-          <div>
-            <h2 className="text-xl font-display font-bold text-white tracking-tight">
+        <div className="flex items-start justify-between p-4 sm:p-6 border-b border-slate-800/80 bg-surface-200/30">
+          <div className="min-w-0 pr-2">
+            <h2 className="text-lg sm:text-xl font-display font-bold text-white tracking-tight">
               {title}
             </h2>
             {subtitle && (
-              <p className="mt-1 text-sm text-slate-400 leading-relaxed">
+              <p className="mt-1 text-xs sm:text-sm text-slate-400 leading-relaxed">
                 {subtitle}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg bg-surface-200/50 hover:bg-surface-300 transition-colors cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-white rounded-lg bg-surface-200/50 hover:bg-surface-300 transition-colors cursor-pointer shrink-0 ml-2"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -79,13 +79,13 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="p-6 max-h-[calc(85vh-160px)] overflow-y-auto custom-scrollbar">
+        <div className="p-4 sm:p-6 max-h-[calc(85vh-130px)] overflow-y-auto custom-scrollbar">
           {children}
         </div>
 
         {/* Footer */}
         {footer && (
-          <div className="p-4 sm:px-6 border-t border-slate-800/80 bg-surface-200/30 flex items-center justify-end gap-3">
+          <div className="p-3.5 sm:px-6 border-t border-slate-800/80 bg-surface-200/30 flex items-center justify-end gap-2.5 sm:gap-3 flex-wrap">
             {footer}
           </div>
         )}

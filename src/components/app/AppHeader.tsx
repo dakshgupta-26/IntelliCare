@@ -10,7 +10,8 @@ import {
   ChevronDown,
   User,
   Shield,
-  LogOut
+  LogOut,
+  Menu
 } from 'lucide-react';
 import { useHospitalStore } from '../../store/useHospitalStore';
 import { useThemeStore } from '../../store/useThemeStore';
@@ -18,6 +19,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useCommandPaletteStore } from '../../store/useCommandPaletteStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import { useRouterStore } from '../../store/useRouterStore';
+import { useLayoutStore } from '../../store/useLayoutStore';
 import { NotificationPopover } from '../ui/NotificationPopover';
 import { Badge } from '../ui/Badge';
 
@@ -35,6 +37,7 @@ export const AppHeader: React.FC = () => {
   const togglePalette = useCommandPaletteStore((state) => state.toggleOpen);
   const toggleNotifications = useNotificationStore((state) => state.toggleDrawer);
   const unreadNotificationsCount = useNotificationStore((state) => state.getUnreadCount());
+  const toggleMobileSidebar = useLayoutStore((state) => state.toggleMobileSidebar);
 
   const currentUser = useAuthStore((state) => state.currentUser);
   const logout = useAuthStore((state) => state.logout);
@@ -58,17 +61,26 @@ export const AppHeader: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-navy-950/90 dark:bg-[#07111f]/90 backdrop-blur-xl border-b border-slate-800/80 px-4 sm:px-6 py-2.5 transition-all">
-      <div className="flex items-center justify-between gap-4">
-        {/* Left: Hospital & Department Scoping Controls */}
-        <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-40 bg-navy-950/90 dark:bg-[#07111f]/90 backdrop-blur-xl border-b border-slate-800/80 px-3 sm:px-6 py-2.5 transition-all">
+      <div className="flex items-center justify-between gap-2 sm:gap-4">
+        {/* Left: Mobile Menu Toggle & Scoping Controls */}
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          {/* Mobile Sidebar Hamburger Button */}
+          <button
+            onClick={toggleMobileSidebar}
+            className="lg:hidden p-2 text-slate-300 hover:text-white bg-surface-200/60 dark:bg-[#0c182c] border border-slate-700/80 dark:border-slate-800 rounded-xl focus:outline-none cursor-pointer shrink-0"
+            aria-label="Open sidebar menu"
+          >
+            <Menu className="w-5 h-5 text-cyan-400" />
+          </button>
+
           {/* Hospital Switcher */}
-          <div className="relative flex items-center">
-            <Building2 className="w-4 h-4 text-cyan-400 absolute left-3 pointer-events-none" />
+          <div className="relative flex items-center min-w-0">
+            <Building2 className="w-4 h-4 text-cyan-400 absolute left-2.5 sm:left-3 pointer-events-none shrink-0" />
             <select
               value={selectedHospital}
               onChange={(e) => setSelectedHospital(e.target.value)}
-              className="bg-surface-200/80 dark:bg-[#0c182c] border border-slate-700/80 dark:border-slate-800 rounded-xl py-1.5 pl-9 pr-8 text-xs font-mono text-white focus:outline-none focus:ring-2 focus:ring-brand-cyan/40 appearance-none cursor-pointer"
+              className="bg-surface-200/80 dark:bg-[#0c182c] border border-slate-700/80 dark:border-slate-800 rounded-xl py-1.5 pl-8 sm:pl-9 pr-7 sm:pr-8 text-xs font-mono text-white focus:outline-none focus:ring-2 focus:ring-brand-cyan/40 appearance-none cursor-pointer max-w-[135px] sm:max-w-[210px] truncate"
             >
               {availableHospitals.map((h) => (
                 <option key={h.id} value={h.id} className="bg-navy-950 text-white">
@@ -76,10 +88,10 @@ export const AppHeader: React.FC = () => {
                 </option>
               ))}
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2 sm:right-2.5 pointer-events-none" />
           </div>
 
-          {/* Department Filter */}
+          {/* Department Filter (Hidden on small mobile) */}
           <div className="hidden md:flex items-center">
             <select
               value={selectedDepartmentId}
@@ -95,23 +107,23 @@ export const AppHeader: React.FC = () => {
             </select>
           </div>
 
-          {/* Status Badge */}
-          <div className="hidden lg:flex items-center gap-2">
+          {/* Status Badge (Hidden on medium/small mobile) */}
+          <div className="hidden xl:flex items-center gap-2">
             {getStatusBadge()}
           </div>
         </div>
 
-        {/* Center: Command Palette Quick Search Trigger */}
-        <div className="flex-1 max-w-md hidden sm:block">
+        {/* Center: Command Palette Quick Search Trigger (Desktop & Tablet) */}
+        <div className="flex-1 max-w-md hidden md:block">
           <button
             onClick={togglePalette}
             className="w-full flex items-center justify-between px-3.5 py-1.5 bg-surface-200/50 dark:bg-[#091424] border border-slate-700/80 dark:border-slate-800 hover:border-cyan-500/50 rounded-xl text-xs font-mono text-slate-400 transition-all cursor-pointer group"
           >
-            <div className="flex items-center gap-2">
-              <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400 transition-colors" />
-              <span>Search resources, forecasts, SOPs...</span>
+            <div className="flex items-center gap-2 truncate">
+              <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400 transition-colors shrink-0" />
+              <span className="truncate">Search resources, forecasts, SOPs...</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0 ml-2">
               <kbd className="px-1.5 py-0.5 text-[10px] bg-surface-300 dark:bg-slate-800 rounded border border-slate-700 text-slate-300">
                 ⌘K
               </kbd>
@@ -120,17 +132,27 @@ export const AppHeader: React.FC = () => {
         </div>
 
         {/* Right: Actions, Realtime Pulse, Notifications, Theme, User Menu */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Live Telemetry Heartbeat */}
-          <div className="hidden xl:flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400">
+        <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
+          {/* Mobile Search Button (Visible only on small mobile) */}
+          <button
+            onClick={togglePalette}
+            className="md:hidden p-2 rounded-xl text-slate-300 hover:text-white bg-surface-200/60 dark:bg-[#0c182c] border border-slate-700/80 dark:border-slate-800 transition-colors cursor-pointer"
+            title="Search (⌘K)"
+            aria-label="Open Search"
+          >
+            <Search className="w-4 h-4 text-cyan-400" />
+          </button>
+
+          {/* Live Telemetry Heartbeat (Desktop only) */}
+          <div className="hidden 2xl:flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             <span>STREAMING LIVE</span>
           </div>
 
-          {/* Quick Action: Run Scenario */}
+          {/* Quick Action: Run Scenario (Tablet & Desktop) */}
           <button
             onClick={() => navigate('/app/scenarios')}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-mono transition-all cursor-pointer"
+            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-mono transition-all cursor-pointer"
             title="Launch What-If Sandbox Simulation"
           >
             <Sliders className="w-3.5 h-3.5 text-purple-400" />
@@ -172,20 +194,20 @@ export const AppHeader: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center gap-2 p-1 rounded-xl hover:bg-surface-200/80 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-surface-200/80 transition-colors cursor-pointer"
                 aria-label="User menu"
               >
                 <img
                   src={currentUser.avatarUrl}
                   alt={currentUser.name}
-                  className="w-7 h-7 rounded-lg object-cover border border-cyan-500/40"
+                  className="w-7 h-7 rounded-lg object-cover border border-cyan-500/40 shrink-0"
                 />
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                <ChevronDown className="w-3 h-3 text-slate-400 hidden sm:block" />
               </button>
 
               {/* User Dropdown */}
               {isUserMenuOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-surface-100 dark:bg-[#0c182c] border border-slate-700/80 dark:border-slate-800 rounded-2xl shadow-2xl py-2 z-50 animate-slide-up">
+                <div className="absolute right-0 mt-2 w-64 max-w-[90vw] bg-surface-100 dark:bg-[#0c182c] border border-slate-700/80 dark:border-slate-800 rounded-2xl shadow-2xl py-2 z-50 animate-slide-up">
                   <div className="px-4 py-3 border-b border-slate-800">
                     <p className="text-xs font-bold text-white truncate">
                       {currentUser.name}

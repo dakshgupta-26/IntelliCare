@@ -66,7 +66,7 @@ export const DashboardPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 relative z-10 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 relative z-10 shrink-0">
           <Button
             variant="secondary"
             size="sm"

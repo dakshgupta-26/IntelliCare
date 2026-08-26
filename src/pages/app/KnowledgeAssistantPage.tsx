@@ -203,8 +203,10 @@ export const KnowledgeAssistantPage: React.FC = () => {
             icon={<Send className="w-3.5 h-3.5" />}
             onClick={() => handleSend()}
             disabled={!inputQuestion.trim() || isAskingAssistant}
+            className="shrink-0"
           >
-            Ask RAG Core
+            <span className="hidden sm:inline">Ask RAG Core</span>
+            <span className="sm:hidden">Send</span>
           </Button>
         </div>
       </div>

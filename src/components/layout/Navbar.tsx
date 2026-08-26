@@ -185,15 +185,36 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
 
-            <div className="pt-4 border-t border-slate-800 flex flex-col gap-3">
+            <div className="pt-4 border-t border-slate-800 flex flex-col gap-2.5">
               <Button
                 variant="primary"
                 size="md"
-                className="w-full"
-                onClick={() => handleNav('/platform')}
+                className="w-full justify-center"
+                icon={<ArrowRight className="w-4 h-4" />}
+                onClick={() => handleNav('/app/dashboard')}
               >
-                Explore Platform
+                Launch Workspace
               </Button>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="w-full justify-center"
+                  onClick={() => handleNav('/platform')}
+                >
+                  Explore Platform
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center"
+                  onClick={() => handleNav('/login')}
+                >
+                  Sign In
+                </Button>
+              </div>
             </div>
           </div>
         </div>

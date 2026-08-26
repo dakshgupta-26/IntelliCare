@@ -80,7 +80,7 @@ export const Hero: React.FC = () => {
         </div>
 
         {/* Right Column: 3D Hospital Operations Environment (6 Cols) */}
-        <div className="lg:col-span-6 xl:col-span-6 relative w-full h-[460px] sm:h-[540px] lg:h-[600px] rounded-3xl overflow-hidden bg-gradient-to-b from-surface-100/60 to-navy-950/80 border border-slate-800 shadow-2xl backdrop-blur-xl flex items-center justify-center">
+        <div className="lg:col-span-6 xl:col-span-6 relative w-full h-[320px] sm:h-[460px] lg:h-[600px] rounded-3xl overflow-hidden bg-gradient-to-b from-surface-100/60 to-navy-950/80 border border-slate-800 shadow-2xl backdrop-blur-xl flex items-center justify-center mt-6 lg:mt-0">
           <HeroThreeScene />
         </div>
       </div>

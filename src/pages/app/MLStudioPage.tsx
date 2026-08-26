@@ -141,10 +141,10 @@ export const MLStudioPage: React.FC = () => {
       </div>
 
       {/* 3. Studio Section Navigation Tabs */}
-      <div className="flex items-center border-b border-slate-800 space-x-2 text-xs font-mono">
+      <div className="flex items-center border-b border-slate-800 space-x-2 text-xs font-mono max-w-full overflow-x-auto whitespace-nowrap custom-scrollbar pb-0.5">
         <button
           onClick={() => setActiveTab('architecture')}
-          className={`pb-3 px-3 transition-colors cursor-pointer border-b-2 font-bold flex items-center gap-2 ${
+          className={`pb-3 px-3 transition-colors cursor-pointer border-b-2 font-bold flex items-center gap-2 shrink-0 ${
             activeTab === 'architecture'
               ? 'border-cyan-400 text-cyan-300'
               : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -156,7 +156,7 @@ export const MLStudioPage: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('training')}
-          className={`pb-3 px-3 transition-colors cursor-pointer border-b-2 font-bold flex items-center gap-2 ${
+          className={`pb-3 px-3 transition-colors cursor-pointer border-b-2 font-bold flex items-center gap-2 shrink-0 ${
             activeTab === 'training'
               ? 'border-cyan-400 text-cyan-300'
               : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -171,7 +171,7 @@ export const MLStudioPage: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('xai')}
-          className={`pb-3 px-3 transition-colors cursor-pointer border-b-2 font-bold flex items-center gap-2 ${
+          className={`pb-3 px-3 transition-colors cursor-pointer border-b-2 font-bold flex items-center gap-2 shrink-0 ${
             activeTab === 'xai'
               ? 'border-cyan-400 text-cyan-300'
               : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -183,7 +183,7 @@ export const MLStudioPage: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('arena')}
-          className={`pb-3 px-3 transition-colors cursor-pointer border-b-2 font-bold flex items-center gap-2 ${
+          className={`pb-3 px-3 transition-colors cursor-pointer border-b-2 font-bold flex items-center gap-2 shrink-0 ${
             activeTab === 'arena'
               ? 'border-cyan-400 text-cyan-300'
               : 'border-transparent text-slate-400 hover:text-slate-200'

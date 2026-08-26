@@ -16,14 +16,20 @@ import {
   ChevronRight,
   Shield,
   Sparkles,
-  Layers
+  Layers,
+  X
 } from 'lucide-react';
 import { useRouterStore } from '../../store/useRouterStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useRecommendationStore } from '../../store/useRecommendationStore';
 import { useAlertStore } from '../../store/useAlertStore';
+import { useLayoutStore } from '../../store/useLayoutStore';
 
-export const AppSidebar: React.FC = () => {
+interface AppSidebarProps {
+  isMobile?: boolean;
+}
+
+export const AppSidebar: React.FC<AppSidebarProps> = ({ isMobile = false }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const currentPath = useRouterStore((state) => state.currentPath);
   const navigate = useRouterStore((state) => state.navigate);
@@ -32,6 +38,14 @@ export const AppSidebar: React.FC = () => {
   const setRoleSwitchingOpen = useAuthStore((state) => state.setRoleSwitchingOpen);
   const pendingRecsCount = useRecommendationStore((state) => state.getPendingCount());
   const criticalAlertsCount = useAlertStore((state) => state.getCriticalCount());
+  const setMobileSidebarOpen = useLayoutStore((state) => state.setMobileSidebarOpen);
+
+  const handleNavigate = (path: string) => {
+    if (isMobile) {
+      setMobileSidebarOpen(false);
+    }
+    navigate(path);
+  };
 
   const navItems = [
     {
@@ -112,17 +126,17 @@ export const AppSidebar: React.FC = () => {
     }
   ];
 
+  const sidebarWidthClass = isMobile ? 'w-72 max-w-[85vw]' : isCollapsed ? 'w-20' : 'w-64';
+
   return (
     <aside
-      className={`relative h-screen bg-navy-950/95 dark:bg-[#060f1c] border-r border-slate-800/80 flex flex-col justify-between transition-all duration-300 z-30 shrink-0 ${
-        isCollapsed ? 'w-20' : 'w-64'
-      }`}
+      className={`relative h-full bg-navy-950/98 dark:bg-[#060f1c] border-r border-slate-800/80 flex flex-col justify-between transition-all duration-300 z-30 shrink-0 select-none ${sidebarWidthClass}`}
     >
       {/* Brand Header */}
       <div className="p-4 border-b border-slate-800/80 flex items-center justify-between">
         <button
-          onClick={() => navigate('/app/dashboard')}
-          className="flex items-center gap-3 group focus:outline-none cursor-pointer overflow-hidden"
+          onClick={() => handleNavigate('/app/dashboard')}
+          className="flex items-center gap-3 group focus:outline-none cursor-pointer overflow-hidden text-left"
           title="IntelliCare AI Decision Support"
         >
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-cyan to-indigo-600 p-[1px] shadow-[0_0_15px_rgba(22,199,243,0.3)] group-hover:shadow-[0_0_20px_rgba(22,199,243,0.5)] transition-all shrink-0">
@@ -130,7 +144,7 @@ export const AppSidebar: React.FC = () => {
               <Activity className="w-5 h-5 text-brand-cyan" />
             </div>
           </div>
-          {!isCollapsed && (
+          {(!isCollapsed || isMobile) && (
             <div className="flex flex-col text-left">
               <span className="font-display font-bold text-sm tracking-tight text-white group-hover:text-cyan-300 transition-colors">
                 IntelliCare
@@ -142,19 +156,30 @@ export const AppSidebar: React.FC = () => {
           )}
         </button>
 
-        {/* Collapse toggle button */}
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-200 transition-colors hidden lg:flex items-center justify-center cursor-pointer"
-          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </button>
+        {/* Mobile Close Button */}
+        {isMobile ? (
+          <button
+            onClick={() => setMobileSidebarOpen(false)}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-200 transition-colors cursor-pointer"
+            aria-label="Close mobile sidebar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        ) : (
+          /* Desktop Collapse toggle button */
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-200 transition-colors hidden lg:flex items-center justify-center cursor-pointer"
+            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </button>
+        )}
       </div>
 
       {/* Navigation Links */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1 custom-scrollbar">
-        {!isCollapsed && (
+        {(!isCollapsed || isMobile) && (
           <div className="px-3 pb-2 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
             Operational Modules
           </div>
@@ -165,13 +190,13 @@ export const AppSidebar: React.FC = () => {
           return (
             <button
               key={item.id}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavigate(item.path)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-mono transition-all cursor-pointer group ${
                 isActive
                   ? 'bg-cyan-500/15 text-cyan-300 font-bold border border-cyan-500/30 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-surface-200/50'
-              } ${isCollapsed ? 'justify-center' : ''}`}
-              title={isCollapsed ? item.label : undefined}
+              } ${isCollapsed && !isMobile ? 'justify-center' : ''}`}
+              title={isCollapsed && !isMobile ? item.label : undefined}
             >
               <div
                 className={`shrink-0 transition-transform duration-200 group-hover:scale-110 ${
@@ -181,7 +206,7 @@ export const AppSidebar: React.FC = () => {
                 {item.icon}
               </div>
 
-              {!isCollapsed && (
+              {(!isCollapsed || isMobile) && (
                 <div className="flex items-center justify-between w-full min-w-0">
                   <span className="truncate">{item.label}</span>
                   {item.badge !== undefined && (
@@ -204,16 +229,16 @@ export const AppSidebar: React.FC = () => {
         {/* Administration link (if authorized) */}
         {hasPermission('MANAGE_ORGANIZATION') && (
           <button
-            onClick={() => navigate('/admin')}
+            onClick={() => handleNavigate('/admin')}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-mono transition-all cursor-pointer group ${
               currentPath === '/admin'
                 ? 'bg-rose-500/15 text-rose-300 font-bold border border-rose-500/30'
                 : 'text-slate-400 hover:text-rose-300 hover:bg-surface-200/50'
-            } ${isCollapsed ? 'justify-center' : ''}`}
-            title={isCollapsed ? 'Admin Console' : undefined}
+            } ${isCollapsed && !isMobile ? 'justify-center' : ''}`}
+            title={isCollapsed && !isMobile ? 'Admin Console' : undefined}
           >
             <Shield className="w-4 h-4 text-rose-400 shrink-0" />
-            {!isCollapsed && <span className="truncate">Admin Console</span>}
+            {(!isCollapsed || isMobile) && <span className="truncate">Admin Console</span>}
           </button>
         )}
       </div>
@@ -222,35 +247,38 @@ export const AppSidebar: React.FC = () => {
       <div className="p-3 border-t border-slate-800/80 space-y-1">
         {/* Settings */}
         <button
-          onClick={() => navigate('/app/settings')}
+          onClick={() => handleNavigate('/app/settings')}
           className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-mono text-slate-400 hover:text-white hover:bg-surface-200/50 transition-colors cursor-pointer ${
             currentPath === '/app/settings' ? 'bg-surface-200 text-white' : ''
-          } ${isCollapsed ? 'justify-center' : ''}`}
-          title={isCollapsed ? 'Settings' : undefined}
+          } ${isCollapsed && !isMobile ? 'justify-center' : ''}`}
+          title={isCollapsed && !isMobile ? 'Settings' : undefined}
         >
           <Settings className="w-4 h-4 shrink-0" />
-          {!isCollapsed && <span className="truncate">Settings</span>}
+          {(!isCollapsed || isMobile) && <span className="truncate">Settings</span>}
         </button>
 
         {/* Back to Public Landing */}
         <button
-          onClick={() => navigate('/')}
+          onClick={() => handleNavigate('/')}
           className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-mono text-slate-400 hover:text-cyan-300 hover:bg-surface-200/50 transition-colors cursor-pointer ${
-            isCollapsed ? 'justify-center' : ''
+            isCollapsed && !isMobile ? 'justify-center' : ''
           }`}
-          title={isCollapsed ? 'Public Landing' : undefined}
+          title={isCollapsed && !isMobile ? 'Public Landing' : undefined}
         >
           <Layers className="w-4 h-4 shrink-0" />
-          {!isCollapsed && <span className="truncate">Platform Site</span>}
+          {(!isCollapsed || isMobile) && <span className="truncate">Platform Site</span>}
         </button>
 
         {/* User Persona Card */}
         {currentUser && (
           <div className="pt-2 border-t border-slate-800/60 mt-2">
             <div
-              onClick={() => setRoleSwitchingOpen(true)}
+              onClick={() => {
+                if (isMobile) setMobileSidebarOpen(false);
+                setRoleSwitchingOpen(true);
+              }}
               className={`flex items-center gap-2.5 p-2 rounded-xl bg-surface-200/40 hover:bg-surface-200/80 border border-slate-800 transition-colors cursor-pointer group ${
-                isCollapsed ? 'justify-center' : ''
+                isCollapsed && !isMobile ? 'justify-center' : ''
               }`}
               title="Click to switch RBAC demo persona"
             >
@@ -259,7 +287,7 @@ export const AppSidebar: React.FC = () => {
                 alt={currentUser.name}
                 className="w-7 h-7 rounded-lg object-cover border border-cyan-500/30 shrink-0"
               />
-              {!isCollapsed && (
+              {(!isCollapsed || isMobile) && (
                 <div className="min-w-0 flex-1 text-left">
                   <div className="text-[11px] font-bold text-white truncate flex items-center gap-1">
                     <span>{currentUser.name.split(',')[0]}</span>
