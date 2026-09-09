@@ -46,7 +46,7 @@ export const CopilotWindow: React.FC = () => {
           isExpanded ? 'sm:w-[760px] sm:h-[720px]' : 'sm:w-[420px] sm:h-[680px]'
         }`}
         style={{
-          boxShadow: '0 25px 80px -10px rgba(0, 0, 0, 0.8), 0 0 35px -5px rgba(22, 199, 243, 0.25)'
+          boxShadow: '0 25px 80px -10px rgba(0, 0, 0, 0.8), 0 0 20px -2px rgba(6, 182, 212, 0.15)'
         }}
       >
         {/* Mobile Drag Handle */}

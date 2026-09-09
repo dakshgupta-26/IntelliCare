@@ -4,13 +4,30 @@
 
 @layer base {
   :root {
-    --color-background: 5 8 22;
-    --color-midnight: 5 8 22;
-    --color-midnight-alt: 11 18 36;
-    --color-brand-cyan: 22 199 243;
+    --bg-primary: #070B17;
+    --bg-secondary: #0B1020;
+    --surface-dark: #101728;
+    --surface-dark-elevated: #151F36;
+    --surface-light: #F8FAFC;
+    --surface-light-muted: #F1F5F9;
+
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-dark: #0F172A;
+    --text-muted: #64748B;
+
+    --accent-primary: #19C7F3;
+    --accent-secondary: #2DD4BF;
+
+    --success: #34D399;
+    --warning: #F59E0B;
+    --danger: #F87171;
+
+    --color-background: 7 11 23;
+    --color-midnight: 7 11 23;
+    --color-midnight-alt: 11 16 32;
+    --color-brand-cyan: 25 199 243;
     --color-brand-teal: 45 212 191;
-    --color-brand-lavender: 155 140 255;
-    --color-brand-mint: 139 230 208;
   }
 
   html {
@@ -19,23 +36,23 @@
   }
 
   body {
-    background-color: #050816;
-    color: #f8fafc;
+    background-color: #070B17;
+    color: #F8FAFC;
     overflow-x: hidden;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  /* Custom scrollbar */
+  /* Custom precision scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #050816;
+    background: #070B17;
   }
   ::-webkit-scrollbar-thumb {
-    background: #1e293b;
-    border-radius: 4px;
-    border: 2px solid #050816;
+    background: #1E293B;
+    border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
     background: #334155;
@@ -43,48 +60,71 @@
 }
 
 @layer utilities {
-  /* Dark Glassmorphism */
+  /* Enterprise Dark Surfaces */
+  .ops-panel-dark {
+    background: #0B1020;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .ops-panel-dark-elevated {
+    background: #101728;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+  }
+
+  /* Enterprise Light Surfaces */
+  .ops-panel-light {
+    background: #FFFFFF;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.04);
+  }
+
+  .ops-panel-light-muted {
+    background: #F8FAFC;
+    border: 1px solid rgba(15, 23, 42, 0.07);
+  }
+
+  /* Restrained Dark Glassmorphism */
   .glass-panel {
-    background: rgba(11, 18, 36, 0.65);
+    background: rgba(11, 16, 32, 0.72);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .glass-panel-interactive {
-    background: rgba(11, 18, 36, 0.6);
+    background: rgba(11, 16, 32, 0.65);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .glass-panel-interactive:hover {
-    background: rgba(15, 23, 46, 0.8);
-    border-color: rgba(22, 199, 243, 0.4);
-    box-shadow: 0 10px 30px -10px rgba(22, 199, 243, 0.2);
+    background: rgba(16, 23, 40, 0.85);
+    border-color: rgba(25, 199, 243, 0.25);
+    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.4);
   }
 
-  /* Light Glassmorphism */
+  /* Restrained Light Glassmorphism */
   .glass-panel-light {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.90);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.03);
   }
 
   .glass-panel-light-interactive {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.90);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.04);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.03);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .glass-panel-light-interactive:hover {
-    background: #ffffff;
-    border-color: rgba(14, 165, 233, 0.3);
-    box-shadow: 0 14px 34px -10px rgba(14, 165, 233, 0.12);
+    background: #FFFFFF;
+    border-color: rgba(25, 199, 243, 0.4);
+    box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.07);
     transform: translateY(-2px);
   }
 

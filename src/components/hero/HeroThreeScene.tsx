@@ -3,7 +3,6 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
-import { AlertTriangle, Zap } from 'lucide-react';
 
 // ==========================================
 // 1. Stylized 3D Hospital Elements
@@ -313,38 +312,47 @@ const HospitalSceneContent: React.FC<{ prefersReducedMotion: boolean; isTabActiv
   isTabActive,
 }) => {
   const sceneGroupRef = useRef<THREE.Group>(null);
+  const flowParticleRef = useRef<THREE.Mesh>(null);
 
-  // Dynamic Data Stream Waveform Line from Bedside Monitor to AI Core
-  const dataLineGeometry = useMemo(() => {
-    const p1 = new THREE.Vector3(0.9, 0.4, -0.8);
-    const p2 = new THREE.Vector3(0.5, 1.2, -0.4);
-    const p3 = new THREE.Vector3(-0.2, 1.8, 0.2);
-    const p4 = new THREE.Vector3(-1.0, 1.4, 0.6);
+  // Dynamic Patient-Flow Spline Pathway from Emergency Triage to ICU
+  const { flowCurve, dataLineGeometry } = useMemo(() => {
+    const p1 = new THREE.Vector3(-2.2, -1.0, 1.4); // ED Arrival Ramp
+    const p2 = new THREE.Vector3(-1.0, -0.6, 0.4); // Triage Junction
+    const p3 = new THREE.Vector3(0.2, -0.2, 0.0);  // Primary ICU Bed
+    const p4 = new THREE.Vector3(1.8, -0.3, -1.2); // Surgical Ward Pathway
 
     const curve = new THREE.CatmullRomCurve3([p1, p2, p3, p4]);
-    return new THREE.BufferGeometry().setFromPoints(curve.getPoints(50));
+    const geo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(60));
+    return { flowCurve: curve, dataLineGeometry: geo };
   }, []);
 
   useFrame((state) => {
     if (prefersReducedMotion || !isTabActive) return;
 
     if (sceneGroupRef.current) {
-      // Gentle cinematic breathing tilt
+      // Gentle restrained depth tilt responding to pointer
       sceneGroupRef.current.rotation.y = THREE.MathUtils.lerp(
         sceneGroupRef.current.rotation.y,
-        (state.pointer.x * Math.PI) / 22 - 0.25,
-        0.04
+        (state.pointer.x * Math.PI) / 28 - 0.2,
+        0.03
       );
       sceneGroupRef.current.rotation.x = THREE.MathUtils.lerp(
         sceneGroupRef.current.rotation.x,
-        (-state.pointer.y * Math.PI) / 28 + 0.12,
-        0.04
+        (-state.pointer.y * Math.PI) / 36 + 0.1,
+        0.03
       );
+    }
+
+    // Move luminous flow particle along the patient stream curve
+    if (flowParticleRef.current) {
+      const t = (state.clock.getElapsedTime() * 0.22) % 1;
+      const point = flowCurve.getPointAt(t);
+      flowParticleRef.current.position.copy(point);
     }
   });
 
   return (
-    <group ref={sceneGroupRef} position={[0.6, -0.2, 0]}>
+    <group ref={sceneGroupRef} position={[0.5, -0.2, 0]}>
       {/* Hospital Architectural Boundary */}
       <HospitalRoomEnvironment />
 
@@ -360,46 +368,75 @@ const HospitalSceneContent: React.FC<{ prefersReducedMotion: boolean; isTabActiv
       {/* 4. Secondary General Ward Bed (Midground) */}
       <HospitalBed position={[2.5, -0.55, -2.0]} rotation={[0, -0.3, 0]} />
 
-      {/* 5. Medical Staff: Doctor examining telemetry */}
+      {/* 5. Medical Staff: Attending Physician */}
       <MedicalStaffFigure position={[-0.8, -1.25, 0.8]} rotation={[0, 0.8, 0]} role="doctor" />
 
       {/* 6. Medical Staff: Charge Nurse near console */}
       <MedicalStaffFigure position={[1.7, -1.25, -1.2]} rotation={[0, -0.9, 0]} role="nurse" />
 
-      {/* 7. Cyan Synaptic Data Stream Line connecting ICU Telemetry */}
+      {/* 7. Patient Flow Spline Stream (Restrained electric cyan/teal path) */}
       {/* @ts-ignore */}
       <line geometry={dataLineGeometry}>
-        <lineBasicMaterial color="#16c7f3" transparent opacity={0.6} linewidth={2} />
+        <lineBasicMaterial color="#19C7F3" transparent opacity={0.4} linewidth={1.5} />
       </line>
 
+      {/* Animated Patient Stream Pulse Particle */}
+      <mesh ref={flowParticleRef}>
+        <sphereGeometry args={[0.06, 12, 12]} />
+        <meshBasicMaterial color="#67E8F9" />
+      </mesh>
+
       {/* ==========================================
-          AR-Style Floating Holographic UI Overlays
+          Precision Floating Operational Telemetry Panels
+          Labeled with SIMULATED / DEMO DATA
           ========================================== */}
-      {/* Overlay 1: ICU Bed Telemetry */}
+      
+      {/* Panel 1: ICU Telemetry HUD */}
       <Html position={[0.3, 0.95, 0]} center distanceFactor={8} zIndexRange={[100, 0]}>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-navy-950/90 border border-cyan-500/50 backdrop-blur-md text-white shadow-[0_0_20px_rgba(22,199,243,0.3)] select-none pointer-events-none whitespace-nowrap font-mono text-[11px]">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-bold text-cyan-300">ICU BED 01</span>
-          <span className="text-slate-500">|</span>
-          <span className="text-emerald-300">92% OCCUPIED</span>
-        </div>
-      </Html>
-
-      {/* Overlay 2: Real-time Rebalancing Optimization Advisory */}
-      <Html position={[-1.1, 0.8, -0.8]} center distanceFactor={8} zIndexRange={[100, 0]}>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-navy-950/90 border border-teal-500/50 backdrop-blur-md text-white shadow-[0_0_20px_rgba(45,212,191,0.25)] select-none pointer-events-none whitespace-nowrap font-mono text-[11px]">
-          <Zap className="w-3.5 h-3.5 text-teal-400" />
-          <span className="font-bold text-teal-300">MILP ADVISORY</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#070B17]/90 border border-white/[0.12] backdrop-blur-md text-white shadow-[0_4px_16px_rgba(0,0,0,0.5)] select-none pointer-events-none whitespace-nowrap font-mono text-[11px]">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="font-bold text-slate-100">ICU</span>
           <span className="text-slate-500">:</span>
-          <span className="text-slate-200">+2 Floaters &rarr; ICU</span>
+          <span className="text-cyan-300 font-semibold">92% OCCUPIED</span>
+          <span className="text-[9px] text-slate-400 bg-white/[0.06] px-1 py-0.2 rounded border border-white/[0.06]">
+            SIMULATED
+          </span>
         </div>
       </Html>
 
-      {/* Overlay 3: Hospital Surge Proximity Alert */}
-      <Html position={[2.2, 0.8, -2.0]} center distanceFactor={8} zIndexRange={[100, 0]}>
-        <div className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-navy-950/90 border border-rose-500/50 backdrop-blur-md text-white shadow-[0_0_15px_rgba(244,63,94,0.25)] select-none pointer-events-none whitespace-nowrap font-mono text-[10px]">
-          <AlertTriangle className="w-3 h-3 text-rose-400" />
-          <span className="text-rose-300 font-bold">ED SURGE +18.4%</span>
+      {/* Panel 2: Emergency Arrival Rate HUD */}
+      <Html position={[-1.6, 0.85, 0.6]} center distanceFactor={8} zIndexRange={[100, 0]}>
+        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-[#070B17]/90 border border-white/[0.12] backdrop-blur-md text-white shadow-[0_4px_16px_rgba(0,0,0,0.5)] select-none pointer-events-none whitespace-nowrap font-mono text-[11px]">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+          <span className="font-bold text-slate-100">Emergency</span>
+          <span className="text-slate-500">:</span>
+          <span className="text-amber-300 font-semibold">+18% ARRIVALS</span>
+          <span className="text-[9px] text-slate-400 bg-white/[0.06] px-1 py-0.2 rounded border border-white/[0.06]">
+            DEMO
+          </span>
+        </div>
+      </Html>
+
+      {/* Panel 3: Operating Rooms Capacity HUD */}
+      <Html position={[2.1, 0.8, -1.8]} center distanceFactor={8} zIndexRange={[100, 0]}>
+        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-[#070B17]/90 border border-white/[0.12] backdrop-blur-md text-white shadow-[0_4px_16px_rgba(0,0,0,0.5)] select-none pointer-events-none whitespace-nowrap font-mono text-[11px]">
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+          <span className="font-bold text-slate-100">OR</span>
+          <span className="text-slate-500">:</span>
+          <span className="text-cyan-300 font-semibold">84% CAPACITY</span>
+          <span className="text-[9px] text-slate-400 bg-white/[0.06] px-1 py-0.2 rounded border border-white/[0.06]">
+            SIMULATED
+          </span>
+        </div>
+      </Html>
+
+      {/* Panel 4: Staff Utilization HUD */}
+      <Html position={[-0.8, -0.15, 0.9]} center distanceFactor={8} zIndexRange={[100, 0]}>
+        <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[#070B17]/90 border border-white/[0.12] backdrop-blur-md text-white shadow-[0_4px_16px_rgba(0,0,0,0.5)] select-none pointer-events-none whitespace-nowrap font-mono text-[10px]">
+          <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+          <span className="text-slate-300">Staff utilization</span>
+          <span className="text-teal-300 font-bold">82%</span>
+          <span className="text-[8px] text-slate-500">ILLUSTRATIVE</span>
         </div>
       </Html>
     </group>

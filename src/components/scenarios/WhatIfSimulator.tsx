@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { useSimStore } from '../../store/useSimStore';
 import { SCENARIO_PRESETS } from '../../data/scenarios';
-import { Slider } from '../ui/Slider';
-import { Badge } from '../ui/Badge';
-import { Clock, Users, BedDouble, Zap, ArrowRight } from 'lucide-react';
+import { Zap, ArrowRight } from 'lucide-react';
 import { useRouterStore } from '../../store/useRouterStore';
 
 export const WhatIfSimulator: React.FC = () => {
@@ -11,231 +9,311 @@ export const WhatIfSimulator: React.FC = () => {
   const setActiveScenario = useSimStore((state) => state.setActiveScenario);
   const navigate = useRouterStore((state) => state.navigate);
 
-  // Custom fine-tuning overrides
-  const [customEDSurge, setCustomEDSurge] = useState(activeScenario.parameters.emergencyDemandChangePercent);
-  const [customIcuBedChange, setCustomIcuBedChange] = useState(activeScenario.parameters.icuBedChange);
-  const [customNurseChange, setCustomNurseChange] = useState(activeScenario.parameters.nurseAvailabilityChangePercent);
+  // Interactive Sliders requested by prompt
+  // 1. Patient demand: -20% to +40%
+  const [patientDemandOffset, setPatientDemandOffset] = useState<number>(20);
+  // 2. Staff availability: 0 (Reduced) to 100 (Normal)
+  const [staffAvailability, setStaffAvailability] = useState<number>(75);
+  // 3. ICU capacity: 0 (Low) to 100 (High)
+  const [icuCapacityLevel, setIcuCapacityLevel] = useState<number>(50);
 
-  const handleSelectScenario = (sc: typeof activeScenario) => {
-    setActiveScenario(sc);
-    setCustomEDSurge(sc.parameters.emergencyDemandChangePercent);
-    setCustomIcuBedChange(sc.parameters.icuBedChange);
-    setCustomNurseChange(sc.parameters.nurseAvailabilityChangePercent);
+  // Dynamic calculations
+  // Without intervention:
+  const rawIcuLoad = Math.min(100, Math.max(50, Math.round(78 + patientDemandOffset * 0.55 - (icuCapacityLevel - 50) * 0.3)));
+  const rawWaitTime = Math.max(20, Math.round(35 + patientDemandOffset * 1.1 + (100 - staffAvailability) * 0.6));
+  const rawBreach = rawIcuLoad > 92 || rawWaitTime > 65;
+
+  // With IntelliCare (MILP Rebalance + Early Forecast):
+  const optimizedIcuLoad = Math.min(88, Math.max(48, Math.round(rawIcuLoad * 0.86)));
+  const optimizedWaitTime = Math.max(18, Math.round(rawWaitTime * 0.68));
+  const staffReallocated = Math.max(2, Math.round((patientDemandOffset > 0 ? patientDemandOffset * 0.15 : 1) + (100 - staffAvailability) * 0.05));
+
+  const handlePreset = (preset: typeof activeScenario) => {
+    setActiveScenario(preset);
+    setPatientDemandOffset(preset.parameters.emergencyDemandChangePercent);
   };
 
-  // Dynamic calculations based on adjusted parameters
-  const calculatedIcuLoad = Math.min(100, Math.max(50, Math.round(75 + customEDSurge * 0.45 - customIcuBedChange * 2.5)));
-  const calculatedWaitTime = Math.max(15, Math.round(24 + customEDSurge * 0.9 - customNurseChange * 1.2));
-  const calculatedStaffShortfall = Math.max(0, Math.round((customEDSurge * 0.25) - (customNurseChange * 0.4)));
-
-  const riskLevel =
-    calculatedIcuLoad > 94 || calculatedWaitTime > 70
-      ? 'CRITICAL'
-      : calculatedIcuLoad > 85 || calculatedWaitTime > 45
-      ? 'HIGH'
-      : calculatedIcuLoad > 78
-      ? 'MODERATE'
-      : 'LOW';
-
-  const riskBadgeStyles = {
-    LOW: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    MODERATE: 'bg-amber-100 text-amber-800 border-amber-300',
-    HIGH: 'bg-rose-100 text-rose-800 border-rose-300',
-    CRITICAL: 'bg-rose-200 text-rose-900 border-rose-400 font-bold',
-  } as const;
-
   return (
-    <section id="scenarios" className="relative py-32 bg-section-lightGray text-slate-900 border-t border-slate-200 overflow-hidden">
-      {/* Background illumination */}
-      <div className="absolute top-1/3 right-1/4 w-[600px] h-[400px] bg-rose-100/40 blur-[150px] pointer-events-none" />
+    <section id="scenarios" className="relative py-28 sm:py-36 bg-[#0B1020] text-slate-100 border-t border-white/[0.08] overflow-hidden">
+      {/* Precision ambient background lighting */}
+      <div className="absolute top-1/4 right-1/4 w-[600px] h-[500px] bg-rose-500/[0.03] blur-[170px] pointer-events-none" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-15 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-14">
           <div className="max-w-3xl">
-            <Badge variant="rose" size="md" className="mb-4 bg-rose-100 text-rose-800 border-rose-300">
-              STRESS-TESTING & SCENARIO SANDBOX
-            </Badge>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#101728] border border-white/[0.1] mb-5 shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+              <span className="text-[11px] font-mono font-bold tracking-wider text-slate-200 uppercase">
+                SCENARIO STRESS-TESTING ENGINE
+              </span>
+              <span className="text-slate-600">|</span>
+              <span className="text-[10px] font-mono text-rose-400/90 font-medium">WHAT-IF SANDBOX</span>
+            </div>
 
-            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
-              What if tomorrow changes?
+            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.08]">
+              What happens if demand spikes?
             </h2>
 
-            <p className="mt-4 text-xl text-slate-600 font-normal leading-relaxed">
-              Stress-test hospital capacity against mass casualty incidents, viral epidemics, and acute staff shortages in a digital sandbox before physical resources are strained.
+            <p className="mt-4 text-base sm:text-lg text-slate-400 font-normal leading-relaxed">
+              Stress-test hospital operational thresholds against acute volume shocks, staff absenteeism, and capacity bounds in a digital simulation sandbox before real units are constrained.
             </p>
           </div>
 
           <button
             onClick={() => navigate('/scenarios')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-900 text-white hover:bg-slate-800 text-xs font-mono font-bold transition-all shadow-md cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/[0.1] text-xs font-mono font-bold text-slate-200 hover:text-white transition-all shadow-md cursor-pointer shrink-0"
           >
-            <span>Explore Scenarios</span>
+            <span>Explore All Scenarios</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Preset Incident Selector Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Preset Incident Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
           {SCENARIO_PRESETS.map((sc) => {
             const isSelected = sc.id === activeScenario.id;
             return (
               <button
                 key={sc.id}
-                onClick={() => handleSelectScenario(sc)}
-                className={`p-5 rounded-2xl text-left transition-all duration-300 border flex flex-col justify-between cursor-pointer ${
+                onClick={() => handlePreset(sc)}
+                className={`p-4 rounded-xl text-left transition-all border cursor-pointer flex flex-col justify-between gap-2 ${
                   isSelected
-                    ? 'bg-white border-rose-500 shadow-lg ring-2 ring-rose-400 text-slate-900'
-                    : 'bg-white/80 border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-white'
+                    ? 'bg-[#101728] border-rose-500/50 shadow-md ring-1 ring-rose-500/30 text-white'
+                    : 'bg-[#070B17] border-white/[0.06] text-slate-400 hover:text-white hover:border-white/[0.12]'
                 }`}
               >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-700">
-                      {sc.category}
-                    </span>
-                    {isSelected && (
-                      <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                    )}
-                  </div>
-                  <h4 className="text-sm font-bold text-slate-900 mb-1.5 leading-snug font-display">
-                    {sc.name}
-                  </h4>
-                  <p className="text-xs text-slate-600 line-clamp-2">
-                    {sc.description}
-                  </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-400">
+                    {sc.category}
+                  </span>
+                  {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />}
                 </div>
-
-                <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
-                  <span>ED: +{sc.parameters.emergencyDemandChangePercent}%</span>
-                  <span>Beds: {sc.parameters.icuBedChange}</span>
-                </div>
+                <h4 className="text-sm font-bold text-white font-display">
+                  {sc.name}
+                </h4>
+                <p className="text-xs text-slate-400 line-clamp-1 font-sans">
+                  {sc.description}
+                </p>
               </button>
             );
           })}
         </div>
 
-        {/* Interactive Scenario Sandbox & Projections */}
-        <div className="bg-white p-6 sm:p-10 rounded-3xl border border-slate-200 shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column: Shock Parameter Controls (5 Cols) */}
-          <div className="lg:col-span-5 flex flex-col gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-200">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
-                Scenario Shock Parameters
-              </span>
-              <span className="text-[10px] font-mono text-rose-700 font-bold px-2 py-0.5 rounded bg-rose-100">
-                INTERACTIVE DEMO
-              </span>
+        {/* Main Interactive Sandbox Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          {/* Left Column: Interactive Shock Sliders (5 Cols) */}
+          <div className="lg:col-span-5 bg-[#070B17] p-6 sm:p-8 rounded-2xl border border-white/[0.08] flex flex-col justify-between gap-6 shadow-xl">
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-200">
+                  Shock Parameter Controls
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.06] text-slate-400">
+                  SIMULATED CONTROLS
+                </span>
+              </div>
+
+              {/* Slider 1: Patient Demand (-20% to +40%) */}
+              <div className="mt-6">
+                <div className="flex items-center justify-between text-xs font-mono mb-2">
+                  <span className="text-slate-300 font-medium">Patient Demand Shift</span>
+                  <span className="text-rose-400 font-bold">
+                    {patientDemandOffset >= 0 ? `+${patientDemandOffset}%` : `${patientDemandOffset}%`}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={-20}
+                  max={40}
+                  step={5}
+                  value={patientDemandOffset}
+                  onChange={(e) => setPatientDemandOffset(Number(e.target.value))}
+                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                  aria-label="Patient Demand Shift"
+                />
+                <div className="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+                  <span>-20% Deficit</span>
+                  <span>Normal (0%)</span>
+                  <span>+40% Surge</span>
+                </div>
+              </div>
+
+              {/* Slider 2: Staff Availability (Reduced to Normal) */}
+              <div className="mt-6">
+                <div className="flex items-center justify-between text-xs font-mono mb-2">
+                  <span className="text-slate-300 font-medium">Staff Availability</span>
+                  <span className="text-amber-400 font-bold">
+                    {staffAvailability < 60 ? 'Reduced Pool' : staffAvailability < 85 ? 'Moderate Shift' : 'Normal Staffing'}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={40}
+                  max={100}
+                  step={10}
+                  value={staffAvailability}
+                  onChange={(e) => setStaffAvailability(Number(e.target.value))}
+                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                  aria-label="Staff Availability"
+                />
+                <div className="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+                  <span>Reduced (-30%)</span>
+                  <span>Constrained</span>
+                  <span>Normal (100%)</span>
+                </div>
+              </div>
+
+              {/* Slider 3: ICU Capacity (Low to High) */}
+              <div className="mt-6">
+                <div className="flex items-center justify-between text-xs font-mono mb-2">
+                  <span className="text-slate-300 font-medium">ICU Bed Buffer</span>
+                  <span className="text-cyan-400 font-bold">
+                    {icuCapacityLevel < 40 ? 'Low (26 Beds)' : icuCapacityLevel < 70 ? 'Standard (32 Beds)' : 'High (36 Beds)'}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={20}
+                  max={80}
+                  step={10}
+                  value={icuCapacityLevel}
+                  onChange={(e) => setIcuCapacityLevel(Number(e.target.value))}
+                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                  aria-label="ICU Bed Buffer"
+                />
+                <div className="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+                  <span>Low</span>
+                  <span>Standard</span>
+                  <span>High</span>
+                </div>
+              </div>
             </div>
 
-            <Slider
-              label="Emergency Intake Surge Shock"
-              min={-20}
-              max={80}
-              step={5}
-              value={customEDSurge}
-              formatValue={(v) => (v >= 0 ? `+${v}% Influx` : `${v}% Influx`)}
-              onChange={setCustomEDSurge}
-              helperText="Simulates sudden presentation spike from multi-vehicle collision or epidemic wave."
-            />
-
-            <Slider
-              label="ICU Bed Availability Shift"
-              min={-10}
-              max={10}
-              step={1}
-              value={customIcuBedChange}
-              formatValue={(v) => (v >= 0 ? `+${v} Beds` : `${v} Beds`)}
-              onChange={setCustomIcuBedChange}
-              helperText="Capacity shifts from quarantine isolations or rapid step-downs."
-            />
-
-            <Slider
-              label="Nursing Pool Availability"
-              min={-30}
-              max={20}
-              step={5}
-              value={customNurseChange}
-              formatValue={(v) => (v >= 0 ? `+${v}% Staff` : `${v}% Absenteeism`)}
-              onChange={setCustomNurseChange}
-              helperText="Shift absenteeism due to travel disruption, illness, or strikes."
-            />
-
-            <div className="pt-2 border-t border-slate-200 text-[11px] font-mono text-slate-500">
-              * Discrete-event capacity simulations under stochastic demand models.
+            <div className="pt-4 border-t border-white/[0.08] text-[10px] font-mono text-slate-500">
+              * Stochastic discrete-event simulation model. All displayed metrics are simulated.
             </div>
           </div>
 
-          {/* Right Column: Projected Impact Scorecard (7 Cols) */}
-          <div className="lg:col-span-7 flex flex-col gap-6">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <span className="text-xs font-mono font-bold text-slate-900 uppercase tracking-wider">
-                Simulated Operational Impact Scorecard
-              </span>
-              <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full border ${riskBadgeStyles[riskLevel]}`}>
-                RISK LEVEL: {riskLevel}
-              </span>
+          {/* Right Column: Comparative Side-by-Side Analysis (7 Cols) */}
+          <div className="lg:col-span-7 flex flex-col gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Box 1: Without Intervention (Current Reactive State) */}
+              <div className="p-6 rounded-2xl bg-[#070B17] border border-rose-500/30 flex flex-col justify-between gap-4 shadow-md">
+                <div>
+                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-400">
+                      Without Intervention
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20">
+                      {rawBreach ? 'CAPACITY BREACH' : 'CONSTRAINED'}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-slate-400">ICU Occupancy:</span>
+                      <strong className={rawIcuLoad > 92 ? 'text-rose-400 font-bold' : 'text-slate-200'}>
+                        {rawIcuLoad}%
+                      </strong>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-slate-400">Emergency Wait Time:</span>
+                      <strong className={rawWaitTime > 55 ? 'text-rose-400 font-bold' : 'text-slate-200'}>
+                        {rawWaitTime} min
+                      </strong>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-slate-400">Nurse-to-Patient Ratio:</span>
+                      <strong className="text-rose-400 font-bold">
+                        {staffAvailability < 70 ? '1:3.4 (Violated)' : '1:2.4 (Borderline)'}
+                      </strong>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-slate-400">Campus Diversion Risk:</span>
+                      <strong className="text-rose-400 font-bold">
+                        {rawBreach ? 'Imminent (T-45m)' : 'Low'}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg bg-rose-950/30 border border-rose-500/20 text-xs text-rose-300 font-sans">
+                  Delayed reaction creates ambulance diverts and acute emergency triage gridlock.
+                </div>
+              </div>
+
+              {/* Box 2: With IntelliCare (Simulated Optimized State) */}
+              <div className="p-6 rounded-2xl bg-[#070B17] border border-cyan-400/40 flex flex-col justify-between gap-4 shadow-md ring-1 ring-cyan-500/20">
+                <div>
+                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-400">
+                      With IntelliCare
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                      CAPACITY STABLE
+                    </span>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-slate-400">ICU Occupancy:</span>
+                      <strong className="text-cyan-300 font-bold">
+                        {optimizedIcuLoad}% (Controlled)
+                      </strong>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-slate-400">Emergency Wait Time:</span>
+                      <strong className="text-emerald-300 font-bold">
+                        {optimizedWaitTime} min
+                      </strong>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-slate-400">Statutory ICU Ratio:</span>
+                      <strong className="text-emerald-300 font-bold">
+                        1:2.0 (Strictly Preserved)
+                      </strong>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-slate-400">Diversion Prevented:</span>
+                      <strong className="text-emerald-300 font-bold">
+                        100% Operational
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200 font-sans">
+                  MILP rebalances {staffReallocated} float nurses in advance, absorbing shock with zero patient diversion.
+                </div>
+              </div>
             </div>
 
-            {/* 3 Metric Tiles */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col">
-                <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <BedDouble className="w-3.5 h-3.5 text-cyan-600" />
-                  <span>Projected ICU Load</span>
-                </span>
-                <span className="text-2xl font-display font-bold text-slate-900">
-                  {calculatedIcuLoad}%
-                </span>
-                <span className="text-[10px] font-mono text-slate-500 mt-1">
-                  {calculatedIcuLoad > 92 ? 'Capacity Warning' : 'Operational'}
-                </span>
+            {/* Preemptive Action Summary Banner */}
+            <div className="p-5 rounded-2xl bg-[#070B17] border border-white/[0.08] flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+                  <Zap className="w-4 h-4" />
+                </div>
+                <div className="text-xs font-mono">
+                  <span className="font-bold text-white block">Preemptive Rebalance Vector Ready</span>
+                  <span className="text-slate-400">MILP global convergence in 84ms &bull; Clinical coordinator gate enforced</span>
+                </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col">
-                <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Projected ED Wait</span>
-                </span>
-                <span className="text-2xl font-display font-bold text-amber-700">
-                  {calculatedWaitTime} min
-                </span>
-                <span className="text-[10px] font-mono text-slate-500 mt-1">
-                  Average Triage 3
-                </span>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:col-span-1 col-span-2">
-                <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <Users className="w-3.5 h-3.5 text-rose-600" />
-                  <span>Staff Shortfall</span>
-                </span>
-                <span className="text-2xl font-display font-bold text-rose-700">
-                  {calculatedStaffShortfall > 0 ? `${calculatedStaffShortfall} FTEs` : 'Balanced'}
-                </span>
-                <span className="text-[10px] font-mono text-slate-500 mt-1">
-                  Required floater staff
-                </span>
-              </div>
-            </div>
-
-            {/* Preemptive Action Plan */}
-            <div className="p-5 rounded-2xl bg-rose-50/70 border border-rose-200 flex flex-col gap-2.5">
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-rose-700" />
-                <span className="text-xs font-mono font-bold text-rose-900 uppercase tracking-wider">
-                  IntelliCare Preemptive Recommendation
-                </span>
-              </div>
-
-              <p className="text-xs text-slate-800 leading-relaxed font-medium">
-                {activeScenario.projectedImpact.automatedMitigation}
-              </p>
-
-              <div className="pt-2 border-t border-rose-200/80 flex items-center justify-between text-[11px] font-mono text-slate-600">
-                <span>Simulation Precision: 99.4%</span>
-                <span className="text-rose-700 font-bold">MILP Action Ready</span>
-              </div>
+              <button
+                onClick={() => navigate('/app/scenarios')}
+                className="text-xs font-mono font-bold text-cyan-400 hover:text-cyan-300 transition-colors shrink-0 cursor-pointer"
+              >
+                Run in Studio &rarr;
+              </button>
             </div>
           </div>
         </div>
@@ -243,3 +321,4 @@ export const WhatIfSimulator: React.FC = () => {
     </section>
   );
 };
+

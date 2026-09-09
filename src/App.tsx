@@ -18,12 +18,14 @@ import {
 import { Hero } from './components/hero/Hero';
 import { CoreStory } from './components/story/CoreStory';
 import { PipelineSection } from './components/pipeline/PipelineSection';
+import { IntelligenceStack } from './components/pipeline/IntelligenceStack';
 import { ForecastingSection } from './components/forecasting/ForecastingSection';
 import { OptimizationSection } from './components/optimization/OptimizationSection';
 import { RagSection } from './components/rag/RagSection';
+import { DigitalTwinSection } from './components/preview/DigitalTwinSection';
 import { WhatIfSimulator } from './components/scenarios/WhatIfSimulator';
 import { HumanInTheLoop } from './components/hitl/HumanInTheLoop';
-import { ProductPreview } from './components/preview/ProductPreview';
+import { ArchitectureFlowSection } from './components/architecture/ArchitectureFlowSection';
 import { TechStrip } from './components/technology/TechStrip';
 import { FinalCTA } from './components/cta/FinalCTA';
 
@@ -183,34 +185,40 @@ export function App() {
               {/* 1. Hero: Modern 3D Hospital Operations Environment */}
               <Hero />
 
-              {/* 2. Problem: Warm Off-White Editorial Storytelling */}
+              {/* 2. Problem: Warm Off-White Editorial Storytelling & Capacity Tension */}
               <CoreStory />
 
-              {/* 3. Product Flow: Soft Blue Horizontal Transformation */}
+              {/* 3. Product Flow: 4-Stage Operational Engine (Observe -> Predict -> Optimize -> Decide) */}
               <PipelineSection />
 
-              {/* 4. Forecasting: Crisp Light SVG Time-Series Horizon */}
+              {/* 4. Intelligence Stack: 3-Layer Architecture & 6-Step Visual Engine */}
+              <IntelligenceStack />
+
+              {/* 5. Forecasting: Crisp Light SVG Multi-Horizon Time-Series */}
               <ForecastingSection />
 
-              {/* 5. Optimization: Deep Midnight Navy Resource Allocation */}
+              {/* 6. Optimization: Exact MILP Mathematical Resource Balancing */}
               <OptimizationSection />
 
-              {/* 6. Contextual RAG: Soft Lavender Document Grounding */}
+              {/* 7. Contextual RAG: Institutional Clinical SOP Grounding */}
               <RagSection />
 
-              {/* 7. What-If: Clean Light Gray Capacity Sandbox */}
+              {/* 8. Digital Twin: Interactive Operations Control Room & Topology */}
+              <DigitalTwinSection />
+
+              {/* 9. What-If: Capacity Stress-Testing & Side-by-Side Comparison */}
               <WhatIfSimulator />
 
-              {/* 8. Human in the Loop: Soft Mint Clinical Governance */}
+              {/* 10. Human-in-the-Loop: Clinical Governance & Dispatch Authorization Gate */}
               <HumanInTheLoop />
 
-              {/* 9. Product Preview: 3D Perspective Command Center */}
-              <ProductPreview />
+              {/* 11. End-to-End Architecture: 8-Stage Distributed Data Pipeline */}
+              <ArchitectureFlowSection />
 
-              {/* 10. Minimal Technology Strip */}
+              {/* 12. Minimal Technology Strip: Production-Engineered Stack */}
               <TechStrip />
 
-              {/* 11. Final Cinematic Closing CTA */}
+              {/* 13. Final Cinematic Closing CTA */}
               <FinalCTA />
             </>
           );

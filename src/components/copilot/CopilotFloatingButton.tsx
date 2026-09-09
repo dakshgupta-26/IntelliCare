@@ -35,7 +35,7 @@ export const CopilotFloatingButton: React.FC = () => {
         aria-label="Open IntelliCare AI Copilot"
         className="relative group w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center bg-midnight-950/80 border border-cyan-400/40 shadow-[0_10px_35px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-all duration-300 hover:scale-105 hover:border-cyan-300 active:scale-95 cursor-pointer"
         style={{
-          boxShadow: '0 10px 35px -5px rgba(0, 0, 0, 0.7), 0 0 25px 0px rgba(22, 199, 243, 0.4)'
+          boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.7), 0 0 15px 0px rgba(6, 182, 212, 0.2)'
         }}
       >
         {/* Soft Radial Ambient Breathing Glow */}
