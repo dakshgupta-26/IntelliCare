@@ -14,19 +14,15 @@ import {
   CopilotTourSpotlight 
 } from './components/copilot';
 
-// Homepage Story Sections
 import { Hero } from './components/hero/Hero';
 import { CoreStory } from './components/story/CoreStory';
 import { PipelineSection } from './components/pipeline/PipelineSection';
 import { IntelligenceStack } from './components/pipeline/IntelligenceStack';
-import { ForecastingSection } from './components/forecasting/ForecastingSection';
-import { OptimizationSection } from './components/optimization/OptimizationSection';
-import { RagSection } from './components/rag/RagSection';
 import { DigitalTwinSection } from './components/preview/DigitalTwinSection';
 import { WhatIfSimulator } from './components/scenarios/WhatIfSimulator';
-import { HumanInTheLoop } from './components/hitl/HumanInTheLoop';
 import { ArchitectureFlowSection } from './components/architecture/ArchitectureFlowSection';
 import { TechStrip } from './components/technology/TechStrip';
+import { CopilotSection } from './components/copilot/CopilotSection';
 import { FinalCTA } from './components/cta/FinalCTA';
 
 // Marketing / Architectural Sub-Pages
@@ -182,43 +178,34 @@ export function App() {
         default:
           return (
             <>
-              {/* 1. Hero: Modern 3D Hospital Operations Environment */}
+              {/* 1. Hero: Predict what hospitals need. Before they need it. */}
               <Hero />
 
-              {/* 2. Problem: Warm Off-White Editorial Storytelling & Capacity Tension */}
+              {/* 2. Problem: Hospital capacity doesn't stand still. */}
               <CoreStory />
 
-              {/* 3. Product Flow: 4-Stage Operational Engine (Observe -> Predict -> Optimize -> Decide) */}
+              {/* 3. Lifecycle: Observe -> Predict -> Optimize -> Decide */}
               <PipelineSection />
 
-              {/* 4. Intelligence Stack: 3-Layer Architecture & 6-Step Visual Engine */}
+              {/* 4. Intelligence: Forecast + Context + Optimization */}
               <IntelligenceStack />
 
-              {/* 5. Forecasting: Crisp Light SVG Multi-Horizon Time-Series */}
-              <ForecastingSection />
-
-              {/* 6. Optimization: Exact MILP Mathematical Resource Balancing */}
-              <OptimizationSection />
-
-              {/* 7. Contextual RAG: Institutional Clinical SOP Grounding */}
-              <RagSection />
-
-              {/* 8. Digital Twin: Interactive Operations Control Room & Topology */}
+              {/* 5. Digital Twin: A living model of hospital operations */}
               <DigitalTwinSection />
 
-              {/* 9. What-If: Capacity Stress-Testing & Side-by-Side Comparison */}
+              {/* 6. Scenarios: What happens when demand spikes? */}
               <WhatIfSimulator />
 
-              {/* 10. Human-in-the-Loop: Clinical Governance & Dispatch Authorization Gate */}
-              <HumanInTheLoop />
-
-              {/* 11. End-to-End Architecture: 8-Stage Distributed Data Pipeline */}
+              {/* 7. Architecture: How IntelliCare works underneath */}
               <ArchitectureFlowSection />
 
-              {/* 12. Minimal Technology Strip: Production-Engineered Stack */}
+              {/* 8. Technology: The engineering and intelligence stack */}
               <TechStrip />
 
-              {/* 13. Final Cinematic Closing CTA */}
+              {/* 9. Copilot: Ask IntelliCare */}
+              <CopilotSection />
+
+              {/* 10. Final CTA: The hospital doesn't need another dashboard. It needs foresight. */}
               <FinalCTA />
             </>
           );

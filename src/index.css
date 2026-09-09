@@ -4,39 +4,42 @@
 
 @layer base {
   :root {
-    --bg-primary: #070B17;
-    --bg-secondary: #0B1020;
-    --surface-dark: #101728;
-    --surface-dark-elevated: #151F36;
-    --surface-light: #F8FAFC;
-    --surface-light-muted: #F1F5F9;
+    --bg-primary: #050814;
+    --bg-secondary: #070B17;
+    --surface-dark: #0B1220;
+    --surface-dark-elevated: #0E1626;
+    --surface-interactive: #111C2E;
 
     --text-primary: #F8FAFC;
     --text-secondary: #94A3B8;
-    --text-dark: #0F172A;
     --text-muted: #64748B;
 
     --accent-primary: #19C7F3;
+    --accent-bright: #4DD8FF;
     --accent-secondary: #2DD4BF;
 
     --success: #34D399;
     --warning: #F59E0B;
-    --danger: #F87171;
+    --danger: #FB7185;
 
-    --color-background: 7 11 23;
-    --color-midnight: 7 11 23;
-    --color-midnight-alt: 11 16 32;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.14);
+
+    --color-background: 5 8 20;
+    --color-midnight: 5 8 20;
+    --color-midnight-alt: 7 11 23;
     --color-brand-cyan: 25 199 243;
     --color-brand-teal: 45 212 191;
   }
 
   html {
-    color-scheme: dark light;
+    color-scheme: dark;
     scroll-behavior: smooth;
+    background-color: #050814;
   }
 
   body {
-    background-color: #070B17;
+    background-color: #050814;
     color: #F8FAFC;
     overflow-x: hidden;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
@@ -48,84 +51,70 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #070B17;
+    background: #050814;
   }
   ::-webkit-scrollbar-thumb {
-    background: #1E293B;
+    background: #111C2E;
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #334155;
+    background: #1E293B;
   }
 }
 
 @layer utilities {
   /* Enterprise Dark Surfaces */
+  .ops-surface-base {
+    background-color: #070B17;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   .ops-panel-dark {
-    background: #0B1020;
+    background: #0B1220;
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .ops-panel-dark-elevated {
-    background: #101728;
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: #0E1626;
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 
-  /* Enterprise Light Surfaces */
-  .ops-panel-light {
-    background: #FFFFFF;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.04);
-  }
-
+  /* Dark precision backward compatibility for legacy classnames */
+  .ops-panel-light,
   .ops-panel-light-muted {
-    background: #F8FAFC;
-    border: 1px solid rgba(15, 23, 42, 0.07);
+    background: #0B1220;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.5);
   }
 
   /* Restrained Dark Glassmorphism */
   .glass-panel {
-    background: rgba(11, 16, 32, 0.72);
+    background: rgba(11, 18, 32, 0.78);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .glass-panel-interactive {
-    background: rgba(11, 16, 32, 0.65);
+    background: rgba(11, 18, 32, 0.72);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .glass-panel-interactive:hover {
-    background: rgba(16, 23, 40, 0.85);
+    background: rgba(17, 28, 46, 0.85);
     border-color: rgba(25, 199, 243, 0.25);
-    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 28px -6px rgba(0, 0, 0, 0.6);
   }
 
-  /* Restrained Light Glassmorphism */
-  .glass-panel-light {
-    background: rgba(255, 255, 255, 0.90);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.03);
-  }
-
+  .glass-panel-light,
   .glass-panel-light-interactive {
-    background: rgba(255, 255, 255, 0.90);
+    background: rgba(11, 18, 32, 0.78);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.03);
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .glass-panel-light-interactive:hover {
-    background: #FFFFFF;
-    border-color: rgba(25, 199, 243, 0.4);
-    box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.07);
-    transform: translateY(-2px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #F8FAFC;
   }
 
   .text-gradient {

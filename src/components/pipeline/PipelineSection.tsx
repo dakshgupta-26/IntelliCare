@@ -50,30 +50,30 @@ export const PipelineSection: React.FC = () => {
   ];
 
   return (
-    <section id="product-flow" className="relative py-28 sm:py-36 bg-[#0B1020] text-slate-100 border-t border-white/[0.08] overflow-hidden">
+    <section id="lifecycle" className="relative py-28 sm:py-36 bg-[#050814] text-slate-100 border-t border-white/[0.08] overflow-hidden">
       {/* Precision ambient background lighting */}
-      <div className="absolute top-1/4 left-1/3 w-[600px] h-[500px] bg-cyan-500/[0.04] blur-[160px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/3 w-[600px] h-[500px] bg-cyan-500/[0.03] blur-[160px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-600/[0.03] blur-[180px] pointer-events-none" />
       <div className="absolute inset-0 bg-grid-pattern opacity-15 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="max-w-4xl mx-auto text-center mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#101728] border border-white/[0.1] mb-5 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B1220] border border-white/[0.08] mb-5 shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
             <span className="text-[11px] font-mono font-bold tracking-wider text-slate-200 uppercase">
               THE INTELLICARE LIFECYCLE
             </span>
             <span className="text-slate-600">|</span>
-            <span className="text-[10px] font-mono text-cyan-400/90 font-medium">CLOSED-LOOP ENGINE</span>
+            <span className="text-[10px] font-mono text-cyan-400 font-medium">CLOSED-LOOP ENGINE</span>
           </div>
 
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.08]">
-            From operational data to confident decisions.
+            Observe &rarr; Predict &rarr; Optimize &rarr; Decide.
           </h2>
 
           <p className="mt-5 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            A continuous intelligence loop that transforms fragmented hospital telemetry into proactive operational action.
+            One continuous operational intelligence pipeline that turns raw telemetry into proactive, constraint-satisfying clinical rebalancing.
           </p>
         </div>
 
@@ -87,7 +87,7 @@ export const PipelineSection: React.FC = () => {
                 onClick={() => setActiveStage(idx)}
                 className={`flex flex-col items-start p-3.5 sm:p-4 rounded-xl text-left transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? 'bg-[#151F36] border border-cyan-400/40 text-white shadow-md'
+                    ? 'bg-[#0E1626] border border-cyan-400/40 text-white shadow-md'
                     : 'text-slate-400 hover:text-white hover:bg-white/[0.03] border border-transparent'
                 }`}
               >
@@ -138,18 +138,18 @@ export const PipelineSection: React.FC = () => {
                 </div>
 
                 {/* System Status Banner */}
-                <div className="p-3 rounded-xl bg-[#0B1020] border border-white/[0.08] flex items-center gap-3 shrink-0">
+                <div className="p-3.5 rounded-xl bg-[#0B1220] border border-white/[0.08] flex items-center gap-3 shrink-0">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                   <div className="text-xs font-mono">
                     <span className="font-bold text-white block">SYSTEM STATUS: SYNCHRONIZED</span>
-                    <span className="text-slate-400">48 streams &bull; Latency 184ms &bull; <span className="text-cyan-400">SIMULATED</span></span>
+                    <span className="text-slate-400">48 streams active &bull; Latency 184ms &bull; <span className="text-cyan-400 font-semibold">SIMULATED</span></span>
                   </div>
                 </div>
               </div>
 
               {/* 6 Key Operational Telemetry Modules */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                <div className="p-4 rounded-xl bg-[#0B1020] border border-white/[0.08]">
+                <div className="p-4 rounded-xl bg-[#0B1220] border border-white/[0.08]">
                   <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">
                     ICU Occupancy
                   </span>
@@ -157,15 +157,15 @@ export const PipelineSection: React.FC = () => {
                   <span className="text-[10px] font-mono text-slate-500 block mt-1">29/32 Beds</span>
                 </div>
 
-                <div className="p-4 rounded-xl bg-[#0B1020] border border-white/[0.08]">
+                <div className="p-4 rounded-xl bg-[#0B1220] border border-white/[0.08]">
                   <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">
-                    ED Arrivals
+                    Emergency Arrivals
                   </span>
                   <span className="text-2xl font-display font-bold text-amber-300">+18.4%</span>
                   <span className="text-[10px] font-mono text-slate-500 block mt-1">48 pts/hour</span>
                 </div>
 
-                <div className="p-4 rounded-xl bg-[#0B1020] border border-white/[0.08]">
+                <div className="p-4 rounded-xl bg-[#0B1220] border border-white/[0.08]">
                   <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">
                     Bed Availability
                   </span>
@@ -173,7 +173,7 @@ export const PipelineSection: React.FC = () => {
                   <span className="text-[10px] font-mono text-slate-500 block mt-1">2 Iso, 1 Surg</span>
                 </div>
 
-                <div className="p-4 rounded-xl bg-[#0B1020] border border-white/[0.08]">
+                <div className="p-4 rounded-xl bg-[#0B1220] border border-white/[0.08]">
                   <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">
                     Staff Utilization
                   </span>
@@ -181,7 +181,7 @@ export const PipelineSection: React.FC = () => {
                   <span className="text-[10px] font-mono text-slate-500 block mt-1">Ratio 1:2.1</span>
                 </div>
 
-                <div className="p-4 rounded-xl bg-[#0B1020] border border-white/[0.08]">
+                <div className="p-4 rounded-xl bg-[#0B1220] border border-white/[0.08]">
                   <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">
                     OR Availability
                   </span>
@@ -189,7 +189,7 @@ export const PipelineSection: React.FC = () => {
                   <span className="text-[10px] font-mono text-slate-500 block mt-1">6/7 Active</span>
                 </div>
 
-                <div className="p-4 rounded-xl bg-[#0B1020] border border-white/[0.08]">
+                <div className="p-4 rounded-xl bg-[#0B1220] border border-white/[0.08]">
                   <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">
                     Throughput
                   </span>
@@ -199,22 +199,22 @@ export const PipelineSection: React.FC = () => {
               </div>
 
               {/* Clean Telemetry Stream Visual */}
-              <div className="p-5 rounded-xl bg-[#0B1020] border border-white/[0.08] font-mono text-xs">
+              <div className="p-5 rounded-xl bg-[#0B1220] border border-white/[0.08] font-mono text-xs">
                 <div className="flex items-center justify-between text-slate-400 pb-3 border-b border-white/[0.08] mb-3">
-                  <span className="font-bold text-slate-200">LIVE NORMALIZED TELEMETRY FEED (ADT / HL7 / FHIR)</span>
-                  <span className="text-[10px] text-cyan-400 uppercase">STREAM TICKING</span>
+                  <span className="font-bold text-slate-200">NORMALIZED TELEMETRY FEED (ADT / HL7 / FHIR)</span>
+                  <span className="text-[10px] text-cyan-400 uppercase font-bold">STREAM TICKING</span>
                 </div>
 
                 <div className="space-y-2 text-slate-300">
-                  <div className="flex items-center justify-between p-2 rounded bg-white/[0.02]">
+                  <div className="flex items-center justify-between p-2.5 rounded bg-white/[0.02]">
                     <span className="text-slate-400">[19:14:02] ADT-A01 &bull; Ingest triage arrival presentation</span>
                     <span className="text-cyan-300 font-bold">Acuity Level 2 &bull; Bay 4</span>
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded bg-white/[0.02]">
-                    <span className="text-slate-400">[19:14:18] HL7-ORU &bull; ICU Bed 08 vital telemetry telemetry synced</span>
+                  <div className="flex items-center justify-between p-2.5 rounded bg-white/[0.02]">
+                    <span className="text-slate-400">[19:14:18] HL7-ORU &bull; ICU Bed 08 vital telemetry synced</span>
                     <span className="text-emerald-300 font-bold">Stable &bull; MAP 82</span>
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded bg-white/[0.02]">
+                  <div className="flex items-center justify-between p-2.5 rounded bg-white/[0.02]">
                     <span className="text-slate-400">[19:14:35] ROSTER-UPDATE &bull; Shift B Nurse Float Pool check-in</span>
                     <span className="text-teal-300 font-bold">6 Available FTEs</span>
                   </div>
@@ -235,7 +235,7 @@ export const PipelineSection: React.FC = () => {
                       STAGE 02 &bull; PREDICT
                     </span>
                     <span className="text-xs font-mono text-slate-500">
-                      MULTI-HORIZON LSTM
+                      MULTI-HORIZON NEURAL TIME-SERIES
                     </span>
                   </div>
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-white">
@@ -243,42 +243,42 @@ export const PipelineSection: React.FC = () => {
                   </h3>
                 </div>
 
-                <div className="p-3 rounded-xl bg-[#0B1020] border border-white/[0.08] flex items-center gap-3 shrink-0">
+                <div className="p-3.5 rounded-xl bg-[#0B1220] border border-white/[0.08] flex items-center gap-3 shrink-0">
                   <Sparkles className="w-4 h-4 text-cyan-400" />
                   <div className="text-xs font-mono">
                     <span className="font-bold text-white block">LSTM FORECAST</span>
-                    <span className="text-slate-400">Demand: <strong className="text-cyan-300">+14.8%</strong> &bull; Conf: 91%</span>
+                    <span className="text-slate-400">Demand: <strong className="text-cyan-300">+14.8%</strong> &bull; Confidence: <strong className="text-emerald-300">91%</strong></span>
                   </div>
                 </div>
               </div>
 
               {/* Visual Pipeline Flow */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono text-center">
-                <div className="p-3.5 rounded-xl bg-[#0B1020] border border-white/[0.08]">
+                <div className="p-3.5 rounded-xl bg-[#0B1220] border border-white/[0.08]">
                   <span className="text-slate-500 block mb-1">01 Ingest</span>
                   <span className="text-slate-200 font-bold">Historical Telemetry</span>
                 </div>
-                <div className="p-3.5 rounded-xl bg-cyan-950/30 border border-cyan-500/30 text-cyan-300">
+                <div className="p-3.5 rounded-xl bg-[#0E1626] border border-cyan-500/30 text-cyan-300">
                   <span className="text-cyan-400/80 block mb-1">02 Neural Model</span>
                   <span className="font-bold">LSTM + Conformal Bounds</span>
                 </div>
-                <div className="p-3.5 rounded-xl bg-[#0B1020] border border-white/[0.08]">
+                <div className="p-3.5 rounded-xl bg-[#0B1220] border border-white/[0.08]">
                   <span className="text-slate-500 block mb-1">03 Target</span>
                   <span className="text-slate-200 font-bold">Future Horizon (+48h)</span>
                 </div>
               </div>
 
               {/* Forecast SVG Chart Graphic */}
-              <div className="p-6 rounded-xl bg-[#0B1020] border border-white/[0.08]">
+              <div className="p-6 rounded-xl bg-[#0B1220] border border-white/[0.08]">
                 <div className="flex items-center justify-between text-xs font-mono mb-4">
-                  <span className="font-bold text-slate-200">PREDICTED ICU DEMAND HORIZON (TODAY &bull; TOMORROW &bull; +48H)</span>
-                  <span className="text-[10px] text-cyan-400 px-2 py-0.5 rounded bg-cyan-950/60 border border-cyan-800">
+                  <span className="font-bold text-slate-200">PROJECTED ICU DEMAND HORIZON (ACTUAL &bull; FORECAST &bull; CONFIDENCE INTERVAL)</span>
+                  <span className="text-[10px] text-cyan-400 px-2.5 py-0.5 rounded bg-cyan-950/60 border border-cyan-800 font-bold">
                     SIMULATED FORECAST
                   </span>
                 </div>
 
                 {/* SVG Curve Diagram */}
-                <div className="relative w-full h-44 flex items-end">
+                <div className="relative w-full h-48 flex items-end">
                   <svg className="w-full h-full overflow-visible" viewBox="0 0 600 160" preserveAspectRatio="none">
                     <defs>
                       <linearGradient id="confidenceBand" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -293,7 +293,7 @@ export const PipelineSection: React.FC = () => {
                       fill="url(#confidenceBand)"
                     />
 
-                    {/* Historical Actual Line (Solid Gray) */}
+                    {/* Historical Actual Line (Solid Slate) */}
                     <path
                       d="M 0,110 L 60,105 L 120,115 L 180,95 L 260,85"
                       fill="none"
@@ -303,6 +303,7 @@ export const PipelineSection: React.FC = () => {
 
                     {/* Dividing Present Time Marker */}
                     <line x1="260" y1="10" x2="260" y2="150" stroke="#334155" strokeWidth="1" strokeDasharray="4 4" />
+                    <text x="265" y="25" fill="#94A3B8" fontSize="9" fontFamily="monospace">NOW (T-0)</text>
 
                     {/* Projected Forecast Line (Cyan Dashed) */}
                     <path
@@ -314,19 +315,19 @@ export const PipelineSection: React.FC = () => {
                     />
 
                     {/* Present Node */}
-                    <circle cx="260" cy="85" r="4" fill="#19C7F3" />
+                    <circle cx="260" cy="85" r="4.5" fill="#19C7F3" />
                   </svg>
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-3 border-t border-white/[0.08] mt-2">
                   <span className="flex items-center gap-2">
-                    <span className="w-3 h-0.5 bg-slate-400 inline-block" /> Actual Past 6h
+                    <span className="w-3 h-0.5 bg-slate-400 inline-block" /> Actual Recorded Demand
                   </span>
                   <span className="flex items-center gap-2">
-                    <span className="w-3 h-0.5 bg-cyan-400 inline-block border-dashed" /> LSTM Forecast (T+48h)
+                    <span className="w-3 h-0.5 bg-cyan-400 inline-block border-dashed" /> LSTM Multi-Horizon Forecast (+14.8%)
                   </span>
                   <span className="flex items-center gap-2">
-                    <span className="w-3 h-2 bg-cyan-500/20 inline-block rounded" /> 95% Confidence Interval
+                    <span className="w-3 h-2 bg-cyan-500/20 inline-block rounded" /> 95% Confidence Interval (91% Conf)
                   </span>
                 </div>
               </div>
@@ -345,7 +346,7 @@ export const PipelineSection: React.FC = () => {
                       STAGE 03 &bull; OPTIMIZE
                     </span>
                     <span className="text-xs font-mono text-slate-500">
-                      MILP CONSTRAINED SOLVER
+                      MILP CONSTRAINED ALLOCATION
                     </span>
                   </div>
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-white">
@@ -353,7 +354,7 @@ export const PipelineSection: React.FC = () => {
                   </h3>
                 </div>
 
-                <div className="p-3 rounded-xl bg-[#0B1020] border border-white/[0.08] flex items-center gap-3 shrink-0">
+                <div className="p-3.5 rounded-xl bg-[#0B1220] border border-white/[0.08] flex items-center gap-3 shrink-0">
                   <Cpu className="w-4 h-4 text-teal-400" />
                   <div className="text-xs font-mono">
                     <span className="font-bold text-white block">OR-TOOLS CONVERGED</span>
@@ -362,24 +363,49 @@ export const PipelineSection: React.FC = () => {
                 </div>
               </div>
 
+              {/* Available Resources Pool Strip */}
+              <div className="p-4 rounded-xl bg-[#0B1220] border border-white/[0.08]">
+                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-3">
+                  AVAILABLE HOSPITAL RESOURCES POOL
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center font-mono">
+                  <div className="p-3 rounded-lg bg-[#070B17] border border-white/[0.06]">
+                    <span className="text-slate-400 text-[10px] block uppercase">Doctors</span>
+                    <span className="text-xl font-bold text-white">42</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-[#070B17] border border-white/[0.06]">
+                    <span className="text-slate-400 text-[10px] block uppercase">Nurses</span>
+                    <span className="text-xl font-bold text-teal-300">118</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-[#070B17] border border-white/[0.06]">
+                    <span className="text-slate-400 text-[10px] block uppercase">ICU Beds</span>
+                    <span className="text-xl font-bold text-cyan-300">16</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-[#070B17] border border-white/[0.06]">
+                    <span className="text-slate-400 text-[10px] block uppercase">OR Slots</span>
+                    <span className="text-xl font-bold text-white">9</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Resource Allocation Dynamic Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Reallocation 1 */}
-                <div className="p-4 rounded-xl bg-[#0B1020] border border-teal-500/30">
+                <div className="p-4 rounded-xl bg-[#0B1220] border border-teal-500/30">
                   <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
-                    <span>ICU Critical Care</span>
-                    <span className="text-teal-300 font-bold">+2 Nurses</span>
+                    <span className="font-bold text-white">ICU Critical Care</span>
+                    <span className="text-teal-300 font-bold px-2 py-0.5 rounded bg-teal-500/10 border border-teal-500/20">+2 Nurses</span>
                   </div>
                   <div className="text-xs text-slate-300 leading-relaxed font-sans">
-                    Reallocates 2 float nurses from Step-Down to maintain mandatory 1:2 ICU ratio during evening surge.
+                    Reallocates 2 float nurses from Step-Down to preserve the mandatory 1:2 ICU ratio during evening surge.
                   </div>
                 </div>
 
                 {/* Reallocation 2 */}
-                <div className="p-4 rounded-xl bg-[#0B1020] border border-teal-500/30">
+                <div className="p-4 rounded-xl bg-[#0B1220] border border-teal-500/30">
                   <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
-                    <span>Emergency Intake</span>
-                    <span className="text-teal-300 font-bold">+3 Nurses</span>
+                    <span className="font-bold text-white">Emergency Intake</span>
+                    <span className="text-teal-300 font-bold px-2 py-0.5 rounded bg-teal-500/10 border border-teal-500/20">+3 Nurses</span>
                   </div>
                   <div className="text-xs text-slate-300 leading-relaxed font-sans">
                     Deploys triage reinforcement to absorb arrival velocity spike (+18.4%) without triage queue overflow.
@@ -387,10 +413,10 @@ export const PipelineSection: React.FC = () => {
                 </div>
 
                 {/* Reallocation 3 */}
-                <div className="p-4 rounded-xl bg-[#0B1020] border border-slate-700">
+                <div className="p-4 rounded-xl bg-[#0B1220] border border-slate-700">
                   <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
-                    <span>Surgical PACU</span>
-                    <span className="text-slate-400 font-bold">-1 Float</span>
+                    <span className="font-bold text-white">Surgical PACU</span>
+                    <span className="text-slate-400 font-bold px-2 py-0.5 rounded bg-white/[0.05]">-1 Float</span>
                   </div>
                   <div className="text-xs text-slate-300 leading-relaxed font-sans">
                     Rebalances non-urgent float reserve following scheduled post-operative block clearance.
@@ -399,7 +425,7 @@ export const PipelineSection: React.FC = () => {
               </div>
 
               {/* Mathematical Objective & Resulting Metrics */}
-              <div className="p-5 rounded-xl bg-[#0B1020] border border-white/[0.08] flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="p-5 rounded-xl bg-[#0B1220] border border-white/[0.08] flex flex-col md:flex-row items-center justify-between gap-6">
                 <div>
                   <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">
                     SOLVER OBJECTIVE FUNCTION
@@ -411,7 +437,7 @@ export const PipelineSection: React.FC = () => {
 
                 <div className="flex items-center gap-6 text-right font-mono">
                   <div>
-                    <span className="text-xs text-slate-400 block">Wait Time</span>
+                    <span className="text-xs text-slate-400 block">Waiting Time</span>
                     <span className="text-lg font-bold text-emerald-300">&darr; 18%</span>
                   </div>
                   <div>
@@ -439,7 +465,7 @@ export const PipelineSection: React.FC = () => {
                       STAGE 04 &bull; DECIDE
                     </span>
                     <span className="text-xs font-mono text-slate-500">
-                      HUMAN-IN-THE-LOOP
+                      HUMAN-IN-THE-LOOP GOVERNANCE
                     </span>
                   </div>
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-white">
@@ -447,7 +473,7 @@ export const PipelineSection: React.FC = () => {
                   </h3>
                 </div>
 
-                <div className="p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 flex items-center gap-2.5 shrink-0">
+                <div className="p-3.5 rounded-xl bg-blue-950/40 border border-blue-500/30 flex items-center gap-2.5 shrink-0">
                   <ShieldCheck className="w-4 h-4 text-blue-400" />
                   <span className="text-xs font-mono font-bold text-blue-200">
                     HUMAN APPROVAL REQUIRED
@@ -456,7 +482,7 @@ export const PipelineSection: React.FC = () => {
               </div>
 
               {/* Recommendation Card */}
-              <div className="p-6 rounded-xl bg-[#0B1020] border border-white/[0.08] space-y-4">
+              <div className="p-6 sm:p-8 rounded-xl bg-[#0B1220] border border-white/[0.08] space-y-5">
                 <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
                   <span className="text-xs font-mono font-bold text-cyan-400 uppercase">
                     INTELLICARE RECOMMENDATION DIRECTIVE #DISP-2026-B4
@@ -466,15 +492,16 @@ export const PipelineSection: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="text-lg font-display font-bold text-white">
+                <div className="text-xl sm:text-2xl font-display font-bold text-white">
                   Move 2 float nurses &rarr; ICU Critical Care Unit
                 </div>
 
-                <p className="text-sm text-slate-300 leading-relaxed font-sans">
-                  <strong className="text-slate-200">Reason:</strong> Projected ICU demand exceeds current clinical staffing capacity during the upcoming evening window (19:00 - 23:00). Early reallocation avoids statutory ratio violations.
-                </p>
+                <div className="p-4 rounded-xl bg-[#070B17] border border-white/[0.06] text-sm text-slate-300 leading-relaxed font-sans">
+                  <strong className="text-white block font-mono text-xs uppercase mb-1">Operational Rationale:</strong>
+                  Projected ICU demand exceeds current clinical staffing capacity during the upcoming evening window (19:00 - 23:00). Early reallocation avoids statutory ratio violations.
+                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono text-slate-400 bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono text-slate-300 bg-white/[0.02] p-3.5 rounded-lg border border-white/[0.04]">
                   <div>&bull; Projected Waiting Time: <span className="text-emerald-300 font-bold">&darr; 18%</span></div>
                   <div>&bull; Campus Capacity Risk: <span className="text-emerald-300 font-bold">&darr; 27%</span></div>
                 </div>
@@ -483,7 +510,7 @@ export const PipelineSection: React.FC = () => {
                 <div className="pt-3 flex flex-wrap items-center gap-3">
                   <button
                     onClick={() => setDecisionStatus('accepted')}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                       decisionStatus === 'accepted'
                         ? 'bg-emerald-500 text-slate-950 shadow-md'
                         : 'bg-emerald-600 hover:bg-emerald-500 text-white'
@@ -495,7 +522,7 @@ export const PipelineSection: React.FC = () => {
 
                   <button
                     onClick={() => setDecisionStatus('reviewed')}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer border ${
+                    className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer border ${
                       decisionStatus === 'reviewed'
                         ? 'bg-amber-500/20 text-amber-300 border-amber-400'
                         : 'bg-[#101728] border-white/[0.1] text-slate-300 hover:text-white'
@@ -507,14 +534,14 @@ export const PipelineSection: React.FC = () => {
 
                   <button
                     onClick={() => setDecisionStatus('rejected')}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer border ${
+                    className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer border ${
                       decisionStatus === 'rejected'
                         ? 'bg-rose-500/20 text-rose-300 border-rose-400'
                         : 'bg-[#101728] border-white/[0.1] text-slate-300 hover:text-rose-300'
                     }`}
                   >
                     <XCircle className="w-3.5 h-3.5" />
-                    <span>Overrule Directive</span>
+                    <span>Reject Directive</span>
                   </button>
                 </div>
               </div>
@@ -524,7 +551,7 @@ export const PipelineSection: React.FC = () => {
           {/* Stepper Footer Controls */}
           <div className="pt-6 mt-8 border-t border-white/[0.08] flex items-center justify-between text-xs font-mono text-slate-400">
             <span className="text-slate-500">
-              Stage {activeStage + 1} of 4: <strong className="text-slate-300 font-sans">{stages[activeStage].title}</strong>
+              Stage {activeStage + 1} of 4: <strong className="text-slate-200 font-sans">{stages[activeStage].title}</strong>
             </span>
             <div className="flex items-center gap-3">
               <button
@@ -547,4 +574,3 @@ export const PipelineSection: React.FC = () => {
     </section>
   );
 };
-

@@ -352,23 +352,23 @@ export const ArchitectureFlowSection: React.FC = () => {
   }, [isPlaying]);
 
   return (
-    <section id="architecture-flow" className="relative py-32 bg-midnight-950 text-slate-100 border-t border-slate-800/80 overflow-hidden">
+    <section id="architecture-flow" className="relative py-32 bg-[#070B17] text-slate-100 border-t border-white/[0.08] overflow-hidden">
       {/* Radial background ambient gradient */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-cyan-500/5 blur-[180px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-cyan-500/[0.03] blur-[180px] pointer-events-none" />
       <div className="absolute inset-0 bg-grid-pattern opacity-15 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono font-bold mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B1220] border border-white/[0.08] text-cyan-400 text-xs font-mono font-bold mb-4">
               <Activity className="w-3.5 h-3.5" />
               <span>END-TO-END DATA PIPELINE</span>
             </div>
 
             <h2 className="font-display text-4xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.1]">
               From Raw Hospital Signal to{' '}
-              <span className="text-gradient-cyan">Verified Decision.</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-300">Verified Decision.</span>
             </h2>
 
             <p className="mt-4 text-lg sm:text-xl text-slate-400 font-normal leading-relaxed">
@@ -380,7 +380,7 @@ export const ArchitectureFlowSection: React.FC = () => {
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-100 border border-slate-700 text-xs font-mono font-bold text-slate-200 hover:text-white hover:bg-surface-200 transition-all cursor-pointer shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] border border-white/[0.08] text-xs font-mono font-bold text-slate-200 hover:text-white hover:bg-[#0E1626] transition-all cursor-pointer shadow-sm"
               title={isPlaying ? 'Pause auto-cycle' : 'Resume auto-cycle'}
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5 text-cyan-400" /> : <Play className="w-3.5 h-3.5 text-cyan-400" />}
@@ -392,7 +392,7 @@ export const ArchitectureFlowSection: React.FC = () => {
                 setIsPlaying(false);
                 setSelectedId(PIPELINE_NODES[0].id);
               }}
-              className="p-2 rounded-xl bg-surface-100 border border-slate-700 text-slate-400 hover:text-white hover:bg-surface-200 transition-all cursor-pointer"
+              className="p-2 rounded-xl bg-[#0B1220] border border-white/[0.08] text-slate-400 hover:text-white hover:bg-[#0E1626] transition-all cursor-pointer"
               title="Reset to stage 01"
             >
               <RotateCcw className="w-4 h-4" />
@@ -400,7 +400,7 @@ export const ArchitectureFlowSection: React.FC = () => {
 
             <button
               onClick={() => navigate('/architecture')}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 text-xs font-mono font-bold transition-all cursor-pointer shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/20 text-xs font-mono font-bold transition-all cursor-pointer shadow-sm"
             >
               <span>Full Spec</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -440,10 +440,10 @@ export const ArchitectureFlowSection: React.FC = () => {
                   <div
                     className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 border shadow-lg ${
                       isSelected
-                        ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.35)]'
+                        ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_20px_rgba(25,199,243,0.35)]'
                         : isPast
-                        ? 'bg-surface-200 border-teal-500/50 text-teal-300'
-                        : 'bg-surface-100 border-slate-800 text-slate-400'
+                        ? 'bg-[#0E1626] border-teal-500/50 text-teal-300'
+                        : 'bg-[#0B1220] border-white/[0.08] text-slate-400'
                     }`}
                   >
                     <IconComp className="w-5 h-5" />
@@ -463,7 +463,7 @@ export const ArchitectureFlowSection: React.FC = () => {
 
                   {/* Active Indicator Pip */}
                   {isSelected && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-1 shadow-[0_0_8px_rgba(6,182,212,0.9)] animate-pulse" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-1 shadow-[0_0_8px_rgba(25,199,243,0.9)] animate-pulse" />
                   )}
                 </button>
               );
@@ -472,9 +472,9 @@ export const ArchitectureFlowSection: React.FC = () => {
         </div>
 
         {/* Selected Node Detailed Inspector Card */}
-        <div className="bg-surface-100/90 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden backdrop-blur-md">
+        <div className="bg-[#0B1220] rounded-3xl border border-white/[0.08] shadow-2xl overflow-hidden backdrop-blur-md">
           {/* Header Strip */}
-          <div className="p-6 sm:p-8 border-b border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-surface-50/50">
+          <div className="p-6 sm:p-8 border-b border-white/[0.08] flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-[#070B17]/60">
             <div className="flex items-start sm:items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
                 <selectedNode.icon className="w-7 h-7" />
@@ -487,7 +487,7 @@ export const ArchitectureFlowSection: React.FC = () => {
                   <Badge variant={selectedNode.badgeVariant} size="sm">
                     {selectedNode.badge}
                   </Badge>
-                  <span className="text-xs font-mono text-slate-400 border-l border-slate-700 pl-2.5">
+                  <span className="text-xs font-mono text-slate-400 border-l border-white/[0.1] pl-2.5">
                     SLA: {selectedNode.sla}
                   </span>
                 </div>
@@ -501,7 +501,7 @@ export const ArchitectureFlowSection: React.FC = () => {
             </div>
 
             {/* Inspector Tab Selector */}
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-navy-950 border border-slate-800 shrink-0">
+            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#070B17] border border-white/[0.08] shrink-0">
               <button
                 onClick={() => setActiveTab('overview')}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${

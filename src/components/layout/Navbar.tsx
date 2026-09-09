@@ -50,7 +50,7 @@ export const Navbar: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'py-2.5 bg-[#070B17]/90 backdrop-blur-xl border-b border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.6)]'
+          ? 'py-2.5 bg-[#050814]/90 backdrop-blur-xl border-b border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.6)]'
           : 'py-4 sm:py-5 bg-transparent'
       }`}
     >
@@ -61,7 +61,7 @@ export const Navbar: React.FC = () => {
           className="flex items-center gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-xl cursor-pointer text-left"
           aria-label="IntelliCare AI Ops Home"
         >
-          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400/20 via-slate-800 to-slate-900 p-[1px] border border-cyan-500/30 group-hover:border-cyan-400/60 transition-all duration-300">
+          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400/30 via-slate-800 to-slate-900 p-[1px] border border-cyan-500/30 group-hover:border-cyan-400/60 transition-all duration-300 shadow-[0_0_12px_rgba(25,199,243,0.15)]">
             <div className="w-full h-full bg-[#070B17] rounded-[7px] flex items-center justify-center">
               <Activity className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform duration-300" />
             </div>
@@ -79,7 +79,7 @@ export const Navbar: React.FC = () => {
         {/* Center Desktop Navigation Pill */}
         <nav
           aria-label="Primary Navigation"
-          className="hidden xl:flex items-center gap-1 bg-[#0B1020]/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
+          className="hidden xl:flex items-center gap-1 bg-[#0B1220]/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
         >
           {navLinks.map((link) => {
             const isActive = currentPath === link.path;
@@ -95,7 +95,7 @@ export const Navbar: React.FC = () => {
               >
                 <span>{link.name}</span>
                 {isActive && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3 h-[1.5px] bg-cyan-400 rounded-full" />
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-[1.5px] bg-cyan-400 rounded-full shadow-[0_0_6px_rgba(25,199,243,0.8)]" />
                 )}
               </button>
             );
@@ -160,7 +160,7 @@ export const Navbar: React.FC = () => {
           </button>
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 text-slate-300 hover:text-white bg-[#0B1020] border border-white/[0.08] rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 cursor-pointer"
+            className="p-2 text-slate-300 hover:text-white bg-[#0B1220] border border-white/[0.08] rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 cursor-pointer"
             aria-label="Toggle navigation menu"
             aria-expanded={isMobileMenuOpen}
           >

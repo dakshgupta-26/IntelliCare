@@ -15,7 +15,7 @@ export const Hero: React.FC = () => {
   };
 
   return (
-    <section className="relative min-h-[94vh] flex flex-col justify-between pt-28 sm:pt-32 pb-8 overflow-hidden bg-[#070B17] text-slate-100">
+    <section className="relative min-h-[94vh] flex flex-col justify-between pt-28 sm:pt-32 pb-8 overflow-hidden bg-[#050814] text-slate-100">
       {/* Precision ambient background lighting & subtle grid */}
       <div className="absolute top-1/4 left-1/4 w-[600px] h-[500px] bg-cyan-500/[0.04] blur-[160px] pointer-events-none" />
       <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-blue-600/[0.03] blur-[180px] pointer-events-none" />
@@ -26,19 +26,19 @@ export const Hero: React.FC = () => {
         {/* Left Column: Product Positioning & Editorial Typography (6.5 Cols) */}
         <div className="lg:col-span-6 xl:col-span-6 flex flex-col items-start text-left pt-4 lg:pt-0">
           {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B1020] border border-white/[0.1] backdrop-blur-md mb-6 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B1220] border border-white/[0.08] backdrop-blur-md mb-6 shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
             <span className="text-[11px] font-mono font-semibold tracking-wider text-slate-200 uppercase">
               AI-POWERED HOSPITAL OPERATIONS
             </span>
             <span className="text-slate-600">|</span>
-            <span className="text-[10px] font-mono text-cyan-400/90 font-medium">MILP + LSTM + RAG</span>
+            <span className="text-[10px] font-mono text-cyan-400 font-medium">MILP + LSTM + RAG</span>
           </div>
 
           {/* Main Editorial Headline */}
           <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-[68px] font-extrabold tracking-tight text-white leading-[1.06]">
             Predict what hospitals need.{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 block mt-1">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-300 block mt-1">
               Before they need it.
             </span>
           </h1>
