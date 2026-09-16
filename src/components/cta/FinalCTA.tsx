@@ -8,7 +8,7 @@ export const FinalCTA: React.FC = () => {
   const navigate = useRouterStore((state) => state.navigate);
 
   return (
-    <section className="relative py-36 bg-[#050814] overflow-hidden text-center text-slate-100 border-t border-white/[0.08]">
+    <section className="relative py-36 bg-[#070B17] overflow-hidden text-center text-slate-100 border-t border-white/[0.08]">
       {/* Precision background grid & very subtle data flow telemetry */}
       <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-cyan-500/[0.02] blur-[160px] pointer-events-none" />

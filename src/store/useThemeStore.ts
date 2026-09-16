@@ -10,61 +10,38 @@ interface ThemeState {
   initTheme: () => void;
 }
 
-const getSystemTheme = (): 'dark' | 'light' => {
-  if (typeof window === 'undefined') return 'dark';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-};
-
-const applyThemeToDOM = (resolved: 'dark' | 'light') => {
+const applyThemeToDOM = () => {
   if (typeof document === 'undefined') return;
   const root = document.documentElement;
-  if (resolved === 'dark') {
-    root.classList.add('dark');
-    root.classList.remove('light');
-    root.style.colorScheme = 'dark';
-  } else {
-    root.classList.remove('dark');
-    root.classList.add('light');
-    root.style.colorScheme = 'light';
-  }
+  root.classList.add('dark');
+  root.classList.remove('light');
+  root.style.colorScheme = 'dark';
 };
 
-export const useThemeStore = create<ThemeState>((set, get) => ({
-  theme: 'dark', // Healthcare dark cockpit default
+export const useThemeStore = create<ThemeState>((set) => ({
+  theme: 'dark', // IntelliCare unified dark world
   resolvedTheme: 'dark',
 
-  setTheme: (theme: ThemeMode) => {
-    const resolved = theme === 'system' ? getSystemTheme() : theme;
-    applyThemeToDOM(resolved);
+  setTheme: (_theme: ThemeMode) => {
+    // Landing page & application operate in dedicated dark system
+    applyThemeToDOM();
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('intellicare-theme', theme);
+      localStorage.setItem('intellicare-theme', 'dark');
     }
-    set({ theme, resolvedTheme: resolved });
+    set({ theme: 'dark', resolvedTheme: 'dark' });
   },
 
   toggleTheme: () => {
-    const current = get().resolvedTheme;
-    const next: ThemeMode = current === 'dark' ? 'light' : 'dark';
-    get().setTheme(next);
+    applyThemeToDOM();
+    set({ theme: 'dark', resolvedTheme: 'dark' });
   },
 
   initTheme: () => {
     if (typeof window === 'undefined') return;
-    const stored = localStorage.getItem('intellicare-theme') as ThemeMode | null;
-    const initialTheme: ThemeMode = stored || 'dark';
-    const resolved = initialTheme === 'system' ? getSystemTheme() : initialTheme;
-    applyThemeToDOM(resolved);
-    set({ theme: initialTheme, resolvedTheme: resolved });
-
-    // Listen for OS system theme changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => {
-      if (get().theme === 'system') {
-        const newResolved = getSystemTheme();
-        applyThemeToDOM(newResolved);
-        set({ resolvedTheme: newResolved });
-      }
-    };
-    mediaQuery.addEventListener('change', handleChange);
+    applyThemeToDOM();
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('intellicare-theme', 'dark');
+    }
+    set({ theme: 'dark', resolvedTheme: 'dark' });
   }
 }));

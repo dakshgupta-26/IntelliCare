@@ -74,14 +74,14 @@ export const ForecastChart: React.FC = () => {
   const nowX = getX(cutoffIndex);
 
   return (
-    <div className="relative w-full bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xl overflow-hidden text-slate-900">
+    <div className="relative w-full bg-[#0A1020] rounded-3xl border border-white/[0.07] p-6 sm:p-8 shadow-[0_12px_32px_rgba(0,0,0,0.5)] overflow-hidden text-[#F8FAFC]">
       {/* Chart Header Meta */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-white/[0.07]">
         <div>
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-700 block mb-1">
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-400 block mb-1">
             MULTI-HORIZON PATIENT ARRIVAL FORECAST &bull; ED INTAKE
           </span>
-          <span className="text-xs text-slate-500 font-sans">
+          <span className="text-xs text-[#A7B4C8] font-sans">
             Observed patient admissions vs. Neural forecast horizon (T+14h)
           </span>
         </div>
@@ -89,25 +89,25 @@ export const ForecastChart: React.FC = () => {
         {/* Legend */}
         <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-1 bg-slate-800 rounded" />
-            <span className="text-slate-700 font-medium">Observed History</span>
+            <span className="w-3 h-1 bg-[#64748B] rounded" />
+            <span className="text-[#A7B4C8] font-medium">Observed History</span>
           </div>
           {showLstm && (
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-1 bg-cyan-600 rounded" />
-              <span className="text-cyan-700 font-bold">LSTM Forecast</span>
+              <span className="w-3 h-1 bg-[#19C7F3] rounded" />
+              <span className="text-cyan-400 font-bold">LSTM Forecast</span>
             </div>
           )}
           {showXgboost && (
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-0.5 bg-indigo-600 rounded border-b border-dashed border-indigo-600" />
-              <span className="text-indigo-700 font-medium">XGBoost Baseline</span>
+              <span className="w-3 h-0.5 bg-indigo-400 rounded border-b border-dashed border-indigo-400" />
+              <span className="text-indigo-400 font-medium">XGBoost Baseline</span>
             </div>
           )}
           {showConfidenceIntervals && (
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-2 bg-cyan-100 rounded border border-cyan-300" />
-              <span className="text-slate-600">95% Conformal CI</span>
+              <span className="w-3 h-2 bg-cyan-500/20 rounded border border-cyan-400/40" />
+              <span className="text-[#A7B4C8]">95% Conformal CI</span>
             </div>
           )}
         </div>
@@ -129,7 +129,7 @@ export const ForecastChart: React.FC = () => {
                   y1={y}
                   x2={width - padding.right}
                   y2={y}
-                  stroke="#e2e8f0"
+                  stroke="rgba(255, 255, 255, 0.05)"
                   strokeDasharray="4 4"
                   strokeWidth={1}
                 />
@@ -137,7 +137,7 @@ export const ForecastChart: React.FC = () => {
                   x={padding.left - 10}
                   y={y + 4}
                   textAnchor="end"
-                  fill="#94a3b8"
+                  fill="#64748B"
                   fontSize={10}
                   fontFamily="JetBrains Mono"
                 >
@@ -153,7 +153,7 @@ export const ForecastChart: React.FC = () => {
             y1={padding.top}
             x2={nowX}
             y2={height - padding.bottom}
-            stroke="#0284c7"
+            stroke="#19C7F3"
             strokeDasharray="3 3"
             strokeWidth={1.5}
           />
@@ -161,7 +161,7 @@ export const ForecastChart: React.FC = () => {
             x={nowX}
             y={padding.top - 8}
             textAnchor="middle"
-            fill="#0284c7"
+            fill="#19C7F3"
             fontSize={11}
             fontWeight="bold"
             fontFamily="JetBrains Mono"
@@ -173,8 +173,8 @@ export const ForecastChart: React.FC = () => {
           {showConfidenceIntervals && (
             <path
               d={confidencePolygon}
-              fill="rgba(2, 132, 199, 0.10)"
-              stroke="rgba(2, 132, 199, 0.35)"
+              fill="rgba(25, 199, 243, 0.08)"
+              stroke="rgba(25, 199, 243, 0.25)"
               strokeDasharray="2 2"
             />
           )}
@@ -183,7 +183,7 @@ export const ForecastChart: React.FC = () => {
           <path
             d={historicalPath}
             fill="none"
-            stroke="#1e293b"
+            stroke="#64748B"
             strokeWidth={2.5}
             strokeLinecap="round"
           />
@@ -193,7 +193,7 @@ export const ForecastChart: React.FC = () => {
             <path
               d={xgboostPath}
               fill="none"
-              stroke="#6366f1"
+              stroke="#818CF8"
               strokeWidth={2}
               strokeDasharray="5 4"
               strokeLinecap="round"
@@ -205,7 +205,7 @@ export const ForecastChart: React.FC = () => {
             <path
               d={lstmPath}
               fill="none"
-              stroke={simulateSpike ? '#e11d48' : '#0284c7'}
+              stroke={simulateSpike ? '#FB7185' : '#19C7F3'}
               strokeWidth={3}
               strokeLinecap="round"
             />
@@ -238,8 +238,8 @@ export const ForecastChart: React.FC = () => {
                   cx={x}
                   cy={y}
                   r={hoveredPoint === pt ? 5.5 : 3.5}
-                  fill={isHistorical ? '#0f172a' : simulateSpike ? '#e11d48' : '#0284c7'}
-                  stroke="#ffffff"
+                  fill={isHistorical ? '#64748B' : simulateSpike ? '#FB7185' : '#19C7F3'}
+                  stroke="#0A1020"
                   strokeWidth={2}
                   className="transition-all duration-150"
                 />
@@ -249,7 +249,7 @@ export const ForecastChart: React.FC = () => {
                   x={x}
                   y={height - padding.bottom + 18}
                   textAnchor="middle"
-                  fill={i === cutoffIndex ? '#0284c7' : '#64748b'}
+                  fill={i === cutoffIndex ? '#19C7F3' : '#64748B'}
                   fontSize={9}
                   fontWeight={i === cutoffIndex ? 'bold' : 'normal'}
                   fontFamily="JetBrains Mono"
@@ -264,12 +264,12 @@ export const ForecastChart: React.FC = () => {
 
       {/* Floating Hover Tooltip */}
       {hoveredPoint && (
-        <div className="absolute top-16 right-8 bg-slate-900 text-white border border-slate-700 p-4 rounded-xl shadow-2xl z-20 text-xs font-mono flex flex-col gap-1.5 min-w-[210px]">
-          <div className="font-bold text-white pb-1 border-b border-slate-700 flex items-center justify-between">
+        <div className="absolute top-16 right-8 bg-[#0D1526] text-white border border-white/10 p-4 rounded-xl shadow-2xl z-20 text-xs font-mono flex flex-col gap-1.5 min-w-[210px]">
+          <div className="font-bold text-white pb-1 border-b border-white/10 flex items-center justify-between">
             <span>HOUR: {hoveredPoint.hour}</span>
           </div>
           {hoveredPoint.historical !== undefined && (
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-[#A7B4C8]">
               <span>Observed:</span>
               <span className="font-bold text-white">{hoveredPoint.historical} pts/hr</span>
             </div>
@@ -292,7 +292,7 @@ export const ForecastChart: React.FC = () => {
             </div>
           )}
           {hoveredPoint.ciUpper && (
-            <div className="flex justify-between text-slate-400 text-[10px] pt-1 border-t border-slate-700">
+            <div className="flex justify-between text-[#64748B] text-[10px] pt-1 border-t border-white/10">
               <span>95% CI Interval:</span>
               <span>[{hoveredPoint.ciLower} - {hoveredPoint.ciUpper}]</span>
             </div>

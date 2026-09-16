@@ -109,7 +109,7 @@ export const CopilotSection: React.FC = () => {
   };
 
   return (
-    <section id="copilot" className="relative py-28 sm:py-36 bg-[#070B17] text-slate-100 border-t border-white/[0.08] overflow-hidden">
+    <section id="copilot" className="relative py-28 sm:py-36 bg-[#050814] text-slate-100 border-t border-white/[0.08] overflow-hidden">
       {/* Ambient background glow */}
       <div className="absolute top-1/3 right-1/4 w-[600px] h-[500px] bg-cyan-500/[0.03] blur-[170px] pointer-events-none" />
       <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />

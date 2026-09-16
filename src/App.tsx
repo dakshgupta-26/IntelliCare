@@ -17,7 +17,11 @@ import {
 import { Hero } from './components/hero/Hero';
 import { CoreStory } from './components/story/CoreStory';
 import { PipelineSection } from './components/pipeline/PipelineSection';
-import { IntelligenceStack } from './components/pipeline/IntelligenceStack';
+import { RealtimeOperations } from './components/realtime/RealtimeOperations';
+import { ForecastingSection } from './components/forecasting/ForecastingSection';
+import { OptimizationSection } from './components/optimization/OptimizationSection';
+import { HumanInTheLoop } from './components/hitl/HumanInTheLoop';
+import { RagSection } from './components/rag/RagSection';
 import { DigitalTwinSection } from './components/preview/DigitalTwinSection';
 import { WhatIfSimulator } from './components/scenarios/WhatIfSimulator';
 import { ArchitectureFlowSection } from './components/architecture/ArchitectureFlowSection';
@@ -178,34 +182,46 @@ export function App() {
         default:
           return (
             <>
-              {/* 1. Hero: Predict what hospitals need. Before they need it. */}
+              {/* Stage 01. Hero: Predict what hospitals need. Before they need it. (#050814) */}
               <Hero />
 
-              {/* 2. Problem: Hospital capacity doesn't stand still. */}
+              {/* Stage 02. Problem: Hospital capacity doesn't stand still. (#070B17) */}
               <CoreStory />
 
-              {/* 3. Lifecycle: Observe -> Predict -> Optimize -> Decide */}
+              {/* Stage 03. Lifecycle: Observe -> Predict -> Optimize -> Decide (#050814) */}
               <PipelineSection />
 
-              {/* 4. Intelligence: Forecast + Context + Optimization */}
-              <IntelligenceStack />
+              {/* Stage 04. Observe: Live Real-Time Operations Telemetry (#070B17) */}
+              <RealtimeOperations />
 
-              {/* 5. Digital Twin: A living model of hospital operations */}
+              {/* Stage 05. Predict: Multi-Horizon Neural Forecasting (#070B17 / #0A1020) */}
+              <ForecastingSection />
+
+              {/* Stage 06. Optimize: Mathematical MILP Balancing (#050814) */}
+              <OptimizationSection />
+
+              {/* Stage 07. Decide: Clinical Governance & Human Authorization Gate (#070B17) */}
+              <HumanInTheLoop />
+
+              {/* Stage 08. Intelligence / RAG: Contextual Operational Knowledge Grounding (#070B17 / #0A1020) */}
+              <RagSection />
+
+              {/* Stage 09. Digital Twin: A living topological model of hospital operations (#050814) */}
               <DigitalTwinSection />
 
-              {/* 6. Scenarios: What happens when demand spikes? */}
+              {/* Stage 10. Scenarios: What-If Capacity Stress-Testing Simulator (#070B17) */}
               <WhatIfSimulator />
 
-              {/* 7. Architecture: How IntelliCare works underneath */}
+              {/* Stage 11. Architecture: Distributed End-to-End System Pipeline (#050814) */}
               <ArchitectureFlowSection />
 
-              {/* 8. Technology: The engineering and intelligence stack */}
+              {/* Stage 12. Technology: The engineering and scientific intelligence stack (#070B17) */}
               <TechStrip />
 
-              {/* 9. Copilot: Ask IntelliCare */}
+              {/* Stage 13. Copilot: Natural Language Operational Command Interface (#050814) */}
               <CopilotSection />
 
-              {/* 10. Final CTA: The hospital doesn't need another dashboard. It needs foresight. */}
+              {/* Stage 14. Final CTA: The hospital doesn't need another dashboard. It needs foresight. (#070B17) */}
               <FinalCTA />
             </>
           );
@@ -213,7 +229,7 @@ export function App() {
     };
 
     mainView = (
-      <div className="relative min-h-screen bg-midnight-950 text-slate-100 flex flex-col selection:bg-brand-cyan/20 selection:text-brand-cyan">
+      <div className="relative min-h-screen bg-[#050814] text-slate-100 flex flex-col selection:bg-cyan-500/20 selection:text-cyan-400">
         {/* Sticky Top Navigation */}
         <Navbar />
 

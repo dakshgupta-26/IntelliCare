@@ -21,7 +21,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   }, [currentPath, setMobileSidebarOpen]);
 
   return (
-    <div className="flex h-screen w-full bg-[#f8fafc] dark:bg-[#060f1c] text-slate-900 dark:text-slate-100 overflow-hidden font-sans selection:bg-brand-cyan/20 selection:text-brand-cyan">
+    <div className="flex h-screen w-full bg-[#050814] text-slate-100 overflow-hidden font-sans selection:bg-brand-cyan/20 selection:text-brand-cyan">
       {/* Desktop Left Application Sidebar (lg and up) */}
       <div className="hidden lg:flex h-full shrink-0">
         <AppSidebar />
