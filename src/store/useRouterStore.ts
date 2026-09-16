@@ -12,6 +12,10 @@ export type AppRoute =
   // Auth Routes
   | '/login'
   | '/signup'
+  | '/register'
+  | '/verify-email'
+  | '/forgot-password'
+  | '/reset-password'
   // Authenticated Enterprise Application Routes
   | '/app'
   | '/app/dashboard'

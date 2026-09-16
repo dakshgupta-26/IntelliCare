@@ -39,6 +39,11 @@ import { TechnologyPage } from './pages/TechnologyPage';
 
 // Auth Pages
 import { LoginPage } from './pages/auth/LoginPage';
+import { RegisterPage } from './pages/auth/RegisterPage';
+import { VerifyEmailPage } from './pages/auth/VerifyEmailPage';
+import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
+import { useAuthStore } from './store/useAuthStore';
 
 // Authenticated Enterprise Application Shell & Pages
 import { AppShell } from './components/app/AppShell';
@@ -71,8 +76,25 @@ export function App() {
 
   // Check route categories
   const isAppRoute = currentPath.startsWith('/app') || currentPath === '/admin';
-  const isAuthRoute = currentPath === '/login' || currentPath === '/signup';
+  const isAuthRoute = [
+    '/login',
+    '/signup',
+    '/register',
+    '/verify-email',
+    '/forgot-password',
+    '/reset-password'
+  ].includes(currentPath);
   const isMarketingRoute = !isAppRoute && !isAuthRoute;
+
+  // Initialize backend auth session verification
+  const initAuth = useAuthStore((state) => state.initAuth);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const currentUser = useAuthStore((state) => state.currentUser);
+
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
 
   // Initialize smooth scrolling for editorial marketing pages only (native scrolling for dashboard)
   useLenis(isMarketingRoute);
@@ -122,45 +144,60 @@ export function App() {
   let mainView: React.ReactNode = null;
 
   if (isAppRoute) {
-    let appContent = <DashboardPage />;
-
-    if (currentPath === '/app/resources' || currentPath.startsWith('/app/resources/')) {
-      appContent = <ResourcesPage />;
-    } else if (currentPath === '/app/models') {
-      appContent = <MLStudioPage />;
-    } else if (currentPath === '/app/clinical-ai') {
-      appContent = <ClinicalAIPage />;
-    } else if (currentPath === '/app/forecasting') {
-      appContent = <ForecastingPage />;
-    } else if (currentPath === '/app/optimization') {
-      appContent = <AppOptimizationPage />;
-    } else if (currentPath === '/app/scenarios') {
-      appContent = <AppScenariosPage />;
-    } else if (currentPath === '/app/knowledge') {
-      appContent = <KnowledgePage />;
-    } else if (currentPath === '/app/knowledge/assistant') {
-      appContent = <KnowledgeAssistantPage />;
-    } else if (currentPath === '/app/recommendations') {
-      appContent = <RecommendationsPage />;
-    } else if (currentPath === '/app/analytics') {
-      appContent = <AnalyticsPage />;
-    } else if (currentPath === '/app/alerts') {
-      appContent = <AlertsPage />;
-    } else if (currentPath === '/app/activity') {
-      appContent = <ActivityPage />;
-    } else if (currentPath === '/app/settings') {
-      appContent = <SettingsPage />;
-    } else if (currentPath === '/app/profile') {
-      appContent = <ProfilePage />;
-    } else if (currentPath === '/admin') {
-      appContent = <AdminPage />;
+    // Zero-trust Route Guard: unauthenticated redirects to login, unverified redirects to email verification
+    if (isInitialized && !isAuthenticated) {
+      mainView = <LoginPage />;
+    } else if (isInitialized && currentUser && !currentUser.emailVerified) {
+      mainView = <VerifyEmailPage />;
     } else {
-      // Default to /app/dashboard
-      appContent = <DashboardPage />;
-    }
+      let appContent = <DashboardPage />;
 
-    mainView = <AppShell>{appContent}</AppShell>;
-  } else if (currentPath === '/login' || currentPath === '/signup') {
+      if (currentPath === '/app/resources' || currentPath.startsWith('/app/resources/')) {
+        appContent = <ResourcesPage />;
+      } else if (currentPath === '/app/models') {
+        appContent = <MLStudioPage />;
+      } else if (currentPath === '/app/clinical-ai') {
+        appContent = <ClinicalAIPage />;
+      } else if (currentPath === '/app/forecasting') {
+        appContent = <ForecastingPage />;
+      } else if (currentPath === '/app/optimization') {
+        appContent = <AppOptimizationPage />;
+      } else if (currentPath === '/app/scenarios') {
+        appContent = <AppScenariosPage />;
+      } else if (currentPath === '/app/knowledge') {
+        appContent = <KnowledgePage />;
+      } else if (currentPath === '/app/knowledge/assistant') {
+        appContent = <KnowledgeAssistantPage />;
+      } else if (currentPath === '/app/recommendations') {
+        appContent = <RecommendationsPage />;
+      } else if (currentPath === '/app/analytics') {
+        appContent = <AnalyticsPage />;
+      } else if (currentPath === '/app/alerts') {
+        appContent = <AlertsPage />;
+      } else if (currentPath === '/app/activity') {
+        appContent = <ActivityPage />;
+      } else if (currentPath === '/app/settings') {
+        appContent = <SettingsPage />;
+      } else if (currentPath === '/app/profile') {
+        appContent = <ProfilePage />;
+      } else if (currentPath === '/admin') {
+        appContent = <AdminPage />;
+      } else {
+        // Default to /app/dashboard
+        appContent = <DashboardPage />;
+      }
+
+      mainView = <AppShell>{appContent}</AppShell>;
+    }
+  } else if (currentPath === '/signup' || currentPath === '/register') {
+    mainView = <RegisterPage />;
+  } else if (currentPath === '/verify-email') {
+    mainView = <VerifyEmailPage />;
+  } else if (currentPath === '/forgot-password') {
+    mainView = <ForgotPasswordPage />;
+  } else if (currentPath === '/reset-password') {
+    mainView = <ResetPasswordPage />;
+  } else if (currentPath === '/login') {
     mainView = <LoginPage />;
   } else {
     // Marketing and Deep-Dive Pages

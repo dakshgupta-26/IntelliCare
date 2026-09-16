@@ -32,6 +32,8 @@ export interface User {
   organizationId: string;
   organizationName: string;
   permissions: Permission[];
+  emailVerified?: boolean;
+  status?: 'ACTIVE' | 'SUSPENDED' | 'LOCKED';
   lastLoginAt: string;
   createdAt: string;
 }
