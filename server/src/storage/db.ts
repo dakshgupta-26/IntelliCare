@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
+import mongoose from 'mongoose';
 import {
   UserRecord,
   SessionRecord,
@@ -10,6 +11,11 @@ import {
   SafeUser,
   ROLE_PERMISSIONS
 } from '../models/types';
+import { UserModel } from '../models/schemas/User';
+import { SessionModel } from '../models/schemas/Session';
+import { EmailVerificationModel } from '../models/schemas/EmailVerification';
+import { PasswordResetModel } from '../models/schemas/PasswordReset';
+import { AuditEventModel } from '../models/schemas/AuditEvent';
 
 interface DatabaseSchema {
   users: UserRecord[];
@@ -25,6 +31,7 @@ const DB_FILE = path.join(DATA_DIR, 'intellicare.db.json');
 class StorageDatabase {
   private users: Map<string, UserRecord> = new Map(); // id -> user
   private userEmailIndex: Map<string, string> = new Map(); // lowercase email -> id
+  private userInviteTokenIndex: Map<string, string> = new Map(); // inviteToken -> id
   private sessions: Map<string, SessionRecord> = new Map(); // sessionId -> session
   private sessionTokenIndex: Map<string, string> = new Map(); // refreshTokenHash -> sessionId
   private emailVerifications: Map<string, EmailVerificationRecord> = new Map(); // email -> record
@@ -33,6 +40,48 @@ class StorageDatabase {
 
   constructor() {
     this.init();
+  }
+
+  public async syncWithMongoDB() {
+    try {
+      if (mongoose.connection.readyState === 1) {
+        // Load users from MongoDB
+        const mongoUsers = await UserModel.find().lean();
+        if (mongoUsers.length > 0) {
+          for (const u of mongoUsers as any[]) {
+            const userRecord: UserRecord = {
+              id: u.id,
+              organizationId: u.organizationId,
+              organizationName: u.organizationName || 'IntelliCare Metropolitan Medical Center',
+              departmentId: u.departmentId,
+              departmentName: u.departmentName,
+              email: u.email,
+              name: u.name,
+              title: u.title,
+              role: u.role,
+              status: u.status,
+              emailVerified: Boolean(u.emailVerified),
+              passwordHash: u.passwordHash,
+              avatarUrl: u.avatarUrl,
+              invitedBy: u.invitedBy,
+              inviteToken: u.inviteToken,
+              inviteExpiresAt: u.inviteExpiresAt ? new Date(u.inviteExpiresAt).toISOString() : undefined,
+              lastLoginAt: u.lastLoginAt ? new Date(u.lastLoginAt).toISOString() : undefined,
+              createdAt: u.createdAt ? new Date(u.createdAt).toISOString() : new Date().toISOString(),
+              updatedAt: u.updatedAt ? new Date(u.updatedAt).toISOString() : new Date().toISOString()
+            };
+            this.users.set(userRecord.id, userRecord);
+            this.userEmailIndex.set(userRecord.email.toLowerCase(), userRecord.id);
+            if (userRecord.inviteToken) {
+              this.userInviteTokenIndex.set(userRecord.inviteToken, userRecord.id);
+            }
+          }
+          console.log(`🌿 Synced ${mongoUsers.length} user records from MongoDB.`);
+        }
+      }
+    } catch (err: any) {
+      console.warn('[StorageDatabase] MongoDB sync warning:', err.message);
+    }
   }
 
   private init() {
@@ -203,10 +252,80 @@ class StorageDatabase {
     return this.users.get(id);
   }
 
+  findUserByInviteToken(token: string): UserRecord | undefined {
+    const id = this.userInviteTokenIndex.get(token);
+    if (!id) return undefined;
+    return this.users.get(id);
+  }
+
+  findStaffByOrganizationId(
+    organizationId: string,
+    filters?: { role?: string; departmentId?: string; status?: string; search?: string }
+  ): SafeUser[] {
+    let list: UserRecord[] = [];
+    for (const u of this.users.values()) {
+      if (u.organizationId === organizationId) {
+        list.push(u);
+      }
+    }
+
+    if (filters?.role && filters.role !== 'ALL') {
+      list = list.filter(u => u.role === filters.role);
+    }
+    if (filters?.departmentId && filters.departmentId !== 'ALL') {
+      list = list.filter(u => u.departmentId === filters.departmentId);
+    }
+    if (filters?.status && filters.status !== 'ALL') {
+      list = list.filter(u => u.status === filters.status);
+    }
+    if (filters?.search && filters.search.trim()) {
+      const q = filters.search.trim().toLowerCase();
+      list = list.filter(
+        u =>
+          u.name.toLowerCase().includes(q) ||
+          u.email.toLowerCase().includes(q) ||
+          u.title.toLowerCase().includes(q)
+      );
+    }
+
+    return list.map(u => this.toSafeUser(u));
+  }
+
   createUser(user: UserRecord): UserRecord {
     this.users.set(user.id, user);
     this.userEmailIndex.set(user.email.trim().toLowerCase(), user.id);
+    if (user.inviteToken) {
+      this.userInviteTokenIndex.set(user.inviteToken, user.id);
+    }
     this.persist();
+
+    // Async write to MongoDB if connected
+    if (mongoose.connection.readyState === 1) {
+      UserModel.findOneAndUpdate(
+        { id: user.id },
+        {
+          id: user.id,
+          organizationId: user.organizationId,
+          organizationName: user.organizationName || 'IntelliCare Metropolitan Medical Center',
+          departmentId: user.departmentId || 'dept-all',
+          departmentName: user.departmentName || 'Hospital Operations',
+          email: user.email.toLowerCase().trim(),
+          name: user.name,
+          title: user.title,
+          role: user.role,
+          status: user.status,
+          emailVerified: user.emailVerified,
+          passwordHash: user.passwordHash,
+          avatarUrl: user.avatarUrl,
+          invitedBy: user.invitedBy,
+          inviteToken: user.inviteToken,
+          inviteExpiresAt: user.inviteExpiresAt ? new Date(user.inviteExpiresAt) : undefined,
+          lastLoginAt: user.lastLoginAt ? new Date(user.lastLoginAt) : undefined
+        },
+        { upsert: true, returnDocument: 'after' }
+      ).catch(err => console.error('[MongoDB createUser Error]', err.message));
+    }
+
     return user;
   }
 
@@ -223,17 +342,48 @@ class StorageDatabase {
       this.userEmailIndex.delete(existing.email.toLowerCase());
       this.userEmailIndex.set(updates.email.toLowerCase(), id);
     }
+    if (updates.inviteToken !== undefined) {
+      if (existing.inviteToken) this.userInviteTokenIndex.delete(existing.inviteToken);
+      if (updates.inviteToken) this.userInviteTokenIndex.set(updates.inviteToken, id);
+    }
     this.persist();
+
+    // Async update to MongoDB if connected
+    if (mongoose.connection.readyState === 1) {
+      const mongoUpdates: any = { ...updates, updatedAt: new Date() };
+      if (updates.inviteExpiresAt) mongoUpdates.inviteExpiresAt = new Date(updates.inviteExpiresAt);
+      if (updates.lastLoginAt) mongoUpdates.lastLoginAt = new Date(updates.lastLoginAt);
+
+      UserModel.findOneAndUpdate({ id }, { $set: mongoUpdates }).catch(err =>
+        console.error('[MongoDB updateUser Error]', err.message)
+      );
+    }
+
     return updated;
+  }
+
+  deleteUser(id: string): boolean {
+    const existing = this.users.get(id);
+    if (!existing) return false;
+    this.users.delete(id);
+    this.userEmailIndex.delete(existing.email.toLowerCase());
+    if (existing.inviteToken) this.userInviteTokenIndex.delete(existing.inviteToken);
+    this.persist();
+
+    // Async delete from MongoDB if connected
+    if (mongoose.connection.readyState === 1) {
+      UserModel.deleteOne({ id }).catch(err => console.error('[MongoDB deleteUser Error]', err.message));
+    }
+    return true;
   }
 
   toSafeUser(user: UserRecord): SafeUser {
     return {
       id: user.id,
       organizationId: user.organizationId,
-      organizationName: 'IntelliCare Metropolitan Medical Center',
+      organizationName: user.organizationName || 'IntelliCare Metropolitan Medical Center',
       departmentId: user.departmentId,
-      departmentName: user.departmentId === 'dept-icu' ? 'Intensive Care Unit (ICU)' : 'Hospital Operations',
+      departmentName: user.departmentName || (user.departmentId === 'dept-icu' ? 'Intensive Care Unit (ICU)' : 'Hospital Operations'),
       email: user.email,
       name: user.name,
       title: user.title,
@@ -252,6 +402,24 @@ class StorageDatabase {
     this.sessions.set(session.id, session);
     this.sessionTokenIndex.set(session.refreshTokenHash, session.id);
     this.persist();
+
+    if (mongoose.connection.readyState === 1) {
+      SessionModel.create({
+        id: session.id,
+        userId: session.userId,
+        refreshTokenHash: session.refreshTokenHash,
+        ipAddress: session.ipAddress,
+        userAgent: session.userAgent,
+        device: session.device,
+        browser: session.browser,
+        os: session.os,
+        approximateLocation: session.approximateLocation,
+        loginMethod: session.loginMethod,
+        lastUsedAt: new Date(session.lastUsedAt),
+        expiresAt: new Date(session.expiresAt)
+      }).catch(err => console.error('[MongoDB createSession Error]', err.message));
+    }
+
     return session;
   }
 
@@ -275,29 +443,56 @@ class StorageDatabase {
     const updated = { ...existing, ...updates };
     this.sessions.set(id, updated);
     this.persist();
+
+    if (mongoose.connection.readyState === 1) {
+      const mongoUpdates: any = { ...updates };
+      if (updates.lastUsedAt) mongoUpdates.lastUsedAt = new Date(updates.lastUsedAt);
+      if (updates.expiresAt) mongoUpdates.expiresAt = new Date(updates.expiresAt);
+      if (updates.revokedAt) mongoUpdates.revokedAt = new Date(updates.revokedAt);
+
+      SessionModel.updateOne({ id }, { $set: mongoUpdates }).catch(err =>
+        console.error('[MongoDB updateSession Error]', err.message)
+      );
+    }
+
     return updated;
   }
 
   revokeSession(id: string): boolean {
     const session = this.sessions.get(id);
     if (!session) return false;
-    session.revokedAt = new Date().toISOString();
+    const now = new Date();
+    session.revokedAt = now.toISOString();
     this.sessionTokenIndex.delete(session.refreshTokenHash);
     this.persist();
+
+    if (mongoose.connection.readyState === 1) {
+      SessionModel.updateOne({ id }, { $set: { revokedAt: now } }).catch(err =>
+        console.error('[MongoDB revokeSession Error]', err.message)
+      );
+    }
     return true;
   }
 
   revokeAllUserSessions(userId: string): number {
     let count = 0;
-    const now = new Date().toISOString();
+    const now = new Date();
+    const nowIso = now.toISOString();
     for (const session of this.sessions.values()) {
       if (session.userId === userId && !session.revokedAt) {
-        session.revokedAt = now;
+        session.revokedAt = nowIso;
         this.sessionTokenIndex.delete(session.refreshTokenHash);
         count++;
       }
     }
-    if (count > 0) this.persist();
+    if (count > 0) {
+      this.persist();
+      if (mongoose.connection.readyState === 1) {
+        SessionModel.updateMany({ userId, revokedAt: { $exists: false } }, { $set: { revokedAt: now } }).catch(
+          err => console.error('[MongoDB revokeAllUserSessions Error]', err.message)
+        );
+      }
+    }
     return count;
   }
 
@@ -362,11 +557,25 @@ class StorageDatabase {
   // --- Audit Event Repository ---
   createAuditEvent(event: AuditEventRecord): AuditEventRecord {
     this.auditEvents.push(event);
-    // Keep last 1,000 events to prevent unbounded growth
+    // Keep last 1,000 events in memory cache to prevent unbounded growth
     if (this.auditEvents.length > 1000) {
       this.auditEvents = this.auditEvents.slice(-1000);
     }
     this.persist();
+
+    if (mongoose.connection.readyState === 1) {
+      AuditEventModel.create({
+        id: event.id,
+        userId: event.userId,
+        sessionId: event.sessionId,
+        eventType: event.eventType,
+        ipAddress: event.ipAddress,
+        userAgent: event.userAgent,
+        metadata: event.metadata,
+        timestamp: new Date(event.timestamp)
+      }).catch(err => console.error('[MongoDB createAuditEvent Error]', err.message));
+    }
+
     return event;
   }
 

@@ -56,4 +56,18 @@ export class RateLimitService {
       error: 'Too many password reset requests. Please wait before trying again.'
     }
   });
+
+  /**
+   * Rate limiter for staff invitations to prevent email flooding.
+   */
+  static staffInvite = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 25,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+      success: false,
+      error: 'Too many staff invitations sent in a short period. Please wait 15 minutes before sending more invites.'
+    }
+  });
 }

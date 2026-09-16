@@ -80,12 +80,14 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   ]
 };
 
-export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'LOCKED';
+export type UserStatus = 'ACTIVE' | 'INVITED' | 'SUSPENDED' | 'LOCKED';
 
 export interface UserRecord {
   id: string;
   organizationId: string;
+  organizationName?: string;
   departmentId?: string;
+  departmentName?: string;
   email: string;
   name: string;
   title: string;
@@ -94,6 +96,9 @@ export interface UserRecord {
   emailVerified: boolean;
   passwordHash: string;
   avatarUrl?: string;
+  invitedBy?: string;
+  inviteToken?: string;
+  inviteExpiresAt?: string;
   lastLoginAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -152,7 +157,12 @@ export type AuditEventType =
   | 'NEW_DEVICE_DETECTED'
   | 'SUSPICIOUS_LOGIN'
   | 'OAUTH_LOGIN'
-  | 'SESSION_REVOKED';
+  | 'SESSION_REVOKED'
+  | 'STAFF_INVITED'
+  | 'STAFF_ACTIVATED'
+  | 'STAFF_STATUS_UPDATED'
+  | 'STAFF_ROLE_UPDATED'
+  | 'STAFF_REMOVED';
 
 export interface AuditEventRecord {
   id: string;

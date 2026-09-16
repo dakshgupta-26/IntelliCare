@@ -1,4 +1,4 @@
-import { User } from '../types/auth';
+import { User, UserRole } from '../types/auth';
 
 let inMemoryAccessToken: string | null = null;
 let isRefreshing = false;
@@ -36,6 +36,26 @@ export interface AuditEventInfo {
   metadata?: Record<string, any>;
 }
 
+async function parseResponseBody<T = any>(response: Response): Promise<T> {
+  let text = '';
+  try {
+    text = await response.text();
+  } catch {
+    return {} as T;
+  }
+
+  if (!text || !text.trim()) {
+    return {} as T;
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    // If body is HTML or raw text from reverse proxy or server error
+    return { error: text.slice(0, 300) } as T;
+  }
+}
+
 export class AuthApi {
   static getAccessToken(): string | null {
     return inMemoryAccessToken;
@@ -64,7 +84,16 @@ export class AuthApi {
       credentials: 'include' // Send and receive HttpOnly cookies
     };
 
-    let response = await fetch(endpoint, config);
+    let response: Response;
+    try {
+      response = await fetch(endpoint, config);
+    } catch (networkErr: any) {
+      const error: any = new Error(
+        'Unable to connect to the IntelliCare service. Please check your network connection or verify that the API server is running.'
+      );
+      error.status = 0;
+      throw error;
+    }
 
     // If 401 Unauthorized and not already refreshing, attempt silent refresh
     if (response.status === 401 && endpoint !== '/auth/login' && endpoint !== '/auth/refresh') {
@@ -75,7 +104,7 @@ export class AuthApi {
             resolve: (newToken: string) => {
               headers['Authorization'] = `Bearer ${newToken}`;
               fetch(endpoint, { ...config, headers })
-                .then(r => r.json())
+                .then(r => parseResponseBody<T>(r))
                 .then(resolve)
                 .catch(reject);
             },
@@ -93,15 +122,19 @@ export class AuthApi {
         });
 
         if (refreshRes.ok) {
-          const refreshData = await refreshRes.json();
-          inMemoryAccessToken = refreshData.accessToken;
-          processQueue(null, refreshData.accessToken);
+          const refreshData = await parseResponseBody<any>(refreshRes);
+          inMemoryAccessToken = refreshData?.accessToken || null;
+          processQueue(null, inMemoryAccessToken);
           isRefreshing = false;
 
           // Retry original request with new access token
           headers['Authorization'] = `Bearer ${inMemoryAccessToken}`;
           const retryRes = await fetch(endpoint, { ...config, headers });
-          return await retryRes.json();
+          const retryData = await parseResponseBody<T>(retryRes);
+          if (!retryRes.ok) {
+            throw new Error((retryData as any)?.error || 'Retry failed');
+          }
+          return retryData;
         } else {
           // Refresh failed, session expired
           inMemoryAccessToken = null;
@@ -117,14 +150,21 @@ export class AuthApi {
       }
     }
 
-    const data = await response.json();
+    const data = await parseResponseBody<any>(response);
     if (!response.ok) {
-      const error: any = new Error(data.error || 'Request failed');
+      const fallbackMessage =
+        response.status === 502 || response.status === 503 || response.status === 504
+          ? 'IntelliCare Authentication Service is temporarily unavailable. Please verify the backend server is running on port 5000.'
+          : response.status === 404
+          ? `Authentication endpoint not found (${endpoint}).`
+          : `Request failed with status ${response.status} (${response.statusText || 'Error'}).`;
+
+      const error: any = new Error(data?.error || data?.message || fallbackMessage);
       error.status = response.status;
-      error.code = data.code;
-      error.email = data.email;
-      error.devOtp = data.devOtp;
-      error.devResetUrl = data.devResetUrl;
+      error.code = data?.code;
+      error.email = data?.email;
+      error.devOtp = data?.devOtp;
+      error.devResetUrl = data?.devResetUrl;
       throw error;
     }
 
@@ -133,10 +173,19 @@ export class AuthApi {
 
   // --- Auth Operations ---
 
-  static async register(name: string, email: string, password: string, confirmPassword: string) {
+  static async register(
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+    organizationName?: string,
+    role?: UserRole,
+    title?: string,
+    departmentName?: string
+  ) {
     return this.request('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ name, email, password, confirmPassword })
+      body: JSON.stringify({ name, email, password, confirmPassword, organizationName, role, title, departmentName })
     });
   }
 
@@ -176,9 +225,11 @@ export class AuthApi {
         credentials: 'include'
       });
       if (data.ok) {
-        const json = await data.json();
-        this.setAccessToken(json.accessToken);
-        return true;
+        const json = await parseResponseBody<any>(data);
+        if (json?.accessToken) {
+          this.setAccessToken(json.accessToken);
+          return true;
+        }
       }
       this.setAccessToken(null);
       return false;
@@ -247,5 +298,80 @@ export class AuthApi {
 
   static async getGoogleAuthUrl(): Promise<{ success: boolean; authUrl: string }> {
     return this.request('/auth/oauth/google', { method: 'GET' });
+  }
+
+  // --- Clinical Staff Provisioning & Governance ---
+
+  static async getStaff(filters?: { role?: string; departmentId?: string; status?: string; search?: string }): Promise<{
+    success: boolean;
+    staff: User[];
+    total: number;
+    organizationName?: string;
+  }> {
+    const params = new URLSearchParams();
+    if (filters?.role && filters.role !== 'ALL') params.append('role', filters.role);
+    if (filters?.departmentId && filters.departmentId !== 'ALL') params.append('departmentId', filters.departmentId);
+    if (filters?.status && filters.status !== 'ALL') params.append('status', filters.status);
+    if (filters?.search) params.append('search', filters.search);
+
+    const queryStr = params.toString() ? `?${params.toString()}` : '';
+    return this.request(`/auth/staff${queryStr}`, { method: 'GET' });
+  }
+
+  static async inviteStaff(payload: {
+    name: string;
+    email: string;
+    role: UserRole;
+    departmentId?: string;
+    departmentName?: string;
+    title?: string;
+  }): Promise<{ success: boolean; message: string; staff: User; devInviteUrl?: string }> {
+    return this.request('/auth/staff/invite', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  static async activateStaff(token: string, password: string, confirmPassword: string): Promise<{
+    success: boolean;
+    message: string;
+    user: User;
+    accessToken: string;
+  }> {
+    const data = await this.request('/auth/staff/activate', {
+      method: 'POST',
+      body: JSON.stringify({ token, password, confirmPassword })
+    });
+    if (data.accessToken) {
+      this.setAccessToken(data.accessToken);
+    }
+    return data;
+  }
+
+  static async updateStaffStatus(id: string, status: 'ACTIVE' | 'SUSPENDED'): Promise<{ success: boolean; message: string; user: User }> {
+    return this.request(`/auth/staff/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+  }
+
+  static async updateStaffRole(id: string, payload: {
+    role?: UserRole;
+    departmentId?: string;
+    departmentName?: string;
+    title?: string;
+  }): Promise<{ success: boolean; message: string; user: User }> {
+    return this.request(`/auth/staff/${id}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  static async resendStaffInvite(id: string): Promise<{ success: boolean; message: string; devInviteUrl?: string }> {
+    return this.request(`/auth/staff/${id}/resend-invite`, { method: 'POST' });
+  }
+
+  static async deleteStaff(id: string): Promise<{ success: boolean; message: string }> {
+    return this.request(`/auth/staff/${id}`, { method: 'DELETE' });
   }
 }

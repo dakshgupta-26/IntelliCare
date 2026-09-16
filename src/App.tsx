@@ -43,6 +43,7 @@ import { RegisterPage } from './pages/auth/RegisterPage';
 import { VerifyEmailPage } from './pages/auth/VerifyEmailPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
+import { ActivateStaffPage } from './pages/auth/ActivateStaffPage';
 import { useAuthStore } from './store/useAuthStore';
 
 // Authenticated Enterprise Application Shell & Pages
@@ -76,14 +77,16 @@ export function App() {
 
   // Check route categories
   const isAppRoute = currentPath.startsWith('/app') || currentPath === '/admin';
-  const isAuthRoute = [
-    '/login',
-    '/signup',
-    '/register',
-    '/verify-email',
-    '/forgot-password',
-    '/reset-password'
-  ].includes(currentPath);
+  const isAuthRoute =
+    [
+      '/login',
+      '/signup',
+      '/register',
+      '/verify-email',
+      '/forgot-password',
+      '/reset-password',
+      '/activate-staff'
+    ].includes(currentPath) || currentPath.startsWith('/activate-staff');
   const isMarketingRoute = !isAppRoute && !isAuthRoute;
 
   // Initialize backend auth session verification
@@ -180,7 +183,7 @@ export function App() {
         appContent = <SettingsPage />;
       } else if (currentPath === '/app/profile') {
         appContent = <ProfilePage />;
-      } else if (currentPath === '/admin') {
+      } else if (currentPath === '/admin' || currentPath === '/app/admin') {
         appContent = <AdminPage />;
       } else {
         // Default to /app/dashboard
@@ -197,6 +200,8 @@ export function App() {
     mainView = <ForgotPasswordPage />;
   } else if (currentPath === '/reset-password') {
     mainView = <ResetPasswordPage />;
+  } else if (currentPath === '/activate-staff' || currentPath.startsWith('/activate-staff')) {
+    mainView = <ActivateStaffPage />;
   } else if (currentPath === '/login') {
     mainView = <LoginPage />;
   } else {

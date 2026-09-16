@@ -9,29 +9,7 @@ import { AuditService } from '../services/auditService';
 import { OAuthService } from '../services/oauthService';
 import { config } from '../config/env';
 import { UserRecord } from '../models/types';
-
-const COOKIE_NAME = 'ic_refresh_token';
-
-const setRefreshCookie = (res: Response, rawRefreshToken: string) => {
-  res.cookie(COOKIE_NAME, rawRefreshToken, {
-    httpOnly: true,
-    secure: config.cookieSecure,
-    sameSite: 'lax',
-    domain: config.cookieDomain,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    path: '/'
-  });
-};
-
-const clearRefreshCookie = (res: Response) => {
-  res.clearCookie(COOKIE_NAME, {
-    httpOnly: true,
-    secure: config.cookieSecure,
-    sameSite: 'lax',
-    domain: config.cookieDomain,
-    path: '/'
-  });
-};
+import { setRefreshCookie, clearRefreshCookie, COOKIE_NAME } from '../utils/cookies';
 
 const validatePasswordComplexity = (password: string): string | null => {
   if (password.length < 8) return 'Password must be at least 8 characters long.';
@@ -48,7 +26,7 @@ export class AuthController {
    */
   static async register(req: Request, res: Response) {
     try {
-      const { name, email, password, confirmPassword } = req.body;
+      const { name, email, password, confirmPassword, organizationName, role, title, departmentName } = req.body;
 
       if (!name || !email || !password || !confirmPassword) {
         return res.status(400).json({ success: false, error: 'All fields are required.' });
@@ -77,24 +55,36 @@ export class AuthController {
       const passwordHash = await bcrypt.hash(password, 10);
       const now = new Date().toISOString();
 
+      const userRole: UserRole = role === 'HOSPITAL_ADMIN' ? 'HOSPITAL_ADMIN' : 'AUTHORIZED_STAFF';
+      const orgId = userRole === 'HOSPITAL_ADMIN' ? `org-${crypto.randomUUID().slice(0, 8)}` : 'org-metro-01';
+      const orgName = organizationName?.trim() || 'IntelliCare Metropolitan Medical Center';
+      const userTitle = title?.trim() || (userRole === 'HOSPITAL_ADMIN' ? 'Hospital Administrator & Operations Lead' : 'Healthcare Operations Specialist');
+      const deptName = departmentName?.trim() || 'Hospital Operations';
+
       let user: UserRecord;
       if (existing && !existing.emailVerified) {
         // Update existing unverified account
         user = db.updateUser(existing.id, {
           name: name.trim(),
           passwordHash,
+          role: userRole,
+          organizationName: orgName,
+          title: userTitle,
+          departmentName: deptName,
           updatedAt: now
         })!;
       } else {
         // Create new account
         user = {
           id: `usr-${crypto.randomUUID().slice(0, 8)}`,
-          organizationId: 'org-metro-01',
+          organizationId: orgId,
+          organizationName: orgName,
           departmentId: 'dept-all',
+          departmentName: deptName,
           email: cleanEmail,
           name: name.trim(),
-          title: 'Healthcare Operations Specialist',
-          role: 'AUTHORIZED_STAFF',
+          title: userTitle,
+          role: userRole,
           status: 'ACTIVE',
           emailVerified: false,
           passwordHash,

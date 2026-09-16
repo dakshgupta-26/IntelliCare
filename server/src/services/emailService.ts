@@ -256,4 +256,56 @@ export class EmailService {
 
     return this.sendViaMailjet(email, name, subject, this.wrapTemplate(subject, body));
   }
+
+  /**
+   * 6. Clinical Staff Member Workspace Invitation
+   */
+  static async sendStaffInviteEmail(
+    email: string,
+    name: string,
+    roleTitle: string,
+    departmentName: string,
+    organizationName: string,
+    inviterName: string,
+    inviteUrl: string,
+    expiresInDays = 7
+  ): Promise<EmailSendResult> {
+    const subject = `IntelliCare Access Invitation: Join ${organizationName}`;
+    const body = `
+      <h1 class="title">Clinical Workspace Invitation</h1>
+      <p class="text">Hello <strong>${name}</strong>,</p>
+      <p class="text"><strong>${inviterName}</strong> has invited you to join the <strong>${organizationName}</strong> clinical operations and AI decision support workspace.</p>
+
+      <table class="meta-table">
+        <tr>
+          <td class="meta-label">Assigned Role</td>
+          <td class="meta-value">${roleTitle}</td>
+        </tr>
+        <tr>
+          <td class="meta-label">Department Scope</td>
+          <td class="meta-value">${departmentName}</td>
+        </tr>
+        <tr>
+          <td class="meta-label">Healthcare Org</td>
+          <td class="meta-value">${organizationName}</td>
+        </tr>
+        <tr>
+          <td class="meta-label">Invitation Expiry</td>
+          <td class="meta-value">${expiresInDays} Days</td>
+        </tr>
+      </table>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${inviteUrl}" class="btn">Activate Clinical Workspace Access →</a>
+      </div>
+
+      <p class="text">Upon activating your account, you will establish your private multi-factor credentials and receive access to operational dashboards, clinical twin data, and telemetry feeds.</p>
+      <p class="text">If you have questions regarding your clinical scope, please reach out to your hospital operations administrator.</p>
+    `;
+
+    console.log(`\n💌 [STAFF INVITATION] Email: ${email} | Role: ${roleTitle} | Org: ${organizationName} | URL: ${inviteUrl}\n`);
+    const res = await this.sendViaMailjet(email, name, subject, this.wrapTemplate(subject, body));
+    (res as any).devInviteUrl = inviteUrl;
+    return res;
+  }
 }

@@ -23,13 +23,23 @@ interface AuthState {
 
   // Authentication Operations
   login: (email: string, password?: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string, confirmPassword: string) => Promise<{ devOtp?: string }>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+    organizationName?: string,
+    role?: UserRole,
+    title?: string,
+    departmentName?: string
+  ) => Promise<{ devOtp?: string }>;
   verifyEmail: (email: string, otp: string) => Promise<boolean>;
   resendOtp: (email: string) => Promise<{ devOtp?: string }>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
   forgotPassword: (email: string) => Promise<{ devResetUrl?: string }>;
   resetPassword: (token: string, newPassword: string, confirmPassword: string) => Promise<void>;
+  activateStaff: (token: string, password: string, confirmPassword: string) => Promise<any>;
   changePassword: (currentPassword: string, newPassword: string, confirmPassword: string) => Promise<void>;
 
   // Session & Audit Management
@@ -129,10 +139,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  register: async (name, email, password, confirmPassword) => {
+  register: async (name, email, password, confirmPassword, organizationName, role, title, departmentName) => {
     set({ isLoading: true, error: null });
     try {
-      const data = await AuthApi.register(name, email, password, confirmPassword);
+      const data = await AuthApi.register(name, email, password, confirmPassword, organizationName, role, title, departmentName);
       set({ unverifiedEmail: email, isLoading: false });
       return { devOtp: data.devOtp };
     } catch (err: any) {
@@ -208,6 +218,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       await AuthApi.resetPassword(token, newPassword, confirmPassword);
       set({ isLoading: false });
+    } catch (err: any) {
+      set({ isLoading: false, error: err.message });
+      throw err;
+    }
+  },
+
+  activateStaff: async (token, password, confirmPassword) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await AuthApi.activateStaff(token, password, confirmPassword);
+      if (res?.success && res.user) {
+        set({
+          currentUser: res.user,
+          isAuthenticated: true,
+          activeRole: res.user.role,
+          isLoading: false
+        });
+        return res;
+      }
+      throw new Error(res?.message || 'Staff activation failed');
     } catch (err: any) {
       set({ isLoading: false, error: err.message });
       throw err;

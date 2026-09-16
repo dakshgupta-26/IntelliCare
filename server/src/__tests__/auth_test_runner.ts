@@ -219,6 +219,90 @@ async function runTests() {
     const hasResetEvent = auditEvents.some(e => e.eventType === 'PASSWORD_RESET_COMPLETED');
     assert(hasRegEvent && hasResetEvent, 'Audit ledger contains registration and password reset records');
 
+    // 16. Admin Login & Clinical Staff Directory
+    const adminLoginRes = await fetch(`${baseUrl}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'sarah.chen@intellicare.health', password: 'IntelliCare@2026!' })
+    });
+    const adminLoginJson = await adminLoginRes.json();
+    assert(adminLoginRes.status === 200 && adminLoginJson.accessToken, 'Hospital Admin can log in');
+
+    const staffListRes = await fetch(`${baseUrl}/auth/staff`, {
+      headers: { Authorization: `Bearer ${adminLoginJson.accessToken}` }
+    });
+    const staffListJson = await staffListRes.json();
+    assert(staffListRes.status === 200 && Array.isArray(staffListJson.staff), 'Hospital Admin can retrieve clinical staff directory');
+
+    // 17. Provision & Invite New Clinical Staff Member
+    const staffInviteEmail = `dr.surgeon_${Date.now()}@intellicare.health`;
+    const inviteRes = await fetch(`${baseUrl}/auth/staff/invite`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${adminLoginJson.accessToken}`
+      },
+      body: JSON.stringify({
+        name: 'Dr. Vivek Kapoor',
+        email: staffInviteEmail,
+        role: 'DEPARTMENT_MANAGER',
+        departmentId: 'dept-surgery',
+        departmentName: 'Surgical Operations',
+        title: 'Chief of Robotic Surgery'
+      })
+    });
+    const inviteJson = await inviteRes.json();
+    assert(inviteRes.status === 201 && inviteJson.success === true, 'Admin can invite clinical staff with department scope');
+    assert(Boolean(inviteJson.devInviteUrl), 'Staff invite generates cryptographic activation URL');
+
+    const inviteUrlObj = new URL(inviteJson.devInviteUrl);
+    const inviteToken = inviteUrlObj.searchParams.get('token')!;
+    assert(Boolean(inviteToken), 'Invite URL contains valid secure activation token');
+
+    // 18. Invited Staff Member Activates Account
+    const activateRes = await fetch(`${baseUrl}/auth/staff/activate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: inviteToken,
+        password: 'DoctorSecurePassword2026!',
+        confirmPassword: 'DoctorSecurePassword2026!'
+      })
+    });
+    const activateJson = await activateRes.json();
+    assert(activateRes.status === 200 && activateJson.success === true, 'Invited staff can activate account and set password');
+    assert(Boolean(activateJson.accessToken), 'Staff activation returns immediate workspace access token');
+
+    // 19. Activated Staff Login with Permanent Password
+    const staffLoginRes = await fetch(`${baseUrl}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: staffInviteEmail,
+        password: 'DoctorSecurePassword2026!'
+      })
+    });
+    const staffLoginJson = await staffLoginRes.json();
+    assert(staffLoginRes.status === 200 && staffLoginJson.user.role === 'DEPARTMENT_MANAGER', 'Activated staff logs in with assigned role');
+
+    // 20. Admin Suspends Staff Access (Terminates Active Sessions)
+    const suspendRes = await fetch(`${baseUrl}/auth/staff/${activateJson.user.id}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${adminLoginJson.accessToken}`
+      },
+      body: JSON.stringify({ status: 'SUSPENDED' })
+    });
+    const suspendJson = await suspendRes.json();
+    assert(suspendRes.status === 200 && suspendJson.user.status === 'SUSPENDED', 'Hospital Admin can suspend staff member');
+
+    // Verify Suspended User Session is Revoked
+    const suspendedMeRes = await fetch(`${baseUrl}/auth/me`, {
+      headers: { Authorization: `Bearer ${staffLoginJson.accessToken}` }
+    });
+    assert(suspendedMeRes.status === 401, 'Suspended staff token is rejected immediately');
+
     console.log(`\n========================================`);
     console.log(`📊 Test Summary: ${passedCount} PASSED, ${failedCount} FAILED`);
     console.log(`========================================\n`);

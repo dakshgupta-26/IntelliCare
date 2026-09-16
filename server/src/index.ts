@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { WebSocketServer, WebSocket } from 'ws';
 import { config } from './config/env';
+import { connectMongoDB } from './config/db';
+import { db } from './storage/db';
 import { authRoutes } from './routes/authRoutes';
 
 dotenv.config();
@@ -165,8 +167,15 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 if (process.env.NODE_ENV !== 'test') {
-  server.listen(PORT, () => {
+  connectMongoDB().then(() => {
+    db.syncWithMongoDB();
+  }).catch(err => {
+    console.warn('[MongoDB Initialization Warning]', err.message);
+  });
+
+  server.listen(PORT, '0.0.0.0', () => {
     console.log(`⚡ IntelliCare API Server running on port ${PORT}`);
+    console.log(`⚡ Database: MongoDB (${config.mongodbUri})`);
     console.log(`⚡ Authentication Endpoints: http://localhost:${PORT}/auth`);
     console.log(`⚡ Mailjet Status: ${config.mailjet.isConfigured ? 'CONNECTED' : 'LOCAL SIMULATOR (Console Preview)'}`);
     console.log(`⚡ WebSocket Gateway: ws://localhost:${PORT}/ws`);

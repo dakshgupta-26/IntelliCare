@@ -6,6 +6,7 @@ export interface ServerConfig {
   nodeEnv: 'development' | 'production' | 'test';
   frontendUrl: string;
   backendUrl: string;
+  mongodbUri: string;
   jwtAccessSecret: string;
   jwtRefreshSecret: string;
   mailjet: {
@@ -33,6 +34,7 @@ export const config: ServerConfig = {
   nodeEnv,
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
   backendUrl: process.env.BACKEND_URL || 'http://localhost:5000',
+  mongodbUri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/intellicare',
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET || 'intellicare_dev_access_secret_f829d10e54b68c92a1047db381e0569a',
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'intellicare_dev_refresh_secret_a941e72b380f5c12d69e481b7a2095f3',
   mailjet: {
