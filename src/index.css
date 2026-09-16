@@ -263,6 +263,41 @@
   }
 }
 
+@keyframes waveform-sweep {
+  0% {
+    stroke-dashoffset: 200;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.25);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.18);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+.animate-waveform-sweep {
+  animation: waveform-sweep linear infinite;
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.05s ease-in-out infinite;
+}
+
 /* Reduced motion accessibility */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {

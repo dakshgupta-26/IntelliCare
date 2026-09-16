@@ -1,6 +1,6 @@
 import React from 'react';
-import { Heart, Activity, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
-import { WaveformCanvas } from './WaveformCanvas';
+import { Heart, Activity, Wind, Gauge, Users, ChevronRight } from 'lucide-react';
+import { AnimatedWaveformSvg } from './AnimatedWaveformSvg';
 import { useRouterStore } from '../../store/useRouterStore';
 
 interface HeroLiveTelemetryOverlaysProps {
@@ -12,7 +12,7 @@ export const HeroLiveTelemetryOverlays: React.FC<HeroLiveTelemetryOverlaysProps>
 }) => {
   const navigate = useRouterStore((state) => state.navigate);
 
-  const handleSurgeAction = () => {
+  const handleAction = () => {
     if (onInspectSurge) {
       onInspectSurge();
     } else {
@@ -21,222 +21,224 @@ export const HeroLiveTelemetryOverlays: React.FC<HeroLiveTelemetryOverlaysProps>
   };
 
   return (
-    <>
-      {/* 1. TOP-LEFT: Live Patient & ICU Telemetry Panel */}
+    <div className="absolute inset-0 pointer-events-none z-20 select-none overflow-hidden">
+      {/* ----------------------------------------------------------------- */}
+      {/* HUD 1: LIVE PATIENT VITALS (Center-Top Positioned)                */}
+      {/* ----------------------------------------------------------------- */}
       <div 
-        className="absolute top-4 left-4 z-20 w-[270px] sm:w-[290px] p-3.5 rounded-xl bg-[#060D1A]/88 backdrop-blur-xl border border-cyan-500/30 shadow-[0_16px_36px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-cyan-400/50 hover:shadow-[0_20px_45px_rgba(25,199,243,0.15)] group"
+        className="pointer-events-auto absolute left-[43%] xl:left-[44%] 2xl:left-[45%] top-[12%] sm:top-[14%] hidden md:block w-[300px] lg:w-[320px] p-4 rounded-2xl bg-[#060D1A]/88 backdrop-blur-2xl border border-white/[0.12] shadow-[0_20px_50px_rgba(0,0,0,0.85)] hover:border-cyan-500/40 hover:shadow-[0_25px_60px_rgba(34,211,238,0.2)] transition-all duration-300"
+        style={{
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+        }}
       >
-        <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+        {/* Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
           <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
+            <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400 shadow-[0_0_8px_#34d399]" />
             </span>
-            <span className="text-[10px] font-mono font-bold tracking-wider text-white uppercase">
-              BED 04 TELEMETRY
+            <span className="text-xs font-sans font-semibold tracking-wide text-white">
+              Live Patient Vitals
             </span>
           </div>
-          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-semibold">
-            LEAD II • 1.0mV
+          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+            <span>→</span>
+            <span>Stable</span>
           </span>
         </div>
 
-        {/* Real-time Mathematical ECG Waveform */}
-        <div className="my-2">
-          <WaveformCanvas width={256} height={42} color="#10B981" type="ecg" bpm={74} />
-        </div>
-
-        {/* 4 Critical Clinical Vitals Grid */}
-        <div className="grid grid-cols-4 gap-1.5 pt-1 text-center font-mono">
-          <div className="p-1.5 rounded-lg bg-black/40 border border-white/[0.05]">
-            <div className="flex items-center justify-center gap-1 text-[9px] text-slate-400">
-              <Heart className="w-2.5 h-2.5 text-rose-400 fill-rose-400 animate-pulse" />
-              <span>HR</span>
+        {/* 4 Real-Time Animated Vitals Rows */}
+        <div className="pt-3 space-y-2.5 font-mono">
+          {/* Row 1: HR */}
+          <div className="flex items-center justify-between py-0.5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-300 w-8">HR</span>
+              <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 animate-heartbeat" />
+              <span className="text-sm font-bold text-white tracking-tight">72</span>
+              <span className="text-[10px] text-slate-400 font-sans">bpm</span>
             </div>
-            <div className="text-sm font-bold text-emerald-400 tracking-tight">74</div>
-            <div className="text-[8px] text-slate-400">bpm</div>
+            <AnimatedWaveformSvg type="ecg" width={110} height={20} color="#34D399" />
           </div>
 
-          <div className="p-1.5 rounded-lg bg-black/40 border border-white/[0.05]">
-            <div className="text-[9px] text-slate-400">SpO2</div>
-            <div className="text-sm font-bold text-cyan-400 tracking-tight">98%</div>
-            <div className="text-[8px] text-slate-400">room air</div>
+          {/* Row 2: SpO2 */}
+          <div className="flex items-center justify-between py-0.5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-300 w-8">SpO₂</span>
+              <Activity className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="text-sm font-bold text-white tracking-tight">98</span>
+              <span className="text-[10px] text-slate-400 font-sans">%</span>
+            </div>
+            <AnimatedWaveformSvg type="spo2" width={110} height={20} color="#22D3EE" />
           </div>
 
-          <div className="p-1.5 rounded-lg bg-black/40 border border-white/[0.05]">
-            <div className="text-[9px] text-slate-400">NIBP</div>
-            <div className="text-xs font-bold text-white tracking-tight pt-0.5">118/76</div>
-            <div className="text-[8px] text-slate-400">mmHg</div>
+          {/* Row 3: BP */}
+          <div className="flex items-center justify-between py-0.5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-300 w-8">BP</span>
+              <Gauge className="w-3.5 h-3.5 text-teal-400" />
+              <span className="text-xs font-bold text-white tracking-tight">118/76</span>
+              <span className="text-[10px] text-slate-400 font-sans">mmHg</span>
+            </div>
+            <AnimatedWaveformSvg type="bp" width={110} height={20} color="#14B8A6" />
           </div>
 
-          <div className="p-1.5 rounded-lg bg-black/40 border border-white/[0.05]">
-            <div className="text-[9px] text-slate-400">RESP</div>
-            <div className="text-sm font-bold text-indigo-300 tracking-tight">16</div>
-            <div className="text-[8px] text-slate-400">/min</div>
+          {/* Row 4: RR */}
+          <div className="flex items-center justify-between py-0.5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-300 w-8">RR</span>
+              <Wind className="w-3.5 h-3.5 text-sky-400" />
+              <span className="text-sm font-bold text-white tracking-tight">16</span>
+              <span className="text-[10px] text-slate-400 font-sans">/min</span>
+            </div>
+            <AnimatedWaveformSvg type="rr" width={110} height={20} color="#38BDF8" />
           </div>
         </div>
       </div>
 
-      {/* 2. TOP-RIGHT: ICU Bed Occupancy Radial Gauge */}
+      {/* ----------------------------------------------------------------- */}
+      {/* HUD 2: ICU BED OCCUPANCY (Top-Right Positioned)                   */}
+      {/* ----------------------------------------------------------------- */}
       <div 
-        className="absolute top-4 right-4 z-20 w-[210px] sm:w-[225px] p-3.5 rounded-xl bg-[#060D1A]/88 backdrop-blur-xl border border-rose-500/30 shadow-[0_16px_36px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-rose-400/50 hover:shadow-[0_20px_45px_rgba(244,63,94,0.15)] group"
+        className="pointer-events-auto absolute right-[2%] lg:right-[4%] xl:right-[5%] top-[12%] sm:top-[14%] hidden md:block w-[270px] lg:w-[290px] p-4 rounded-2xl bg-[#060D1A]/88 backdrop-blur-2xl border border-white/[0.12] shadow-[0_20px_50px_rgba(0,0,0,0.85)] hover:border-cyan-500/40 hover:shadow-[0_25px_60px_rgba(34,211,238,0.2)] transition-all duration-300"
+        style={{
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+        }}
       >
-        <div className="flex items-center justify-between pb-1.5 border-b border-white/[0.08]">
-          <span className="text-[10px] font-mono font-bold tracking-wider text-slate-300 uppercase">
-            ICU OCCUPANCY
+        {/* Header */}
+        <div className="flex items-center justify-between pb-2.5">
+          <span className="text-xs font-sans font-semibold tracking-wide text-slate-200">
+            ICU Bed Occupancy
           </span>
-          <span className="inline-flex items-center gap-1 text-[9px] font-mono text-rose-400 font-bold bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
-            CRITICAL
+          <span className="text-[10px] font-mono font-semibold text-rose-400">
+            +12% <span className="text-slate-400 font-sans font-normal">vs. last 6 hrs</span>
           </span>
         </div>
 
-        <div className="flex items-center gap-3 pt-2">
-          {/* Radial circular progress meter */}
-          <div className="relative w-14 h-14 shrink-0">
+        {/* Content Row: Radial Gauge + Bed Count + Spark Trend Bars */}
+        <div className="flex items-center justify-between pt-1">
+          {/* Radial Circular SVG Gauge */}
+          <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
             <svg className="w-14 h-14 -rotate-90" viewBox="0 0 48 48">
               <circle
                 cx="24"
                 cy="24"
-                r="19"
-                stroke="rgba(255,255,255,0.08)"
-                strokeWidth="4"
+                r="20"
+                className="stroke-[#09152C]"
+                strokeWidth="4.5"
                 fill="none"
               />
               <circle
                 cx="24"
                 cy="24"
-                r="19"
-                stroke="#F43F5E"
-                strokeWidth="4"
-                strokeDasharray="119.38"
-                strokeDashoffset="9.55" /* 92% filled */
+                r="20"
+                className="stroke-cyan-400 transition-all duration-1000 ease-out"
+                strokeWidth="4.5"
+                strokeDasharray="125.66"
+                strokeDashoffset="10.05" /* 92% fill */
                 strokeLinecap="round"
                 fill="none"
-                style={{ filter: 'drop-shadow(0 0 6px rgba(244,63,94,0.6))' }}
+                style={{
+                  filter: 'drop-shadow(0 0 6px rgba(34, 211, 238, 0.7))'
+                }}
               />
             </svg>
-            <div className="absolute inset-0 flex items-center justify-center font-display font-bold text-white text-xs">
-              92%
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-xs font-mono font-extrabold text-white">92%</span>
             </div>
           </div>
 
-          <div className="flex flex-col text-left">
-            <div className="text-base font-display font-bold text-white tracking-tight">
-              29 <span className="text-xs font-mono font-normal text-slate-400">/ 32 Beds</span>
+          {/* Bed Numbers */}
+          <div className="text-left pl-1">
+            <div className="text-lg font-mono font-extrabold text-white tracking-tight">
+              74 <span className="text-xs font-mono font-medium text-slate-400">/ 80</span>
             </div>
-            <div className="text-[10px] font-mono text-rose-300 font-medium pt-0.5">
-              3 Available Beds
+            <div className="text-[11px] font-sans text-slate-300">
+              Beds Occupied
             </div>
-            <div className="text-[9px] text-slate-400 font-sans">
-              1 Isolation • 2 Step-Down
-            </div>
+          </div>
+
+          {/* Mini 6-Bar Historical Trajectory Sparkline */}
+          <div className="flex items-end gap-1 h-8 px-2 py-1 rounded-lg bg-[#040814]/80 border border-white/[0.06]">
+            {[35, 48, 58, 68, 80, 88, 94].map((h, i) => (
+              <div
+                key={i}
+                className="w-1 rounded-t-sm bg-gradient-to-t from-cyan-600 to-cyan-400 transition-all duration-300"
+                style={{ height: `${h}%` }}
+              />
+            ))}
           </div>
         </div>
       </div>
 
-      {/* 3. BOTTOM-LEFT: Neural Forecasting +18% Surge Influx */}
+      {/* ----------------------------------------------------------------- */}
+      {/* HUD 3: PREDICTED ARRIVALS (Middle-Right, below Bed Occupancy)     */}
+      {/* ----------------------------------------------------------------- */}
       <div 
-        className="absolute bottom-4 left-4 z-20 w-[240px] sm:w-[260px] p-3.5 rounded-xl bg-[#060D1A]/88 backdrop-blur-xl border border-amber-500/30 shadow-[0_16px_36px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-amber-400/50 hover:shadow-[0_20px_45px_rgba(245,158,11,0.15)] group"
+        className="pointer-events-auto absolute right-[2%] lg:right-[4%] xl:right-[5%] top-[34%] sm:top-[36%] hidden md:block w-[270px] lg:w-[290px] p-4 rounded-2xl bg-[#060D1A]/88 backdrop-blur-2xl border border-white/[0.12] shadow-[0_20px_50px_rgba(0,0,0,0.85)] hover:border-cyan-500/40 hover:shadow-[0_25px_60px_rgba(34,211,238,0.2)] transition-all duration-300"
+        style={{
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+        }}
       >
-        <div className="flex items-center justify-between pb-1.5 border-b border-white/[0.08]">
-          <div className="flex items-center gap-1.5">
-            <Activity className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-[10px] font-mono font-bold tracking-wider text-slate-200 uppercase">
-              PREDICTED INFLUX
-            </span>
+        {/* Header */}
+        <div className="flex items-center gap-2 pb-2">
+          <div className="w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+            <Users className="w-3.5 h-3.5 text-cyan-400" />
           </div>
-          <span className="text-[9px] font-mono text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
-            +18.4%
+          <span className="text-xs font-sans font-semibold tracking-wide text-slate-200">
+            Predicted Arrivals
           </span>
         </div>
 
-        <div className="pt-2 flex items-baseline justify-between">
+        {/* Content Row: Main Percentage Stat + Dynamic Cyan Vertical Wave Bars */}
+        <div className="flex items-end justify-between pt-1">
           <div>
-            <div className="text-lg font-display font-bold text-white tracking-tight">
-              +14 Patients
+            <div className="text-2xl font-mono font-extrabold text-cyan-400 tracking-tight leading-none">
+              +18%
             </div>
-            <div className="text-[10px] font-mono text-slate-400">
-              Next 4-Hour Window (T+4h)
+            <div className="text-[10px] font-sans text-slate-300 pt-1">
+              in next 6 hours
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-[10px] font-mono text-emerald-400 font-semibold">95% Conf.</div>
-            <div className="text-[9px] font-mono text-slate-400">LSTM DeepAR</div>
-          </div>
-        </div>
 
-        {/* Mini Neural Forecast Sparkline */}
-        <div className="mt-2 h-7 w-full">
-          <svg className="w-full h-full" viewBox="0 0 160 28" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="forecastGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.35" />
-                <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.0" />
-              </linearGradient>
-            </defs>
-            {/* Shaded confidence bound */}
-            <path
-              d="M0,18 L30,16 L60,15 L90,11 L120,7 L160,4 L160,20 L120,22 L90,23 L60,24 L30,22 L0,22 Z"
-              fill="rgba(245, 158, 11, 0.12)"
-            />
-            {/* Historical line */}
-            <path
-              d="M0,18 L30,16 L60,15 L90,14"
-              fill="none"
-              stroke="#94A3B8"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-            {/* Forecast dashed projection */}
-            <path
-              d="M90,14 L120,9 L160,4"
-              fill="none"
-              stroke="#F59E0B"
-              strokeWidth="2"
-              strokeDasharray="3 3"
-              strokeLinecap="round"
-              style={{ filter: 'drop-shadow(0 0 4px rgba(245,158,11,0.7))' }}
-            />
-            <circle cx="160" cy="4" r="2.5" fill="#F59E0B" />
-          </svg>
+          {/* 7 Glowing Animated Gradient Bars */}
+          <div className="flex items-end gap-1.5 h-10 px-2 py-1 rounded-xl bg-[#040814]/80 border border-white/[0.06]">
+            {[30, 45, 60, 75, 90, 100, 80].map((heightPct, idx) => (
+              <div
+                key={idx}
+                className="w-1.5 rounded-t-sm bg-gradient-to-t from-cyan-600 via-cyan-400 to-teal-300 transition-all duration-500 animate-pulse"
+                style={{ 
+                  height: `${heightPct}%`,
+                  animationDelay: `${idx * 150}ms`,
+                  boxShadow: '0 0 6px rgba(34, 211, 238, 0.4)'
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* 4. BOTTOM-RIGHT: MILP Solver Surge Action Alert */}
+      {/* ----------------------------------------------------------------- */}
+      {/* HUD 4: INTERACTIVE BEDSIDE MONITOR HOTSPOT (Midground Right)      */}
+      {/* ----------------------------------------------------------------- */}
       <div 
-        className="absolute bottom-4 right-4 z-20 w-[260px] sm:w-[285px] p-3.5 rounded-xl bg-[#060D1A]/92 backdrop-blur-xl border border-cyan-500/40 shadow-[0_16px_36px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-cyan-300 hover:shadow-[0_20px_45px_rgba(25,199,243,0.25)] group"
+        className="pointer-events-auto absolute right-[18%] lg:right-[20%] top-[42%] hidden xl:flex items-center gap-2 group cursor-pointer"
+        onClick={handleAction}
       >
-        <div className="flex items-center justify-between pb-1.5 border-b border-white/[0.08]">
-          <div className="flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="text-[10px] font-mono font-bold tracking-wider text-cyan-300 uppercase">
-              MILP RE-BALANCER
-            </span>
-          </div>
-          <span className="inline-flex items-center gap-1 text-[9px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold">
-            <ShieldCheck className="w-2.5 h-2.5" />
-            HUMAN GOVERNED
-          </span>
+        <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-[#060D1A]/90 border border-cyan-400/60 shadow-[0_0_20px_rgba(34,211,238,0.5)] group-hover:scale-110 transition-transform">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60" />
+          <Activity className="w-4 h-4 text-cyan-300" />
         </div>
-
-        <p className="pt-2 text-xs text-slate-200 font-sans leading-snug">
-          Predicted capacity strain at 18:40. Ready to re-route 3 step-down discharges to Ward 4B.
-        </p>
-
-        <div className="mt-2.5 flex items-center justify-between pt-1 border-t border-white/[0.06]">
-          <span className="text-[9px] font-mono text-slate-400">
-            Solver: OR-Tools CBC
-          </span>
-          <button
-            onClick={handleSurgeAction}
-            className="inline-flex items-center gap-1 text-xs font-mono font-bold text-cyan-400 hover:text-cyan-300 transition-colors group-hover:translate-x-0.5 duration-200 cursor-pointer"
-          >
-            <span>Review Plan</span>
-            <ArrowRight className="w-3 h-3" />
-          </button>
+        <div className="opacity-0 group-hover:opacity-100 translate-x-1 group-hover:translate-x-0 transition-all duration-200 px-3 py-1.5 rounded-xl bg-[#060D1A]/95 backdrop-blur-xl border border-cyan-500/30 text-left shadow-2xl">
+          <div className="text-[11px] font-mono font-bold text-white flex items-center gap-1">
+            <span>Mindray Telemetry Bus</span>
+            <ChevronRight className="w-3 h-3 text-cyan-400" />
+          </div>
+          <div className="text-[9px] font-mono text-cyan-300">
+            250Hz Live Stream • 12ms Latency
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };

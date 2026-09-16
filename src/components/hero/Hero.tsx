@@ -1,13 +1,38 @@
-import React, { useState } from 'react';
-import { ArrowRight, ChevronDown, Play } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { ArrowRight, Play, Activity, TrendingUp, Cpu } from 'lucide-react';
 import { HeroHospitalScene } from './HeroHospitalScene';
-import { HeroFloatingCards } from './HeroFloatingCards';
 import { HeroWatchDemoModal } from './HeroWatchDemoModal';
 import { useRouterStore } from '../../store/useRouterStore';
 
 export const Hero: React.FC = () => {
   const navigate = useRouterStore((state) => state.navigate);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const heroRef = useRef<HTMLElement | null>(null);
+
+  // Subtle 3D mouse parallax tilt across whole hero section
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const hero = heroRef.current;
+    if (!hero) return;
+
+    const rect = hero.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    // Smooth subtle tilt (-2deg to +2deg)
+    const rotateY = ((x - centerX) / centerX) * 2;
+    const rotateX = -((y - centerY) / centerY) * 2;
+
+    setTilt({ rotateX, rotateY });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ rotateX: 0, rotateY: 0 });
+  };
 
   const scrollToSection = (sectionId: string) => {
     const el = document.querySelector(sectionId);
@@ -17,44 +42,61 @@ export const Hero: React.FC = () => {
   };
 
   return (
-    <section className="relative min-h-[96vh] flex flex-col justify-between pt-28 sm:pt-32 pb-8 overflow-hidden bg-[#040813] text-slate-100">
-      {/* Cinematic ambient background glow */}
-      <div className="absolute top-1/4 left-1/4 w-[650px] h-[500px] bg-cyan-500/[0.04] blur-[160px] pointer-events-none" />
-      <div className="absolute top-1/3 right-1/4 w-[550px] h-[550px] bg-blue-600/[0.03] blur-[180px] pointer-events-none" />
-      <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
+    <section 
+      ref={heroRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative min-h-[96vh] lg:min-h-screen w-full flex flex-col justify-between pt-24 sm:pt-28 pb-4 sm:pb-6 overflow-hidden bg-[#030612] text-slate-100 select-none"
+    >
+      {/* ----------------------------------------------------------------- */}
+      {/* 1. Full-Bleed Photorealistic Hospital Digital Twin Backdrop       */}
+      {/* ----------------------------------------------------------------- */}
+      <HeroHospitalScene tilt={tilt} />
 
-      {/* Main Hero Asymmetric Split Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
-        {/* Left Column: Product Positioning & Editorial Typography (5.2 Cols) */}
-        <div className="lg:col-span-5 xl:col-span-5 flex flex-col items-start text-left pt-2 lg:pt-0">
-          {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#081122] border border-cyan-500/20 backdrop-blur-md mb-5 shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="text-[11px] font-mono font-semibold tracking-wider text-slate-200 uppercase">
+      {/* ----------------------------------------------------------------- */}
+      {/* 2. Top-Right Ambient Tagline                                      */}
+      {/* ----------------------------------------------------------------- */}
+      <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 z-20 flex justify-end">
+        <div className="hidden lg:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#060D1A]/70 border border-white/[0.08] backdrop-blur-md text-[11px] font-mono tracking-wider text-slate-300 shadow-sm">
+          <span className="w-1 h-3 rounded-full bg-cyan-400" />
+          <span>REAL-TIME INTELLIGENCE FOR REAL-WORLD CARE</span>
+        </div>
+      </div>
+
+      {/* ----------------------------------------------------------------- */}
+      {/* 3. Main Hero Content Area (Left Column Text & Editorial)          */}
+      {/* ----------------------------------------------------------------- */}
+      <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 z-20 my-auto flex items-center justify-between">
+        <div className="max-w-xl lg:max-w-2xl text-left py-4 sm:py-6">
+          {/* Eyebrow Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#070E1E]/80 border border-cyan-500/25 backdrop-blur-md mb-5 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee]" />
+            <span className="text-[11px] font-mono font-bold tracking-wider text-slate-200 uppercase">
               AI-POWERED HOSPITAL OPERATIONS
             </span>
-            <span className="text-slate-600">|</span>
-            <span className="text-[10px] font-mono text-cyan-400 font-medium">MILP + LSTM + RAG</span>
           </div>
 
-          {/* Main Editorial Headline */}
-          <h1 className="font-display text-4xl sm:text-5xl md:text-5xl lg:text-[60px] font-extrabold tracking-tight text-white leading-[1.05]">
-            Predict what hospitals need.{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-cyan-300 to-teal-200 block mt-1">
+          {/* Main Editorial Headline (Matching user reference) */}
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-[62px] xl:text-[72px] font-extrabold tracking-tight text-white leading-[1.04]">
+            Predict what
+            <br />
+            hospitals need.
+            <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-cyan-300 to-sky-400 drop-shadow-[0_0_24px_rgba(34,211,238,0.35)]">
               Before they need it.
             </span>
           </h1>
 
           {/* Supporting Narrative Copy */}
-          <p className="mt-5 text-base sm:text-lg text-slate-300 max-w-lg leading-relaxed font-normal">
-            IntelliCare combines real-time clinical telemetry, neural demand forecasting, contextual intelligence, and mathematical optimization to help hospital operations teams act before capacity becomes a crisis.
+          <p className="mt-5 sm:mt-6 text-sm sm:text-base lg:text-lg text-slate-300 max-w-lg leading-relaxed font-normal">
+            IntelliCare combines real-time hospital telemetry, demand forecasting, and contextual intelligence to help care teams act early, allocate resources smarter, and keep patient care uninterrupted.
           </p>
 
-          {/* Action Button Group */}
-          <div className="mt-7 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          {/* Action Button Row */}
+          <div className="mt-7 sm:mt-8 flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto">
             <button
               onClick={() => navigate('/app/dashboard')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-sans font-bold text-sm shadow-[0_2px_16px_rgba(25,199,243,0.3)] hover:shadow-[0_4px_24px_rgba(25,199,243,0.45)] transition-all duration-200 active:scale-[0.98] cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-slate-950 font-sans font-bold text-sm shadow-[0_0_25px_rgba(34,211,238,0.4)] hover:shadow-[0_0_35px_rgba(34,211,238,0.6)] transition-all duration-200 active:scale-[0.98] cursor-pointer"
             >
               <span>Launch Workspace</span>
               <ArrowRight className="w-4 h-4" />
@@ -62,129 +104,130 @@ export const Hero: React.FC = () => {
 
             <button
               onClick={() => setIsDemoModalOpen(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-[#091224] hover:bg-[#0D1830] border border-cyan-500/20 hover:border-cyan-400/40 text-slate-200 hover:text-white font-sans font-medium text-sm transition-all duration-200 cursor-pointer group"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#060D1A]/80 hover:bg-[#0B1528]/90 border border-white/[0.12] hover:border-cyan-400/40 text-slate-200 hover:text-white font-sans font-medium text-sm backdrop-blur-xl transition-all duration-200 cursor-pointer group shadow-lg"
             >
-              <Play className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform fill-cyan-400/30" />
+              <Play className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform fill-cyan-400/40" />
               <span>Watch Demo</span>
             </button>
           </div>
 
-          {/* 3-Pill Feature Strip */}
-          <div className="mt-7 grid grid-cols-3 gap-2 w-full max-w-lg pt-1">
-            <div className="p-2.5 rounded-xl bg-[#081122]/90 border border-white/[0.08] text-left">
-              <div className="text-base font-display font-bold text-cyan-300">99.4%</div>
-              <div className="text-[10px] font-mono text-slate-400 truncate">Forecast Precision</div>
+          {/* 3 Circular Feature Badges Row (Directly matching the image) */}
+          <div className="mt-8 flex flex-wrap items-center gap-4 sm:gap-6 pt-1">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.2)]">
+                <Activity className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-medium text-slate-200">
+                Real-Time Decision Support
+              </span>
             </div>
-            <div className="p-2.5 rounded-xl bg-[#081122]/90 border border-white/[0.08] text-left">
-              <div className="text-base font-display font-bold text-emerald-300">4.2 Hours</div>
-              <div className="text-[10px] font-mono text-slate-400 truncate">Surge Lead Time</div>
+
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.2)]">
+                <TrendingUp className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-medium text-slate-200">
+                AI-Powered Forecasting
+              </span>
             </div>
-            <div className="p-2.5 rounded-xl bg-[#081122]/90 border border-white/[0.08] text-left">
-              <div className="text-base font-display font-bold text-indigo-300">100%</div>
-              <div className="text-[10px] font-mono text-slate-400 truncate">Human Governed</div>
+
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 shadow-[0_0_12px_rgba(20,184,166,0.2)]">
+                <Cpu className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-medium text-slate-200">
+                Optimized Resource Allocation
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Realistic ICU Clinical Digital Twin (6.8-7 Cols) */}
-        <div className="lg:col-span-7 xl:col-span-7 relative w-full h-[400px] sm:h-[500px] lg:h-[580px] mt-4 lg:mt-0">
-          <HeroHospitalScene />
-        </div>
+        {/* Empty flex column on right: Allows the photorealistic patient, nurse, doctor & HUD cards to breathe without occlusion */}
+        <div className="hidden lg:block lg:w-[48%]" />
       </div>
 
-      {/* 4-Step Decision Lifecycle Stepper Ribbon */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10 mt-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 p-1.5 rounded-2xl bg-[#060D1A]/80 border border-white/[0.08] backdrop-blur-xl">
+      {/* ----------------------------------------------------------------- */}
+      {/* 4. Bottom Control Ribbon: Scroll + 4-Step Stepper + Social Proof  */}
+      {/* ----------------------------------------------------------------- */}
+      <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 z-20 pt-2 flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Left: Scroll to explore mouse pill */}
+        <div className="hidden sm:flex items-center gap-2.5 text-xs font-mono text-slate-400">
+          <div className="w-4 h-7 rounded-full border-2 border-slate-500/60 flex items-start justify-center p-1">
+            <div className="w-1 h-1.5 rounded-full bg-cyan-400 animate-bounce" />
+          </div>
+          <span>Scroll to explore</span>
+        </div>
+
+        {/* Center: 4-Step Decision Stepper Ribbon */}
+        <div className="flex items-center gap-1.5 sm:gap-2 p-1 rounded-full bg-[#060D1A]/85 border border-white/[0.1] backdrop-blur-2xl shadow-xl">
           <button
             onClick={() => scrollToSection('#realtime')}
-            className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.04] transition-all text-left group cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-xs font-sans font-bold shadow-[0_0_12px_rgba(34,211,238,0.25)] cursor-pointer"
           >
-            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-mono text-xs font-bold shrink-0 group-hover:border-cyan-400">
-              01
-            </span>
-            <div className="truncate">
-              <div className="text-xs font-display font-bold text-white group-hover:text-cyan-300 transition-colors">
-                Observe
-              </div>
-              <div className="text-[10px] font-mono text-slate-400 truncate">
-                Telemetry & Ingestion
-              </div>
-            </div>
+            <span className="font-mono text-[10px]">01</span>
+            <span>Observe</span>
           </button>
 
           <button
             onClick={() => scrollToSection('#forecasting')}
-            className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.04] transition-all text-left group cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full hover:bg-white/[0.06] text-slate-400 hover:text-white text-xs font-sans transition-colors cursor-pointer"
           >
-            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs font-bold shrink-0 group-hover:border-emerald-400">
-              02
-            </span>
-            <div className="truncate">
-              <div className="text-xs font-display font-bold text-white group-hover:text-emerald-300 transition-colors">
-                Predict
-              </div>
-              <div className="text-[10px] font-mono text-slate-400 truncate">
-                Neural LSTM Forecasting
-              </div>
-            </div>
+            <span className="font-mono text-[10px]">02</span>
+            <span>Predict</span>
           </button>
 
           <button
             onClick={() => scrollToSection('#optimization')}
-            className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.04] transition-all text-left group cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full hover:bg-white/[0.06] text-slate-400 hover:text-white text-xs font-sans transition-colors cursor-pointer"
           >
-            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-mono text-xs font-bold shrink-0 group-hover:border-indigo-400">
-              03
-            </span>
-            <div className="truncate">
-              <div className="text-xs font-display font-bold text-white group-hover:text-indigo-300 transition-colors">
-                Optimize
-              </div>
-              <div className="text-[10px] font-mono text-slate-400 truncate">
-                OR-Tools MILP Solver
-              </div>
-            </div>
+            <span className="font-mono text-[10px]">03</span>
+            <span>Optimize</span>
           </button>
 
           <button
             onClick={() => scrollToSection('#hitl')}
-            className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.04] transition-all text-left group cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full hover:bg-white/[0.06] text-slate-400 hover:text-white text-xs font-sans transition-colors cursor-pointer"
           >
-            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 font-mono text-xs font-bold shrink-0 group-hover:border-rose-400">
-              04
-            </span>
-            <div className="truncate">
-              <div className="text-xs font-display font-bold text-white group-hover:text-rose-300 transition-colors">
-                Decide
-              </div>
-              <div className="text-[10px] font-mono text-slate-400 truncate">
-                Human-in-the-Loop Governance
-              </div>
-            </div>
+            <span className="font-mono text-[10px]">04</span>
+            <span>Decide</span>
           </button>
+        </div>
+
+        {/* Right: Social Proof Pill */}
+        <div 
+          onClick={() => navigate('/app/dashboard')}
+          className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-[#060D1A]/85 border border-white/[0.1] backdrop-blur-2xl shadow-lg hover:border-cyan-400/40 transition-all cursor-pointer group"
+        >
+          <div className="flex -space-x-2">
+            <img 
+              className="w-6 h-6 rounded-full border border-[#060D1A] object-cover ring-1 ring-cyan-500/30" 
+              src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=64" 
+              alt="Dr. Sarah Chen" 
+            />
+            <img 
+              className="w-6 h-6 rounded-full border border-[#060D1A] object-cover ring-1 ring-cyan-500/30" 
+              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=64" 
+              alt="Alex Ross" 
+            />
+            <img 
+              className="w-6 h-6 rounded-full border border-[#060D1A] object-cover ring-1 ring-cyan-500/30" 
+              src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=64" 
+              alt="Dr. Marcus Vance" 
+            />
+          </div>
+          <span className="text-xs font-sans font-medium text-slate-200">
+            Trusted by <strong className="text-white font-bold">500+</strong> hospitals
+          </span>
+          <ArrowRight className="w-3.5 h-3.5 text-cyan-400 group-hover:translate-x-0.5 transition-transform" />
         </div>
       </div>
 
-      {/* Floating Dynamic Metric Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10 mt-6 sm:mt-8">
-        <HeroFloatingCards />
-      </div>
-
-      {/* Scroll indicator prompt */}
-      <div
-        className="relative z-10 mt-5 flex flex-col items-center gap-1 cursor-pointer mx-auto group"
-        onClick={() => scrollToSection('#problem')}
-      >
-        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider group-hover:text-cyan-400 transition-colors">
-          Scroll to Explore Pipeline
-        </span>
-        <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400 group-hover:translate-y-0.5 transition-all" />
-      </div>
-
-      {/* Interactive Watch Demo Walkthrough Modal */}
-      <HeroWatchDemoModal
-        isOpen={isDemoModalOpen}
-        onClose={() => setIsDemoModalOpen(false)}
+      {/* ----------------------------------------------------------------- */}
+      {/* 5. Interactive Demo Walkthrough Modal                             */}
+      {/* ----------------------------------------------------------------- */}
+      <HeroWatchDemoModal 
+        isOpen={isDemoModalOpen} 
+        onClose={() => setIsDemoModalOpen(false)} 
       />
     </section>
   );

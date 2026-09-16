@@ -48,7 +48,7 @@ export const Navbar: React.FC = () => {
           : 'bg-transparent py-5'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <div className="max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 flex items-center justify-between">
         {/* Official Master IntelliCare Logo */}
         <IntelliCareLogo
           variant="full"
