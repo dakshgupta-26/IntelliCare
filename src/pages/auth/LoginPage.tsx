@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Activity,
   ArrowRight,
   Lock,
   Mail,
@@ -11,6 +10,7 @@ import { useRouterStore } from '../../store/useRouterStore';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { UserRole } from '../../types/auth';
+import { IntelliCareLogo } from '../../components/brand/IntelliCareLogo';
 
 export const LoginPage: React.FC = () => {
   const login = useAuthStore((state) => state.login);
@@ -40,22 +40,16 @@ export const LoginPage: React.FC = () => {
     <div className="min-h-screen bg-navy-950 text-slate-100 flex items-center justify-center p-4 sm:p-6 selection:bg-brand-cyan/20">
       <div className="w-full max-w-md space-y-6">
         {/* Brand Logo Header */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-3">
           <button
             onClick={() => navigate('/')}
-            className="inline-flex items-center gap-2.5 group focus:outline-none cursor-pointer"
+            className="inline-flex items-center justify-center group focus:outline-none cursor-pointer"
+            aria-label="IntelliCare Home"
           >
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-cyan via-brand-blue to-indigo-600 p-[1px] shadow-[0_0_20px_rgba(22,199,243,0.4)]">
-              <div className="w-full h-full bg-navy-950 rounded-[15px] flex items-center justify-center">
-                <Activity className="w-5 h-5 text-brand-cyan" />
-              </div>
-            </div>
-            <span className="font-display font-extrabold text-2xl tracking-tight text-white">
-              IntelliCare
-            </span>
+            <IntelliCareLogo variant="with-tagline" size="lg" showBadge badgeText="ENTERPRISE" animated />
           </button>
 
-          <h1 className="text-xl font-display font-bold text-white tracking-tight">
+          <h1 className="text-xl font-display font-bold text-white tracking-tight pt-2">
             Sign In to Decision Support OS
           </h1>
           <p className="text-xs text-slate-400 font-mono">

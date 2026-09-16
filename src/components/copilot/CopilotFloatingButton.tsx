@@ -1,5 +1,6 @@
 import React from 'react';
 import { useCopilotStore } from '../../store/useCopilotStore';
+import { IntelliCareMark } from '../brand/IntelliCareMark';
 
 export const CopilotFloatingButton: React.FC = () => {
   const isOpen = useCopilotStore((state) => state.isOpen);
@@ -12,7 +13,7 @@ export const CopilotFloatingButton: React.FC = () => {
 
   return (
     <div className="fixed bottom-6 right-6 z-[70] select-none">
-      {/* Collapsed Pill: ✦ IntelliCare Copilot */}
+      {/* Collapsed Pill: IntelliCare Copilot */}
       <button
         onClick={toggleOpen}
         aria-label="Open IntelliCare Copilot"
@@ -21,7 +22,7 @@ export const CopilotFloatingButton: React.FC = () => {
           boxShadow: '0 8px 30px -4px rgba(0, 0, 0, 0.8), 0 0 16px 0px rgba(25, 199, 243, 0.25)'
         }}
       >
-        <span className="text-cyan-400 text-sm animate-pulse">✦</span>
+        <IntelliCareMark size={16} glow animated />
         <span className="tracking-tight">IntelliCare Copilot</span>
         <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.1] text-[9px] text-slate-400 font-normal">
           ⌘K

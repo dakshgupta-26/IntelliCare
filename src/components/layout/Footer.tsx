@@ -1,6 +1,7 @@
 import React from 'react';
-import { Activity, ShieldCheck, Cpu, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Cpu, CheckCircle2 } from 'lucide-react';
 import { useRouterStore } from '../../store/useRouterStore';
+import { IntelliCareLogo } from '../brand/IntelliCareLogo';
 
 export const Footer: React.FC = () => {
   const navigate = useRouterStore((state) => state.navigate);
@@ -14,18 +15,14 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 pb-12 border-b border-white/[0.08]">
           {/* Col 1 & 2: Brand & Platform Mission */}
           <div className="lg:col-span-2 flex flex-col gap-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-400/30 to-indigo-600/30 p-[1px] border border-cyan-500/30">
-                <div className="w-full h-full bg-[#050814] rounded-[11px] flex items-center justify-center">
-                  <Activity className="w-4 h-4 text-cyan-400" />
-                </div>
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-display font-bold text-lg text-white">IntelliCare</span>
-                <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-bold">
-                  AI OPS
-                </span>
-              </div>
+            <div className="flex items-center">
+              <button 
+                onClick={() => navigate('/')} 
+                className="text-left focus:outline-none cursor-pointer group"
+                aria-label="IntelliCare Home"
+              >
+                <IntelliCareLogo variant="full" size="md" showBadge badgeText="AI OPS" animated />
+              </button>
             </div>
 
             <p className="text-sm text-slate-400 leading-relaxed max-w-sm">

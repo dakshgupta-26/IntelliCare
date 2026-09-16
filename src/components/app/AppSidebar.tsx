@@ -24,6 +24,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useRecommendationStore } from '../../store/useRecommendationStore';
 import { useAlertStore } from '../../store/useAlertStore';
 import { useLayoutStore } from '../../store/useLayoutStore';
+import { IntelliCareLogo } from '../brand/IntelliCareLogo';
 
 interface AppSidebarProps {
   isMobile?: boolean;
@@ -136,24 +137,16 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ isMobile = false }) => {
       <div className="p-4 border-b border-slate-800/80 flex items-center justify-between">
         <button
           onClick={() => handleNavigate('/app/dashboard')}
-          className="flex items-center gap-3 group focus:outline-none cursor-pointer overflow-hidden text-left"
+          className="flex items-center group focus:outline-none cursor-pointer overflow-hidden text-left"
           title="IntelliCare AI Decision Support"
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-cyan to-indigo-600 p-[1px] shadow-[0_0_15px_rgba(22,199,243,0.3)] group-hover:shadow-[0_0_20px_rgba(22,199,243,0.5)] transition-all shrink-0">
-            <div className="w-full h-full bg-navy-950 rounded-[11px] flex items-center justify-center">
-              <Activity className="w-5 h-5 text-brand-cyan" />
-            </div>
-          </div>
-          {(!isCollapsed || isMobile) && (
-            <div className="flex flex-col text-left">
-              <span className="font-display font-bold text-sm tracking-tight text-white group-hover:text-cyan-300 transition-colors">
-                IntelliCare
-              </span>
-              <span className="text-[10px] font-mono text-cyan-400">
-                DECISION OS
-              </span>
-            </div>
-          )}
+          <IntelliCareLogo
+            variant={isCollapsed && !isMobile ? 'mark' : 'full'}
+            size="sm"
+            showBadge={!isCollapsed || isMobile}
+            badgeText="DECISION OS"
+            animated
+          />
         </button>
 
         {/* Mobile Close Button */}

@@ -1,80 +1,63 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, ArrowRight, Menu, X } from 'lucide-react';
-import { useRouterStore, AppRoute } from '../../store/useRouterStore';
-
-interface NavItem {
-  name: string;
-  path: AppRoute;
-  badge?: string;
-}
+import { ArrowRight, Menu, X } from 'lucide-react';
+import { useRouterStore } from '../../store/useRouterStore';
+import { IntelliCareLogo } from '../brand';
 
 export const Navbar: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const currentPath = useRouterStore((state) => state.currentPath);
   const navigate = useRouterStore((state) => state.navigate);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 20);
     };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Close mobile drawer on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsMobileMenuOpen(false);
+      if (e.key === 'Escape') setMobileMenuOpen(false);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const navLinks: NavItem[] = [
-    { name: 'Platform', path: '/platform' },
-    { name: 'Intelligence', path: '/intelligence' },
-    { name: 'Optimization', path: '/optimization' },
-    { name: 'Scenarios', path: '/scenarios' },
-    { name: 'Architecture', path: '/architecture' },
-    { name: 'Technology', path: '/technology' },
+  const navLinks = [
+    { label: 'Platform', path: '/platform' },
+    { label: 'Intelligence', path: '/intelligence' },
+    { label: 'Optimization', path: '/optimization' },
+    { label: 'Scenarios', path: '/scenarios' },
+    { label: 'Architecture', path: '/architecture' },
+    { label: 'Technology', path: '/technology' },
   ];
 
-  const handleNav = (path: AppRoute) => {
-    setIsMobileMenuOpen(false);
+  const handleNav = (path: string) => {
     navigate(path);
+    setMobileMenuOpen(false);
   };
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'py-2.5 bg-[#050814]/90 backdrop-blur-xl border-b border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.6)]'
-          : 'py-4 sm:py-5 bg-transparent'
+        scrolled
+          ? 'bg-[#050814]/90 backdrop-blur-xl border-b border-white/[0.08] shadow-[0_4px_30px_rgba(0,0,0,0.5)] py-3'
+          : 'bg-transparent py-5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        {/* Brand Identity */}
-        <button
+        {/* Official Master IntelliCare Logo */}
+        <IntelliCareLogo
+          variant="full"
+          size="md"
+          showBadge
+          badgeText="AI OPS"
+          animated
           onClick={() => handleNav('/')}
-          className="flex items-center gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-xl cursor-pointer text-left"
-          aria-label="IntelliCare AI Ops Home"
-        >
-          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400/30 via-slate-800 to-slate-900 p-[1px] border border-cyan-500/30 group-hover:border-cyan-400/60 transition-all duration-300 shadow-[0_0_12px_rgba(25,199,243,0.15)]">
-            <div className="w-full h-full bg-[#070B17] rounded-[7px] flex items-center justify-center">
-              <Activity className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform duration-300" />
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-display font-bold text-base tracking-tight text-white group-hover:text-cyan-300 transition-colors">
-              IntelliCare
-            </span>
-            <span className="text-[10px] font-mono font-bold tracking-wider px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-              AI OPS
-            </span>
-          </div>
-        </button>
+        />
 
         {/* Center Desktop Navigation Pill */}
         <nav
@@ -85,15 +68,15 @@ export const Navbar: React.FC = () => {
             const isActive = currentPath === link.path;
             return (
               <button
-                key={link.name}
+                key={link.label}
                 onClick={() => handleNav(link.path)}
-                className={`relative px-3.5 py-1 text-xs font-mono font-medium rounded-full transition-all duration-200 cursor-pointer ${
+                className={`relative px-3.5 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
                   isActive
                     ? 'text-white bg-white/[0.08] border border-cyan-400/30 shadow-sm'
                     : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.04]'
                 }`}
               >
-                <span>{link.name}</span>
+                <span>{link.label}</span>
                 {isActive && (
                   <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-[1.5px] bg-cyan-400 rounded-full shadow-[0_0_6px_rgba(25,199,243,0.8)]" />
                 )}
@@ -159,18 +142,18 @@ export const Navbar: React.FC = () => {
             <ArrowRight className="w-3 h-3" />
           </button>
           <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 text-slate-300 hover:text-white bg-[#0B1220] border border-white/[0.08] rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 cursor-pointer"
             aria-label="Toggle navigation menu"
-            aria-expanded={isMobileMenuOpen}
+            aria-expanded={mobileMenuOpen}
           >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
       {/* Mobile Drawer Navigation Sheet */}
-      {isMobileMenuOpen && (
+      {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-x-0 top-[60px] bg-[#070B17]/98 backdrop-blur-2xl border-b border-white/[0.1] px-5 py-6 shadow-2xl animate-in slide-in-from-top-2 duration-200 z-50">
           <div className="flex flex-col gap-4 max-w-md mx-auto">
             {/* Status Header */}
@@ -193,7 +176,7 @@ export const Navbar: React.FC = () => {
               </button>
               {navLinks.map((link) => (
                 <button
-                  key={link.name}
+                  key={link.label}
                   onClick={() => handleNav(link.path)}
                   className={`flex items-center justify-between py-2.5 px-3 rounded-lg text-sm font-medium transition-colors text-left cursor-pointer ${
                     currentPath === link.path
@@ -201,7 +184,7 @@ export const Navbar: React.FC = () => {
                       : 'text-slate-300 hover:bg-white/[0.04] hover:text-white'
                   }`}
                 >
-                  <span>{link.name}</span>
+                  <span>{link.label}</span>
                   <ArrowRight className="w-4 h-4 text-slate-600" />
                 </button>
               ))}

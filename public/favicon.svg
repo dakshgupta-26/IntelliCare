@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" width="100%" height="100%">
+  <defs>
+    <linearGradient id="fav-top-grad" x1="68" y1="90" x2="88" y2="15" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#083E9E" />
+      <stop offset="35%" stop-color="#0066FF" />
+      <stop offset="70%" stop-color="#00B2FE" />
+      <stop offset="100%" stop-color="#4DD8FF" />
+    </linearGradient>
+
+    <linearGradient id="fav-bottom-grad" x1="92" y1="70" x2="72" y2="145" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#083E9E" />
+      <stop offset="35%" stop-color="#005BEA" />
+      <stop offset="75%" stop-color="#00C0FF" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+
+    <linearGradient id="fav-left-grad" x1="90" y1="80" x2="20" y2="92" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#052B75" />
+      <stop offset="40%" stop-color="#0055EE" />
+      <stop offset="85%" stop-color="#0099FF" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+
+    <linearGradient id="fav-right-grad" x1="70" y1="80" x2="140" y2="68" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0A3C9E" />
+      <stop offset="45%" stop-color="#0077FF" />
+      <stop offset="85%" stop-color="#00C4FF" />
+      <stop offset="100%" stop-color="#7DD3FC" />
+    </linearGradient>
+
+    <linearGradient id="fav-center-twist" x1="45" y1="95" x2="115" y2="65" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0044CC" stop-opacity="0.95" />
+      <stop offset="50%" stop-color="#00B2FE" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#7DD3FC" stop-opacity="0.5" />
+    </linearGradient>
+  </defs>
+
+  <!-- Dark container background for maximum contrast in browser tab -->
+  <rect width="160" height="160" rx="36" fill="#050814" />
+
+  <g transform="scale(0.88) translate(11, 11)">
+    <path d="M74 88 C58 92, 38 102, 24 98 C18 96, 16 88, 22 82 C32 72, 54 68, 76 74 Z" fill="url(#fav-left-grad)" opacity="0.96" />
+    <path d="M72 82 C68 96, 62 120, 68 136 C72 144, 82 146, 88 138 C96 126, 94 100, 86 80 Z" fill="url(#fav-bottom-grad)" />
+    <path d="M84 72 C100 68, 122 58, 136 62 C142 64, 144 72, 138 78 C128 88, 106 92, 84 86 Z" fill="url(#fav-right-grad)" opacity="0.96" />
+    <path d="M88 78 C92 64, 98 40, 92 24 C88 16, 78 14, 72 22 C64 34, 66 60, 74 80 Z" fill="url(#fav-top-grad)" />
+    <path d="M58 84 C68 76, 82 66, 98 62 C104 60, 108 64, 102 70 C88 82, 74 94, 60 98 C54 100, 50 96, 54 88 Z" fill="url(#fav-center-twist)" />
+  </g>
+</svg>
