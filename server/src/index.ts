@@ -4,13 +4,22 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import dns from 'dns';
 import { WebSocketServer, WebSocket } from 'ws';
+
+// Ensure DNS resolvers can query MongoDB Atlas SRV records reliably on Windows/Cloud
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4']);
+} catch {
+  // Ignore in environments where custom DNS servers cannot be set
+}
+
+dotenv.config();
+
 import { config } from './config/env';
 import { connectMongoDB } from './config/db';
 import { db } from './storage/db';
 import { authRoutes } from './routes/authRoutes';
-
-dotenv.config();
 
 const app = express();
 const server = http.createServer(app);

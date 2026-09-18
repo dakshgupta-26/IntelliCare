@@ -129,8 +129,8 @@ export class AuthController {
         success: true,
         message: 'Account created. Verification code dispatched to your email.',
         email: cleanEmail,
-        // In local development without Mailjet keys, provide dev helper OTP
-        devOtp: !config.mailjet.isConfigured ? emailResult.devOtp : undefined
+        // In non-production environments, provide dev helper OTP for testing
+        devOtp: config.nodeEnv !== 'production' ? emailResult.devOtp : undefined
       });
     } catch (err: any) {
       console.error('[Register Error]', err);
@@ -309,7 +309,7 @@ export class AuthController {
       return res.status(200).json({
         success: true,
         message: 'New verification code dispatched to your email.',
-        devOtp: !config.mailjet.isConfigured ? emailResult.devOtp : undefined
+        devOtp: config.nodeEnv !== 'production' ? emailResult.devOtp : undefined
       });
     } catch (err: any) {
       console.error('[ResendOtp Error]', err);
@@ -575,7 +575,7 @@ export class AuthController {
 
       return res.status(200).json({
         ...genericResponse,
-        devResetUrl: !config.mailjet.isConfigured ? emailResult.devResetUrl : undefined
+        devResetUrl: config.nodeEnv !== 'production' ? emailResult.devResetUrl : undefined
       });
     } catch (err: any) {
       console.error('[ForgotPassword Error]', err);

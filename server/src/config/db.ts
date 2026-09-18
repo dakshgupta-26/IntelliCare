@@ -1,25 +1,35 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import dns from 'dns';
 import { config } from './env';
 import { UserModel } from '../models/schemas/User';
 
 export async function connectMongoDB(): Promise<void> {
   try {
+    // Ensure DNS resolvers can query MongoDB Atlas SRV records
+    try {
+      dns.setServers(['8.8.8.8', '8.8.4.4']);
+    } catch {
+      // Ignore if not permitted
+    }
+
     mongoose.set('strictQuery', true);
 
     await mongoose.connect(config.mongodbUri, {
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 10000,
       autoIndex: true
     });
 
-    console.log(`🌿 MongoDB Connected: ${config.mongodbUri}`);
+    // Sanitize URI for console output to avoid exposing credentials in logs
+    const sanitizedUri = config.mongodbUri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@');
+    console.log(`🌿 MongoDB Connected: ${sanitizedUri}`);
 
     // Verify and seed initial clinical personas if empty
     await seedInitialClinicalPersonas();
   } catch (err: any) {
     console.error('❌ MongoDB Connection Error:', err.message);
-    console.warn('⚠️ Please ensure MongoDB is running at:', config.mongodbUri);
-    // Don't kill process immediately; allow retry or fallback in dev
+    const sanitizedUri = config.mongodbUri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@');
+    console.warn('⚠️ Please verify MongoDB connection string:', sanitizedUri);
   }
 
   mongoose.connection.on('disconnected', () => {

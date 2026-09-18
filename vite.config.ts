@@ -47,6 +47,22 @@ export default defineConfig({
       }
     }
   },
+  preview: {
+    port: 5173,
+    host: true,
+    proxy: {
+      '/auth': {
+        target: 'http://127.0.0.1:5000',
+        changeOrigin: true,
+        secure: false
+      },
+      '/api': {
+        target: 'http://127.0.0.1:5000',
+        changeOrigin: true,
+        secure: false
+      }
+    }
+  },
   build: {
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
