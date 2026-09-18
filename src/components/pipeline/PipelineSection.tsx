@@ -50,7 +50,7 @@ export const PipelineSection: React.FC = () => {
   ];
 
   return (
-    <section id="lifecycle" className="relative py-28 sm:py-36 bg-[#050814] text-slate-100 border-t border-white/[0.08] overflow-hidden">
+    <section id="platform" className="relative py-28 sm:py-36 bg-[#050814] text-slate-100 border-t border-white/[0.08] overflow-hidden">
       {/* Precision ambient background lighting */}
       <div className="absolute top-1/4 left-1/3 w-[600px] h-[500px] bg-cyan-500/[0.03] blur-[160px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-600/[0.03] blur-[180px] pointer-events-none" />

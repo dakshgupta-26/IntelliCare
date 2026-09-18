@@ -71,20 +71,22 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  /* Custom precision dark scrollbar */
+  /* Custom precision dark scrollbar - Clearly shows page scroll progression */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: #050814;
+    background: #030612;
   }
   ::-webkit-scrollbar-thumb {
-    background: #111B2D;
-    border-radius: 3px;
+    background: #17243A;
+    border-radius: 9999px;
+    border: 2px solid #030612;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #1E293B;
+    background: #22D3EE;
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
   }
 
   /* Form controls dark mode enforcement */

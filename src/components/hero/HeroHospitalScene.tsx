@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { HeroLiveTelemetryOverlays } from './HeroLiveTelemetryOverlays';
+import { HeroOperationalNetwork } from './HeroOperationalNetwork';
 
 interface Hotspot {
   id: string;
@@ -15,8 +16,8 @@ interface Hotspot {
 const CLINICAL_HOTSPOTS: Hotspot[] = [
   {
     id: 'bedside-telemetry',
-    x: 78,
-    y: 48,
+    x: 77,
+    y: 47,
     title: 'Mindray BeneVision N22 Monitor',
     tag: 'REAL-TIME TELEMETRY',
     description: 'Continuous 12-Lead ECG, SpO2, and invasive arterial BP feeding the IntelliCare telemetry bus at 250Hz.',
@@ -26,7 +27,7 @@ const CLINICAL_HOTSPOTS: Hotspot[] = [
   {
     id: 'infusion-tower',
     x: 62,
-    y: 44,
+    y: 43,
     title: 'Alaris Smart Infusion System',
     tag: 'CLOSED-LOOP INFUSION',
     description: 'Automated weight-based drug titration with error reduction system and real-time consumption telemetry.',
@@ -35,7 +36,7 @@ const CLINICAL_HOTSPOTS: Hotspot[] = [
   },
   {
     id: 'icu-bed',
-    x: 66,
+    x: 65,
     y: 72,
     title: 'Hill-Rom Critical Care Platform',
     tag: 'PATIENT BED SENSORS',
@@ -56,47 +57,58 @@ export const HeroHospitalScene: React.FC<HeroHospitalSceneProps> = ({ tilt = { r
     <div className="absolute inset-0 w-full h-full overflow-hidden select-none pointer-events-none">
       {/* 3D Parallax Canvas Wrapper */}
       <div
-        className="relative w-full h-full transition-transform duration-300 ease-out"
+        className="hero-hospital-layer relative w-full h-full transition-transform duration-300 ease-out"
         style={{
-          transform: `perspective(1400px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale3d(1.03, 1.03, 1.03)`,
+          transform: `perspective(1400px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale3d(1.02, 1.02, 1.02)`,
           transformStyle: 'preserve-3d'
         }}
       >
+        {/* Subtle Three.js Operational Network (Depth Layer) */}
+        <HeroOperationalNetwork />
+
         {/* Photorealistic Clinical ICU Environment Image */}
         <img
           src="/assets/images/cinematic_icu_hero.jpg"
           alt="IntelliCare Real-Time Hospital ICU Digital Twin Telemetry"
-          className="w-full h-full object-cover object-[center_right] lg:object-[62%_center] filter brightness-[0.92] contrast-[1.04]"
+          className="w-full h-full object-cover object-[58%_center] sm:object-[62%_center] md:object-[65%_center] lg:object-[68%_center] xl:object-[70%_center] 2xl:object-[72%_center] filter brightness-[0.94] contrast-[1.03]"
         />
 
-        {/* Ambient Dark Vignette Gradients for Legibility */}
-        {/* Left deep dark vignette to guarantee text legibility */}
+        {/* Ambient Filmic Vignette Gradients for Legibility without opaque dead space */}
+        {/* Left-to-right cinematic blend: Dark navy on far left smoothly fading into transparent by center */}
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'linear-gradient(to right, #030612 0%, rgba(3,6,18,0.96) 24%, rgba(3,6,18,0.85) 42%, rgba(3,6,18,0.3) 68%, transparent 100%)'
+            background: 'linear-gradient(to right, #030612 0%, rgba(3,6,18,0.92) 20%, rgba(3,6,18,0.72) 35%, rgba(3,6,18,0.4) 48%, rgba(3,6,18,0.1) 62%, transparent 78%)'
           }}
         />
 
-        {/* Bottom deep dark vignette blending into page sections */}
+        {/* Right-edge subtle breathing room vignette */}
         <div 
-          className="absolute inset-x-0 bottom-0 h-44 pointer-events-none"
+          className="absolute inset-y-0 right-0 w-24 sm:w-32 lg:w-40 pointer-events-none"
           style={{
-            background: 'linear-gradient(to top, #030612 0%, rgba(3,6,18,0.95) 25%, rgba(3,6,18,0.5) 60%, transparent 100%)'
+            background: 'linear-gradient(to left, #030612 0%, rgba(3,6,18,0.6) 30%, transparent 100%)'
           }}
         />
 
-        {/* Top subtle vignette blending into navbar */}
+        {/* Bottom deep dark vignette seamlessly connecting hero into the platform section */}
+        <div 
+          className="absolute inset-x-0 bottom-0 h-44 sm:h-52 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to top, #030612 0%, rgba(3,6,18,0.95) 28%, rgba(3,6,18,0.5) 60%, transparent 100%)'
+          }}
+        />
+
+        {/* Top subtle vignette blending into floating navbar */}
         <div 
           className="absolute inset-x-0 top-0 h-32 pointer-events-none"
           style={{
-            background: 'linear-gradient(to bottom, #030612 0%, rgba(3,6,18,0.7) 35%, transparent 100%)'
+            background: 'linear-gradient(to bottom, #030612 0%, rgba(3,6,18,0.7) 40%, transparent 100%)'
           }}
         />
 
         {/* Emissive Monitor Glow Simulation over bedside hardware */}
         <div 
-          className="absolute top-[40%] right-[22%] w-48 h-36 bg-cyan-400/[0.14] rounded-full blur-3xl pointer-events-none animate-pulse"
+          className="absolute top-[38%] right-[22%] w-52 h-40 bg-cyan-400/[0.12] rounded-full blur-3xl pointer-events-none animate-pulse"
           style={{ animationDuration: '3.5s' }}
         />
 
@@ -128,7 +140,7 @@ export const HeroHospitalScene: React.FC<HeroHospitalSceneProps> = ({ tilt = { r
               <button
                 onClick={() => setActiveHotspot(isSelected ? null : spot)}
                 onMouseEnter={() => setActiveHotspot(spot)}
-                className="relative flex items-center justify-center w-6 h-6 rounded-full bg-cyan-500/30 border border-cyan-300 text-cyan-200 hover:scale-125 transition-transform duration-200 cursor-pointer shadow-[0_0_15px_rgba(34,211,238,0.8)] focus:outline-none"
+                className="relative flex items-center justify-center w-6 h-6 rounded-full bg-cyan-500/30 border border-cyan-300 text-cyan-200 hover:scale-125 transition-transform duration-200 cursor-pointer shadow-[0_0_15px_rgba(34,211,238,0.8)] focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 aria-label={spot.title}
               >
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60" />
@@ -164,7 +176,7 @@ export const HeroHospitalScene: React.FC<HeroHospitalSceneProps> = ({ tilt = { r
           );
         })}
 
-        {/* Live Telemetry Overlays in Safe Zones (Matching User Reference Image) */}
+        {/* Live Telemetry Overlays in Safe Zones */}
         <HeroLiveTelemetryOverlays />
       </div>
     </div>
