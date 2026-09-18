@@ -40,7 +40,7 @@ export const WhatIfSimulator: React.FC = () => {
   };
 
   return (
-    <section id="scenarios" className="relative py-28 sm:py-36 bg-[#070B17] text-slate-100 border-t border-white/[0.08] overflow-hidden">
+    <section id="scenarios" className="relative py-16 sm:py-20 lg:py-24 bg-[#070B17] text-slate-100 border-t border-white/[0.08] overflow-hidden">
       {/* Precision ambient background lighting */}
       <div className="absolute top-1/4 right-1/4 w-[600px] h-[500px] bg-rose-500/[0.03] blur-[170px] pointer-events-none" />
       <div className="absolute inset-0 bg-grid-pattern opacity-15 pointer-events-none" />

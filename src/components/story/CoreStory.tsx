@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowUpRight, ArrowDownRight, Minus, AlertTriangle, ArrowDown, Activity, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Minus, AlertTriangle, Activity, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 export const CoreStory: React.FC = () => {
   // Interactive surge tension simulation slider
@@ -43,7 +43,7 @@ export const CoreStory: React.FC = () => {
   return (
     <section
       id="problem"
-      className="relative py-28 sm:py-36 bg-[#070B17] text-[#F8FAFC] border-t border-white/[0.07] overflow-hidden"
+      className="relative pt-16 sm:pt-20 lg:pt-24 pb-8 sm:pb-10 bg-[#070B17] text-[#F8FAFC] border-t border-white/[0.07] overflow-hidden"
     >
       {/* Precision atmospheric dark depth & barely-visible blue-gray technical grid */}
       <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
@@ -341,13 +341,18 @@ export const CoreStory: React.FC = () => {
           </div>
         </div>
 
-        {/* Continuity Transition Indicator */}
-        <div className="mt-16 text-center">
-          <div className="inline-flex items-center gap-2.5 text-xs font-mono text-[#A7B4C8] bg-[#0A1020] px-5 py-2.5 rounded-full border border-white/[0.07] shadow-sm">
-            <span className="text-[#19C7F3] font-bold">OPERATIONAL TELEMETRY</span>
-            <span className="text-[#64748B]">&rarr;</span>
-            <span className="text-[#F8FAFC] font-bold">The Closed-Loop Intelligence Lifecycle</span>
-            <ArrowDown className="w-3.5 h-3.5 text-[#19C7F3] animate-bounce" />
+        {/* Continuous Telemetry Stream Conduit to Closed-Loop Lifecycle */}
+        <div className="mt-8 sm:mt-10 flex flex-col items-center justify-center relative">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0A1020] border border-cyan-500/20 text-[11px] font-mono text-cyan-300 shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            <span className="font-semibold tracking-wider uppercase">CONTINUOUS TELEMETRY FEED</span>
+            <span className="text-slate-500">&rarr;</span>
+            <span className="text-slate-200">CLOSED-LOOP ENGINE</span>
+          </div>
+
+          {/* Vertical continuous data connector line */}
+          <div className="w-px h-8 sm:h-10 bg-gradient-to-b from-cyan-400/60 via-cyan-400/20 to-transparent relative mt-2.5">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee] animate-ping" />
           </div>
         </div>
       </div>

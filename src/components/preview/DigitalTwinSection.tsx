@@ -95,7 +95,7 @@ export const DigitalTwinSection: React.FC = () => {
   const current = departments[hoveredDept || activeDept];
 
   return (
-    <section id="digital-twin" className="relative py-28 sm:py-36 bg-[#050814] text-slate-100 border-t border-white/[0.08] overflow-hidden">
+    <section id="digital-twin" className="relative py-16 sm:py-20 lg:py-24 bg-[#050814] text-slate-100 border-t border-white/[0.08] overflow-hidden">
       {/* Precision ambient lighting */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[550px] bg-cyan-500/[0.03] blur-[180px] pointer-events-none" />
       <div className="absolute inset-0 bg-grid-pattern opacity-15 pointer-events-none" />

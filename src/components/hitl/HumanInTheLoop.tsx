@@ -16,7 +16,7 @@ export const HumanInTheLoop: React.FC = () => {
   ];
 
   return (
-    <section id="governance" className="relative py-32 bg-[#070B17] text-[#F8FAFC] border-t border-white/[0.07] overflow-hidden">
+    <section id="governance" className="relative py-16 sm:py-20 lg:py-24 bg-[#070B17] text-[#F8FAFC] border-t border-white/[0.07] overflow-hidden">
       {/* Background ambient glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-emerald-500/10 blur-[160px] pointer-events-none" />
 

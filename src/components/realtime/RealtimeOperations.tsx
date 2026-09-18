@@ -19,7 +19,7 @@ export const RealtimeOperations: React.FC = () => {
   const edDept = departments.find((d) => d.id === 'dept-er');
 
   return (
-    <section id="realtime" className="relative py-28 bg-navy-950 overflow-hidden">
+    <section id="realtime" className="relative py-16 sm:py-20 lg:py-24 bg-navy-950 border-t border-white/[0.06] overflow-hidden">
       {/* Background illumination */}
       <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-cyan-500/5 blur-[150px] pointer-events-none" />
 

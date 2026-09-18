@@ -13,7 +13,7 @@ export const ForecastingSection: React.FC = () => {
   const navigate = useRouterStore((state) => state.navigate);
 
   return (
-    <section id="intelligence" className="relative py-32 bg-[#070B17] text-[#F8FAFC] border-t border-white/[0.07] overflow-hidden">
+    <section id="intelligence" className="relative py-16 sm:py-20 lg:py-24 bg-[#070B17] text-[#F8FAFC] border-t border-white/[0.07] overflow-hidden">
       {/* Background soft ambient glow */}
       <div className="absolute top-1/4 right-0 w-[600px] h-[600px] bg-cyan-500/10 blur-[150px] pointer-events-none" />
       <div className="absolute bottom-10 left-1/4 w-[400px] h-[400px] bg-indigo-500/5 blur-[120px] pointer-events-none" />

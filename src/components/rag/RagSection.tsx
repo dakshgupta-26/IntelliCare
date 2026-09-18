@@ -14,7 +14,7 @@ export const RagSection: React.FC = () => {
   ];
 
   return (
-    <section id="rag" className="relative py-28 sm:py-36 bg-[#070B17] text-[#F8FAFC] border-t border-white/[0.07] overflow-hidden">
+    <section id="rag" className="relative py-16 sm:py-20 lg:py-24 bg-[#070B17] text-[#F8FAFC] border-t border-white/[0.07] overflow-hidden">
       {/* Precision architectural dark grid & ambient glow */}
       <div className="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none" />
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-indigo-500/10 blur-[150px] pointer-events-none" />

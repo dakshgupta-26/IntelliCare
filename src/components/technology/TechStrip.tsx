@@ -41,7 +41,7 @@ export const TechStrip: React.FC = () => {
   ];
 
   return (
-    <section id="technology" className="relative py-24 bg-[#070B17] border-t border-b border-white/[0.08] text-slate-100 overflow-hidden">
+    <section id="technology" className="relative py-16 sm:py-20 lg:py-24 bg-[#070B17] border-t border-b border-white/[0.08] text-slate-100 overflow-hidden">
       <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

@@ -9,7 +9,7 @@ export const OptimizationSection: React.FC = () => {
   const navigate = useRouterStore((state) => state.navigate);
 
   return (
-    <section id="optimization" className="relative py-32 bg-section-dark text-slate-100 border-t border-slate-800/80 overflow-hidden">
+    <section id="optimization" className="relative py-16 sm:py-20 lg:py-24 bg-section-dark text-slate-100 border-t border-slate-800/80 overflow-hidden">
       {/* Background illumination */}
       <div className="absolute top-1/3 left-0 w-[600px] h-[600px] bg-teal-500/10 blur-[160px] pointer-events-none" />
       <div className="absolute inset-0 bg-grid-pattern opacity-20 pointer-events-none" />

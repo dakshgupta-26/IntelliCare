@@ -7,7 +7,10 @@ import {
   CheckCircle2, 
   XCircle, 
   Edit3, 
-  Sparkles
+  Sparkles,
+  RefreshCw,
+  ArrowRight,
+  Activity
 } from 'lucide-react';
 
 export const PipelineSection: React.FC = () => {
@@ -20,99 +23,181 @@ export const PipelineSection: React.FC = () => {
       step: '01',
       title: 'OBSERVE',
       tag: 'Real-Time Telemetry',
+      metric: '48 Streams Synced',
+      status: '92% ICU Load',
       icon: <Eye className="w-4 h-4" />,
       tagline: 'Normalize fragmented hospital telemetry in real time',
+      accent: 'cyan',
     },
     {
       id: 'predict',
       step: '02',
       title: 'PREDICT',
       tag: 'Neural Forecasting',
+      metric: '+14.8% Surge Horizon',
+      status: '91% Confidence',
       icon: <TrendingUp className="w-4 h-4" />,
       tagline: 'Forecast multi-horizon demand before surges materialize',
+      accent: 'blue',
     },
     {
       id: 'optimize',
       step: '03',
       title: 'OPTIMIZE',
       tag: 'Mathematical Allocation',
+      metric: '100% Constraints Met',
+      status: '84% OR Utilization',
       icon: <Cpu className="w-4 h-4" />,
       tagline: 'Balance capacity under statutory clinical constraints',
+      accent: 'teal',
     },
     {
       id: 'decide',
       step: '04',
       title: 'DECIDE',
       tag: 'Human Governance',
+      metric: 'Physician Review Gate',
+      status: 'Signed Execution',
       icon: <ShieldCheck className="w-4 h-4" />,
       tagline: 'Explain recommendations and empower clinical leadership',
+      accent: 'emerald',
     },
   ];
 
   return (
-    <section id="platform" className="relative py-28 sm:py-36 bg-[#050814] text-slate-100 border-t border-white/[0.08] overflow-hidden">
+    <section id="platform" className="relative pt-6 sm:pt-8 pb-16 sm:pb-20 bg-[#050814] text-slate-100 border-t border-white/[0.08] overflow-hidden">
       {/* Precision ambient background lighting */}
       <div className="absolute top-1/4 left-1/3 w-[600px] h-[500px] bg-cyan-500/[0.03] blur-[160px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-600/[0.03] blur-[180px] pointer-events-none" />
       <div className="absolute inset-0 bg-grid-pattern opacity-15 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
-        <div className="max-w-4xl mx-auto text-center mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B1220] border border-white/[0.08] mb-5 shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+        {/* Incoming continuous telemetry conduit from CoreStory */}
+        <div className="w-px h-6 sm:h-8 bg-gradient-to-b from-cyan-400/40 to-cyan-400/90 mx-auto -mt-6 sm:-mt-8 mb-4 relative">
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />
+        </div>
+
+        {/* Compact Editorial Section Header */}
+        <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B1220] border border-cyan-500/30 mb-3 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
             <span className="text-[11px] font-mono font-bold tracking-wider text-slate-200 uppercase">
               THE INTELLICARE LIFECYCLE
             </span>
             <span className="text-slate-600">|</span>
-            <span className="text-[10px] font-mono text-cyan-400 font-medium">CLOSED-LOOP ENGINE</span>
+            <span className="text-[10px] font-mono text-cyan-400 font-semibold tracking-wide">CLOSED-LOOP ENGINE</span>
           </div>
 
-          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.08]">
-            Observe &rarr; Predict &rarr; Optimize &rarr; Decide.
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-[50px] font-extrabold tracking-tight text-white leading-[1.08]">
+            Observe <span className="text-cyan-400">&rarr;</span> Predict <span className="text-cyan-400">&rarr;</span> Optimize <span className="text-cyan-400">&rarr;</span> Decide.
           </h2>
 
-          <p className="mt-5 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            One continuous operational intelligence pipeline that turns raw telemetry into proactive, constraint-satisfying clinical rebalancing.
+          <p className="mt-3 text-sm sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
+            One continuous operational intelligence pipeline turning raw campus telemetry into proactive, constraint-satisfying clinical rebalancing.
           </p>
         </div>
 
-        {/* Interactive 4-Stage Navigator Tabs */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 p-2 rounded-2xl bg-[#070B17] border border-white/[0.08] shadow-lg mb-10 max-w-5xl mx-auto">
-          {stages.map((st, idx) => {
-            const isActive = idx === activeStage;
-            return (
-              <button
-                key={st.id}
-                onClick={() => setActiveStage(idx)}
-                className={`flex flex-col items-start p-3.5 sm:p-4 rounded-xl text-left transition-all duration-200 cursor-pointer ${
-                  isActive
-                    ? 'bg-[#0E1626] border border-cyan-400/40 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-white/[0.03] border border-transparent'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full mb-2">
-                  <span
-                    className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded ${
-                      isActive ? 'bg-cyan-500/20 text-cyan-300' : 'bg-white/[0.05] text-slate-500'
-                    }`}
-                  >
-                    {st.step}
-                  </span>
-                  <div className={isActive ? 'text-cyan-400' : 'text-slate-500'}>
-                    {st.icon}
-                  </div>
-                </div>
+        {/* ================================================================ */}
+        {/* Interactive Closed-Loop Circuit System                           */}
+        {/* ================================================================ */}
+        <div className="mb-8 max-w-6xl mx-auto">
+          {/* Loop Conduit Header */}
+          <div className="flex items-center justify-between px-4 py-2 rounded-t-xl bg-[#080E1C] border border-b-0 border-white/[0.08] text-[11px] font-mono text-slate-400">
+            <div className="flex items-center gap-2">
+              <RefreshCw className="w-3.5 h-3.5 text-cyan-400 animate-[spin_8s_linear_infinite]" />
+              <span className="font-bold text-slate-200 uppercase tracking-wider">CLOSED-LOOP REBALANCING CIRCUIT</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-3 text-[10px]">
+              <span className="flex items-center gap-1.5 text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                ACTIVE FEEDBACK LOOP
+              </span>
+              <span className="text-slate-600">|</span>
+              <span className="text-slate-400">STATE: STAGE 0{activeStage + 1} / 04</span>
+            </div>
+          </div>
 
-                <span className="font-display font-bold text-sm tracking-wider uppercase">
-                  {st.title}
-                </span>
-                <span className={`text-[11px] font-mono mt-0.5 truncate w-full ${isActive ? 'text-slate-300' : 'text-slate-500'}`}>
-                  {st.tag}
-                </span>
-              </button>
-            );
-          })}
+          {/* 4 Interactive Connected Orbit Nodes */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 p-3 rounded-b-xl bg-[#070B17] border border-white/[0.08] shadow-2xl relative">
+            {stages.map((st, idx) => {
+              const isActive = idx === activeStage;
+              return (
+                <button
+                  key={st.id}
+                  onClick={() => setActiveStage(idx)}
+                  className={`flex flex-col p-4 rounded-xl text-left transition-all duration-200 cursor-pointer relative group ${
+                    isActive
+                      ? 'bg-[#0E1729] border-2 border-cyan-400 shadow-[0_0_24px_rgba(34,211,238,0.2)] text-white'
+                      : 'bg-[#0A1120] border border-white/[0.06] text-slate-400 hover:text-white hover:border-white/[0.15] hover:bg-[#0C1424]'
+                  }`}
+                >
+                  {/* Top Bar: Step & Icon */}
+                  <div className="flex items-center justify-between w-full mb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded ${
+                          isActive
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                            : 'bg-white/[0.05] text-slate-500'
+                        }`}
+                      >
+                        {st.step}
+                      </span>
+                      <span className={`text-[10px] font-mono tracking-wider font-semibold uppercase ${isActive ? 'text-cyan-400' : 'text-slate-500'}`}>
+                        {st.id}
+                      </span>
+                    </div>
+
+                    <div className={isActive ? 'text-cyan-400' : 'text-slate-500 group-hover:text-slate-300'}>
+                      {st.icon}
+                    </div>
+                  </div>
+
+                  {/* Node Title & Tag */}
+                  <div className="mb-3">
+                    <span className="font-display font-bold text-base tracking-tight text-white block">
+                      {st.title}
+                    </span>
+                    <span className={`text-[11px] font-mono block mt-0.5 ${isActive ? 'text-slate-200' : 'text-slate-500'}`}>
+                      {st.tag}
+                    </span>
+                  </div>
+
+                  {/* Live Node Metric Pill */}
+                  <div className={`mt-auto pt-2.5 border-t text-[10px] font-mono flex items-center justify-between ${
+                    isActive ? 'border-cyan-500/20 text-cyan-300' : 'border-white/[0.05] text-slate-500'
+                  }`}>
+                    <span className="truncate">{st.metric}</span>
+                    <span className="font-bold shrink-0 ml-1">{st.status}</span>
+                  </div>
+
+                  {/* Flow Arrow to Next Step (Desktop Only) */}
+                  {idx < 3 && (
+                    <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-[#050814] border border-cyan-500/30 items-center justify-center text-cyan-400 shadow-sm pointer-events-none">
+                      <ArrowRight className="w-3 h-3" />
+                    </div>
+                  )}
+
+                  {/* Return Loop Indicator on Last Node */}
+                  {idx === 3 && (
+                    <div className="hidden lg:flex absolute -right-2 top-1/2 -translate-y-1/2 z-20 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[9px] font-mono text-emerald-400 items-center gap-1 shadow-sm pointer-events-none">
+                      <RefreshCw className="w-2.5 h-2.5 animate-spin" />
+                      <span>LOOP</span>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Continuous Feedback Conduit Banner */}
+          <div className="mt-2.5 px-4 py-2 rounded-lg bg-[#080E1C]/80 border border-white/[0.06] flex items-center justify-between text-[11px] font-mono text-slate-400">
+            <div className="flex items-center gap-2">
+              <Activity className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Closed Loop Feedback: Actions verified in Stage 04 immediately update telemetry baseline in Stage 01.</span>
+            </div>
+            <span className="hidden md:inline text-cyan-400 font-bold">ZERO DRIFT GUARANTEE</span>
+          </div>
         </div>
 
         {/* Dynamic Interactive Stage Showcase Box */}

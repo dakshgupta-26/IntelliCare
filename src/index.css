@@ -49,6 +49,11 @@
 
     --border-subtle: rgba(255, 255, 255, 0.07);
     --border-strong: rgba(255, 255, 255, 0.12);
+
+    /* Standardized Vertical Spacing Tokens */
+    --space-section-y: clamp(56px, 6.5vw, 88px);
+    --space-section-tight: clamp(36px, 4.5vw, 60px);
+    --space-block-gap: clamp(24px, 3vw, 40px);
   }
 
   html,
@@ -96,6 +101,17 @@
 }
 
 @layer utilities {
+  /* Standardized Responsive Section Spacing */
+  .section-spacing {
+    padding-top: var(--space-section-y);
+    padding-bottom: var(--space-section-y);
+  }
+
+  .section-spacing-tight {
+    padding-top: var(--space-section-tight);
+    padding-bottom: var(--space-section-tight);
+  }
+
   /* Enterprise Dark Surfaces */
   .ops-surface-base {
     background-color: #070B17;
