@@ -22,7 +22,6 @@ import { useNotificationStore } from '../../store/useNotificationStore';
 import { useRouterStore } from '../../store/useRouterStore';
 import { useLayoutStore } from '../../store/useLayoutStore';
 import { NotificationPopover } from '../ui/NotificationPopover';
-import { IntelliCareLogo } from '../brand/IntelliCareLogo';
 import { OperationalRiskModal } from './dashboard/OperationalRiskModal';
 
 export const AppHeader: React.FC = () => {
@@ -53,62 +52,56 @@ export const AppHeader: React.FC = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-[#07111f]/95 backdrop-blur-xl border-b border-slate-800/80 px-3 sm:px-5 lg:px-6 py-2.5 transition-all">
-        <div className="flex items-center justify-between gap-2 sm:gap-4 max-w-[1700px] mx-auto">
+      <header className="sticky top-0 z-40 bg-[#030712]/90 dark:bg-[#07111f]/95 backdrop-blur-xl border-b border-slate-800/80 px-3 sm:px-4 lg:px-6 py-2 transition-all select-none">
+        <div className="flex items-center justify-between gap-2 sm:gap-4 max-w-[1700px] mx-auto min-h-[44px]">
           {/* ========================================================= */}
-          {/* LEFT: Logo Branding & Decision OS Badge                   */}
+          {/* LEFT: Context Area (Hospital & Department Selectors)      */}
+          {/* Note: NO duplicate logo here. Sidebar owns branding.      */}
           {/* ========================================================= */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Mobile Sidebar Hamburger Button */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+            {/* Mobile Sidebar Toggle Button (Hidden on Desktop) */}
             <button
               onClick={toggleMobileSidebar}
-              className="lg:hidden p-1.5 text-slate-300 hover:text-white bg-surface-200/60 dark:bg-[#0c182c] border border-slate-700/80 dark:border-slate-800 rounded-xl focus:outline-none cursor-pointer shrink-0"
+              className="lg:hidden p-2 text-slate-300 hover:text-white bg-[#091526] hover:bg-[#0c1c34] border border-slate-800 rounded-xl focus:outline-none cursor-pointer shrink-0 transition-colors"
               aria-label="Open navigation sidebar"
             >
-              <Menu className="w-5 h-5 text-cyan-400" />
+              <Menu className="w-4 h-4 text-cyan-400" />
             </button>
 
-            {/* IntelliCare Master Branding */}
+            {/* 1. Hospital Context Selector */}
             <div
-              onClick={() => navigate('/app/dashboard')}
-              className="flex items-center cursor-pointer group"
-              title="IntelliCare Decision OS Command Dashboard"
+              className="relative bg-[#091526] hover:bg-[#0c1c34] border border-slate-800 hover:border-slate-700 rounded-xl px-2.5 sm:px-3 py-1.5 transition-colors group cursor-pointer"
+              style={{ width: 'clamp(200px, 17vw, 270px)' }}
+              title={`${selectedHospitalObj.name} (Main Campus • Operational)`}
             >
-              <IntelliCareLogo
-                variant="compact"
-                size="sm"
-                showBadge
-                badgeText="DECISION OS"
-                animated
-              />
-            </div>
-          </div>
+              {/* Internal 3-column CSS Grid: [icon] [text container (min-w-0)] [chevron] */}
+              <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
+                <Building2 className="w-4 h-4 text-cyan-400 shrink-0" />
 
-          {/* ========================================================= */}
-          {/* CENTER: Hospital Context & Department Scoping             */}
-          {/* ========================================================= */}
-          <div className="hidden md:flex items-center gap-2 lg:gap-3 min-w-0">
-            {/* Hospital & Campus Selector */}
-            <div className="relative flex items-center bg-[#091526] hover:bg-[#0c1c34] border border-slate-800 hover:border-slate-700 rounded-xl px-2.5 py-1.5 transition-colors group">
-              <Building2 className="w-3.5 h-3.5 text-cyan-400 mr-2 shrink-0" />
-              <div className="flex flex-col text-left leading-tight pr-5">
-                <span className="text-[11px] font-mono font-bold text-white truncate max-w-[170px] lg:max-w-[210px]">
-                  {selectedHospitalObj.name.replace('Medical Center', '').trim()}
-                </span>
-                <div className="flex items-center gap-1.5 text-[9px] font-mono text-slate-400">
-                  <span>Main Campus</span>
-                  <span className="text-slate-600">•</span>
-                  <span className="text-emerald-400 font-bold flex items-center gap-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
-                    Operational
-                  </span>
+                <div className="min-w-0 overflow-hidden text-left leading-tight">
+                  <div className="text-xs font-mono font-bold text-white truncate">
+                    {selectedHospitalObj.name.replace('Medical Center', '').trim()}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-400 mt-0.5">
+                    <span className="truncate">Main Campus</span>
+                    <span className="text-slate-600 shrink-0">•</span>
+                    <span className="text-emerald-400 font-bold flex items-center gap-1 shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
+                      Operational
+                    </span>
+                  </div>
                 </div>
+
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 group-hover:text-cyan-400 transition-colors" />
               </div>
+
+              {/* Native Dropdown Overlay */}
               <select
                 value={selectedHospital}
                 onChange={(e) => setSelectedHospital(e.target.value)}
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                title="Select Active Hospital Facility"
+                title="Switch Hospital Context"
+                aria-label="Select active hospital facility"
               >
                 {availableHospitals.map((h) => (
                   <option key={h.id} value={h.id} className="bg-[#07111f] text-white">
@@ -116,30 +109,48 @@ export const AppHeader: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2 pointer-events-none group-hover:text-cyan-400 transition-colors" />
             </div>
 
-            {/* Department Context Selector */}
-            <div className="relative flex items-center bg-[#091526] hover:bg-[#0c1c34] border border-slate-800 hover:border-slate-700 rounded-xl px-2.5 py-1.5 transition-colors group">
-              <Radio className="w-3.5 h-3.5 text-indigo-400 mr-2 shrink-0" />
-              <div className="flex flex-col text-left leading-tight pr-5">
-                <span className="text-[11px] font-mono font-bold text-slate-200 truncate max-w-[130px] lg:max-w-[170px]">
-                  {selectedDepartmentId === 'all'
-                    ? 'All Departments'
-                    : departments.find((d) => d.id === selectedDepartmentId)?.name || 'Department'}
-                </span>
-                <span className="text-[9px] font-mono text-slate-500">
-                  {selectedDepartmentId === 'all' ? 'Hospital-Wide (7 Units)' : 'Filtered View'}
-                </span>
+            {/* 2. Department Context Selector */}
+            <div
+              className="relative bg-[#091526] hover:bg-[#0c1c34] border border-slate-800 hover:border-slate-700 rounded-xl px-2.5 sm:px-3 py-1.5 transition-colors group cursor-pointer hidden md:block"
+              style={{ width: 'clamp(165px, 14vw, 220px)' }}
+              title={
+                selectedDepartmentId === 'all'
+                  ? 'All Departments (Hospital-wide · 7 Units)'
+                  : departments.find((d) => d.id === selectedDepartmentId)?.name
+              }
+            >
+              {/* Internal 3-column CSS Grid: [icon] [text container (min-w-0)] [chevron] */}
+              <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
+                <Radio className="w-4 h-4 text-indigo-400 shrink-0" />
+
+                <div className="min-w-0 overflow-hidden text-left leading-tight">
+                  <div className="text-xs font-mono font-bold text-slate-200 truncate">
+                    {selectedDepartmentId === 'all'
+                      ? 'All Departments'
+                      : departments.find((d) => d.id === selectedDepartmentId)?.name || 'Department'}
+                  </div>
+                  <div className="text-[10px] font-mono text-slate-400 mt-0.5 truncate">
+                    {selectedDepartmentId === 'all'
+                      ? 'Hospital-wide · 7 Units'
+                      : `${departments.find((d) => d.id === selectedDepartmentId)?.code || 'Filtered'} Unit`}
+                  </div>
+                </div>
+
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 group-hover:text-indigo-400 transition-colors" />
               </div>
+
+              {/* Native Dropdown Overlay */}
               <select
                 value={selectedDepartmentId}
                 onChange={(e) => setSelectedDepartmentId(e.target.value)}
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                title="Scope to specific Clinical Department"
+                title="Scope by Department"
+                aria-label="Select clinical department"
               >
                 <option value="all" className="bg-[#07111f] text-white">
-                  All Departments (7 Units)
+                  All Departments (Hospital-wide · 7 Units)
                 </option>
                 {departments.map((d) => (
                   <option key={d.id} value={d.id} className="bg-[#07111f] text-white">
@@ -147,63 +158,85 @@ export const AppHeader: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2 pointer-events-none group-hover:text-indigo-400 transition-colors" />
             </div>
           </div>
 
           {/* ========================================================= */}
-          {/* RIGHT: Operational Status, Search, Run Scenario, Actions  */}
+          {/* CENTER: Compact Operational Risk Status                   */}
           {/* ========================================================= */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* High Acuity Load Indicator (Clickable Operational Risk Trigger) */}
+          <div className="hidden lg:flex items-center justify-center shrink-0">
             <button
               onClick={() => setIsRiskModalOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-amber-300 text-xs font-mono transition-all cursor-pointer group"
-              title="Click to view full Operational Risk Overview & Escalation Directives"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-mono transition-all cursor-pointer whitespace-nowrap shadow-sm group"
+              title="Operational pressure elevated • 3 ICU beds remaining • Click for Operational Risk Overview"
+              aria-label="Operational risk status: High Acuity load elevated"
             >
               <span className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
               </span>
-              <div className="flex items-center gap-1">
-                <span className="font-bold text-[11px]">HIGH ACUITY</span>
-                <span className="text-[10px] text-amber-400/80 hidden xl:inline">
-                  • Pressure Elevated
-                </span>
-              </div>
-            </button>
-
-            {/* Global Search Button (⌘K / Ctrl+K) */}
-            <button
-              onClick={togglePalette}
-              className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 bg-[#091526] hover:bg-[#0c1c34] border border-slate-800 hover:border-cyan-500/40 rounded-xl text-xs font-mono text-slate-300 transition-all cursor-pointer group"
-              title="Global Search (⌘K / Ctrl+K)"
-            >
-              <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400 transition-colors shrink-0" />
-              <span className="hidden xl:inline text-slate-400 text-[11px]">
-                Search ops, SOPs...
+              <span className="font-bold text-[11px] tracking-wider uppercase">
+                HIGH ACUITY
               </span>
-              <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] bg-slate-800 rounded border border-slate-700 text-slate-300 font-mono">
-                ⌘K
-              </kbd>
+              <span className="text-[10px] text-amber-400/80 hidden xl:inline">
+                • Elevated Pressure
+              </span>
             </button>
+          </div>
 
-            {/* Primary Action: Run Scenario */}
+          {/* ========================================================= */}
+          {/* RIGHT: Search, Run Scenario, Theme, Alerts, Profile       */}
+          {/* ========================================================= */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Global Search - Full Input on xl+, Icon on smaller screens */}
+            <div className="relative shrink-0">
+              {/* Full Desktop Search Input Button (xl and up) */}
+              <button
+                onClick={togglePalette}
+                className="hidden xl:flex items-center justify-between gap-2 px-3 py-1.5 bg-[#091526] hover:bg-[#0c1c34] border border-slate-800 hover:border-cyan-500/40 rounded-xl text-xs font-mono text-slate-300 transition-all cursor-pointer group"
+                style={{ width: 'clamp(170px, 14vw, 240px)' }}
+                title="Global Search (⌘K / Ctrl+K)"
+                aria-label="Search resources, forecasts, SOPs"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400 transition-colors shrink-0" />
+                  <span className="text-slate-400 text-[11px] truncate">
+                    Search ops, SOPs...
+                  </span>
+                </div>
+                <kbd className="px-1.5 py-0.5 text-[10px] bg-slate-800 rounded border border-slate-700 text-slate-300 font-mono shrink-0">
+                  ⌘K
+                </kbd>
+              </button>
+
+              {/* Compact Search Icon Button (< xl) */}
+              <button
+                onClick={togglePalette}
+                className="xl:hidden p-2 rounded-xl text-slate-400 hover:text-white bg-[#091526] hover:bg-[#0c1c34] border border-slate-800 hover:border-cyan-500/40 transition-colors cursor-pointer"
+                title="Global Search (⌘K / Ctrl+K)"
+                aria-label="Search (⌘K)"
+              >
+                <Search className="w-4 h-4 text-cyan-400" />
+              </button>
+            </div>
+
+            {/* Run Scenario Primary Action */}
             <button
               onClick={() => navigate('/app/scenarios')}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-mono text-xs font-bold shadow-[0_0_15px_rgba(168,85,247,0.25)] hover:shadow-[0_0_22px_rgba(168,85,247,0.4)] transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-mono text-xs font-bold shadow-[0_0_15px_rgba(168,85,247,0.25)] hover:shadow-[0_0_22px_rgba(168,85,247,0.4)] transition-all cursor-pointer whitespace-nowrap shrink-0"
               title="Run What-If Sandbox Simulation"
             >
-              <Sliders className="w-3.5 h-3.5 text-purple-200" />
+              <Sliders className="w-3.5 h-3.5 text-purple-200 shrink-0" />
               <span className="hidden sm:inline">Run Scenario →</span>
+              <span className="sm:hidden">Scenario</span>
             </button>
 
-            {/* Theme Toggle */}
+            {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-surface-200/80 transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-surface-200/80 transition-colors cursor-pointer shrink-0"
               title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-              aria-label="Toggle Theme"
+              aria-label="Change theme"
             >
               {theme === 'dark' ? (
                 <Sun className="w-4 h-4 text-amber-400" />
@@ -212,17 +245,17 @@ export const AppHeader: React.FC = () => {
               )}
             </button>
 
-            {/* Notifications Popover */}
-            <div className="relative">
+            {/* Notifications Popover Trigger */}
+            <div className="relative shrink-0">
               <button
                 onClick={toggleNotifications}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-surface-200/80 transition-colors relative cursor-pointer"
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-surface-200/80 transition-colors relative cursor-pointer"
                 title="Operational Notifications"
                 aria-label="Notifications"
               >
                 <Bell className="w-4 h-4" />
                 {unreadNotificationsCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
                 )}
               </button>
               <NotificationPopover />
@@ -230,11 +263,11 @@ export const AppHeader: React.FC = () => {
 
             {/* User Profile Avatar Dropdown */}
             {currentUser && (
-              <div className="relative">
+              <div className="relative shrink-0">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center gap-1 p-0.5 rounded-xl hover:bg-surface-200/80 transition-colors cursor-pointer"
-                  aria-label="User menu"
+                  aria-label="Open profile menu"
                 >
                   <img
                     src={currentUser.avatarUrl}
