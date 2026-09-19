@@ -50,8 +50,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         <AppHeader />
 
         {/* Dynamic View Scroll Area */}
-        <main className="flex-1 overflow-y-auto custom-scrollbar p-3.5 sm:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto space-y-6">
+        <main className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 lg:p-5">
+          <div className="max-w-[1700px] mx-auto space-y-4 sm:space-y-5">
             {children}
           </div>
         </main>
