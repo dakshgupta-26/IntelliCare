@@ -362,3 +362,38 @@ Distributed under the **Apache License 2.0**. See `LICENSE` for more information
 <div align="center">
   <sub>Built for Hospital Operations & Clinical Logistics Teams. Designed with precision.</sub>
 </div>
+
+---
+
+## Local development without team credentials (DEV mode)
+
+The auth server can run entirely locally, with no MongoDB Atlas, Mailjet or Google credentials:
+
+```bash
+brew services start mongodb-community     # or any MongoDB on 127.0.0.1:27017
+cd server && npm install && npm run dev:local
+```
+
+`dev:local` loads `server/.env.dev` (`APP_ENV=dev`). It uses the local `intellicare_dev` database, placeholder JWT and cookie secrets, and prints verification codes and reset links to the server console instead of emailing them. Google OAuth is disabled. The server refuses to start in this mode with `NODE_ENV=production`. On first start it seeds five accounts, all with the password `IntelliCare@2026!`:
+
+| Email | Role |
+|---|---|
+| sarah.chen@intellicare.health | Hospital admin |
+| alex.ross@intellicare.health | Super admin |
+| marcus.vance@intellicare.health | Department manager |
+| elena.rostova@intellicare.health | Operations coordinator |
+| david.kim@intellicare.health | Authorized staff |
+
+The normal `npm run dev` with your own `server/.env` is unchanged.
+
+---
+
+## Running the ML & optimization service
+
+The forecasting, appointment, optimization, scenario and RAG pages are powered by a Python service in [`ml-service/`](ml-service/README.md):
+
+```bash
+cd ml-service && uv sync && uv run python train.py && uv run uvicorn app.main:app --port 8000
+```
+
+Then `npm run dev` from the repo root. See [`ml-service/README.md`](ml-service/README.md) for details and model results.
