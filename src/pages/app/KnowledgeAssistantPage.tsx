@@ -1,249 +1,119 @@
-import React, { useState } from 'react';
-import {
-  Bot,
-  Send,
-  Sparkles,
-  ArrowLeft,
-  FileText,
-  RotateCcw,
-  ShieldCheck,
-  ExternalLink
-} from 'lucide-react';
-import { useKnowledgeStore } from '../../store/useKnowledgeStore';
+import React, { useEffect, useRef, useState } from 'react';
+import { Send } from 'lucide-react';
+import { mlApi } from '../../services/mlApi';
+import { RagAnswer } from '../../types/ml';
+import { useMLQuery } from '../../hooks/useMLQuery';
 import { useRouterStore } from '../../store/useRouterStore';
-import { DocumentCitation } from '../../types/knowledge';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import { Modal } from '../../components/ui/Modal';
+import { Card } from '../../components/ui/Card';
+import { PageHeader } from '../../components/ml/MLStatus';
+
+const SUGGESTIONS = [
+  'What is the nurse-to-patient ratio in the ICU?',
+  'When can surge beds be opened?',
+  'What happens if the scheduling system goes down?',
+  'Can no-show predictions use a patient\'s age?',
+  'The ICU is full. What is the escalation process?',
+  'Who has to approve AI recommendations?',
+];
+
+type Turn = { question: string; answer?: RagAnswer; error?: string };
 
 export const KnowledgeAssistantPage: React.FC = () => {
-  const messages = useKnowledgeStore((state) => state.messages);
-  const askAssistant = useKnowledgeStore((state) => state.askAssistant);
-  const isAskingAssistant = useKnowledgeStore((state) => state.isAskingAssistant);
-  const clearConversation = useKnowledgeStore((state) => state.clearConversation);
-  const navigate = useRouterStore((state) => state.navigate);
+  const navigate = useRouterStore((s) => s.navigate);
+  const health = useMLQuery(() => mlApi.health());
+  const [turns, setTurns] = useState<Turn[]>([]);
+  const [input, setInput] = useState('');
+  const [busy, setBusy] = useState(false);
+  const endRef = useRef<HTMLDivElement>(null);
 
-  const [inputQuestion, setInputQuestion] = useState('');
-  const [selectedCitation, setSelectedCitation] = useState<DocumentCitation | null>(null);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [turns]);
 
-  const handleSend = (q?: string) => {
-    const targetQ = q || inputQuestion;
-    if (!targetQ.trim() || isAskingAssistant) return;
-    askAssistant(targetQ);
-    setInputQuestion('');
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+  const ask = async (question: string) => {
+    const q = question.trim();
+    if (q.length < 3 || busy) return;
+    setInput('');
+    setBusy(true);
+    setTurns((t) => [...t, { question: q }]);
+    try {
+      const answer = await mlApi.ask(q);
+      setTurns((t) => t.map((turn, i) => (i === t.length - 1 ? { ...turn, answer } : turn)));
+    } catch (e) {
+      const error = e instanceof Error ? e.message : String(e);
+      setTurns((t) => t.map((turn, i) => (i === t.length - 1 ? { ...turn, error } : turn)));
+    } finally {
+      setBusy(false);
     }
   };
 
   return (
-    <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
-      {/* 1. Top Header with Back Button */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-        <button
-          onClick={() => navigate('/app/knowledge')}
-          className="flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Knowledge Library</span>
-        </button>
+    <div className="space-y-6 animate-fade-in">
+      <PageHeader
+        eyebrow="Retrieval-augmented generation"
+        title="Policy Assistant"
+        subtitle="Ask about hospital SOPs. Answers are grounded only in retrieved policy passages and cite their source. Operational questions only; this assistant gives no clinical advice."
+        actions={
+          <>
+            {health.data && (
+              <Badge variant={health.data.llm_enabled ? 'emerald' : 'amber'} size="sm">
+                {health.data.llm_enabled ? 'LLM synthesis on' : 'Extractive mode (no API key)'}
+              </Badge>
+            )}
+            <Button variant="outline" size="sm" onClick={() => navigate('/app/knowledge')}>SOP library</Button>
+          </>
+        }
+      />
 
-        <div className="flex items-center gap-2">
-          <Badge variant="cyan" size="sm" dot>
-            HYBRID RAG PIPELINE ACTIVE
-          </Badge>
-          <button
-            onClick={clearConversation}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg bg-surface-200/50 hover:bg-surface-200 transition-colors"
-            title="Reset Conversation"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </button>
+      <Card variant="solid" className="p-4 sm:p-6 min-h-[420px] flex flex-col">
+        <div className="flex-1 space-y-5">
+          {turns.length === 0 && (
+            <div>
+              <p className="text-sm text-slate-400 mb-3">Try one of these:</p>
+              <div className="flex flex-wrap gap-2">
+                {SUGGESTIONS.map((s) => (
+                  <button key={s} onClick={() => ask(s)} className="text-left text-xs px-3 py-2 rounded-lg border border-slate-800 text-slate-300 hover:border-cyan-500/40 hover:text-cyan-200">
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {turns.map((t, i) => (
+            <div key={i} className="space-y-2">
+              <div className="flex justify-end">
+                <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-cyan-500/15 border border-cyan-500/30 px-4 py-2 text-sm text-cyan-100">{t.question}</div>
+              </div>
+              <div className="max-w-[90%] rounded-2xl rounded-bl-sm bg-slate-900/60 border border-slate-800 px-4 py-3">
+                {!t.answer && !t.error && <p className="text-sm text-slate-500 animate-pulse">Retrieving policy passages…</p>}
+                {t.error && <p className="text-sm text-rose-400">{t.error}</p>}
+                {t.answer && (
+                  <>
+                    <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">{t.answer.answer}</p>
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                      <Badge size="sm" variant={t.answer.mode === 'LLM' ? 'emerald' : 'slate'}>{t.answer.mode === 'LLM' ? 'LLM' : 'extractive'}</Badge>
+                      {t.answer.citations.map((c, j) => (
+                        <span key={j} title={c.excerpt} className="text-[11px] px-2 py-0.5 rounded-full border border-indigo-500/30 text-indigo-300 bg-indigo-500/10">
+                          {c.sop_id} · {c.section} · {c.score}
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+          <div ref={endRef} />
         </div>
-      </div>
 
-      {/* 2. Chat Stream Box */}
-      <div className="space-y-6">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex flex-col ${
-              msg.sender === 'user' ? 'items-end' : 'items-start'
-            } space-y-2`}
-          >
-            {/* Sender Pill */}
-            <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400 px-1">
-              {msg.sender === 'assistant' ? (
-                <div className="flex items-center gap-1.5 text-cyan-400 font-bold">
-                  <Bot className="w-3.5 h-3.5" />
-                  <span>IntelliCare Decision Grounding Core</span>
-                </div>
-              ) : (
-                <span>You • Operations Team</span>
-              )}
-              <span>• {msg.timestamp}</span>
-            </div>
-
-            {/* Message Bubble Card */}
-            <div
-              className={`p-5 rounded-3xl max-w-3xl leading-relaxed text-xs shadow-xl ${
-                msg.sender === 'user'
-                  ? 'bg-cyan-500/15 border border-cyan-500/40 text-cyan-100 rounded-tr-sm'
-                  : 'bg-surface-100 dark:bg-[#0a1628] border border-slate-700/80 dark:border-slate-800 text-slate-200 rounded-tl-sm space-y-4'
-              }`}
-            >
-              {/* Question Text (for User) */}
-              {msg.question && (
-                <p className="text-sm font-medium text-white">{msg.question}</p>
-              )}
-
-              {/* Primary Answer (for Assistant) */}
-              {msg.answer && (
-                <p className="text-sm text-slate-100 font-normal leading-relaxed">
-                  {msg.answer}
-                </p>
-              )}
-
-              {/* Transparent Reasoning Summary */}
-              {msg.reasoningSummary && (
-                <div className="p-3.5 rounded-2xl bg-surface-200/50 dark:bg-[#07111f] border border-slate-800 space-y-1">
-                  <div className="flex items-center gap-1.5 text-cyan-400 font-mono font-bold text-[11px]">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Operational Reasoning Summary</span>
-                  </div>
-                  <p className="text-[11px] font-mono text-slate-300 leading-normal">
-                    {msg.reasoningSummary}
-                  </p>
-                </div>
-              )}
-
-              {/* Grounded Document Sources / Citations */}
-              {msg.sources && msg.sources.length > 0 && (
-                <div className="pt-2 border-t border-slate-800/80 space-y-2">
-                  <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block">
-                    Grounded Hospital Policy Sources:
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {msg.sources.map((src, sIdx) => (
-                      <div
-                        key={sIdx}
-                        onClick={() => setSelectedCitation(src)}
-                        className="p-2.5 rounded-xl bg-surface-200/40 hover:bg-surface-200 border border-slate-800/80 hover:border-cyan-500/40 transition-all cursor-pointer group flex items-start justify-between gap-2"
-                      >
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-                              {src.documentCode}
-                            </span>
-                            <span className="text-[10px] text-slate-400 font-mono">
-                              {(src.confidenceScore * 100).toFixed(0)}% match
-                            </span>
-                          </div>
-                          <p className="text-[11px] font-bold text-white group-hover:text-cyan-300 transition-colors truncate mt-1">
-                            {src.documentTitle}
-                          </p>
-                          <p className="text-[10px] text-slate-400 truncate">
-                            {src.section}
-                          </p>
-                        </div>
-                        <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-cyan-400 shrink-0 mt-1" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Suggested Follow-Ups */}
-              {msg.suggestedFollowUps && msg.suggestedFollowUps.length > 0 && (
-                <div className="pt-2 flex flex-wrap gap-2">
-                  {msg.suggestedFollowUps.map((fu, fIdx) => (
-                    <button
-                      key={fIdx}
-                      onClick={() => handleSend(fu)}
-                      className="px-3 py-1 rounded-full bg-surface-200/80 hover:bg-cyan-500/15 border border-slate-700/80 hover:border-cyan-500/40 text-[11px] font-mono text-cyan-300 transition-all text-left cursor-pointer"
-                    >
-                      {fu} →
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-
-        {/* Loading Spinner / Tensor Inference Pulse */}
-        {isAskingAssistant && (
-          <div className="flex items-center gap-3 p-4 rounded-2xl bg-surface-100 dark:bg-[#0a1628] border border-slate-800 text-xs font-mono text-cyan-300 animate-pulse">
-            <Sparkles className="w-4 h-4 text-cyan-400 animate-spin" />
-            <span>Retrieving SOP vectors from pgvector & performing BM25 rerank...</span>
-          </div>
-        )}
-      </div>
-
-      {/* 3. Bottom Sticky Query Input */}
-      <div className="sticky bottom-4 z-20 pt-4">
-        <div className="p-2 rounded-2xl bg-surface-100/95 dark:bg-[#0a1628]/95 backdrop-blur-xl border border-slate-700/80 dark:border-slate-800 shadow-2xl flex items-center gap-2">
-          <input
-            type="text"
-            value={inputQuestion}
-            onChange={(e) => setInputQuestion(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isAskingAssistant}
-            placeholder="Ask an operational question (e.g. 'Why is ICU nurse staffing being increased?')..."
-            className="flex-1 bg-transparent px-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none"
-          />
-
-          <Button
-            variant="primary"
-            size="sm"
-            icon={<Send className="w-3.5 h-3.5" />}
-            onClick={() => handleSend()}
-            disabled={!inputQuestion.trim() || isAskingAssistant}
-            className="shrink-0"
-          >
-            <span className="hidden sm:inline">Ask RAG Core</span>
-            <span className="sm:hidden">Send</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Source Citation Modal */}
-      {selectedCitation && (
-        <Modal
-          isOpen={true}
-          onClose={() => setSelectedCitation(null)}
-          title={
-            <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-cyan-400" />
-              <span>{selectedCitation.documentTitle}</span>
-            </div>
-          }
-          subtitle={`${selectedCitation.documentCode} • ${selectedCitation.section} • Retrieval: ${selectedCitation.retrievalMethod}`}
-          maxWidth="lg"
-          footer={
-            <Button variant="secondary" size="sm" onClick={() => setSelectedCitation(null)}>
-              Close
-            </Button>
-          }
-        >
-          <div className="space-y-3 text-xs font-mono">
-            <div className="p-3.5 rounded-xl bg-surface-200/50 border border-slate-800 space-y-1">
-              <span className="text-cyan-400 font-bold block">Matched Text Chunk:</span>
-              <p className="text-slate-200 leading-relaxed italic">
-                "{selectedCitation.matchedSnippet}"
-              </p>
-            </div>
-            <div className="flex justify-between text-[11px] text-slate-400 pt-1">
-              <span>Confidence Score: {(selectedCitation.confidenceScore * 100).toFixed(1)}%</span>
-              <span>Vector Similarity: Cosine Dense Matrix</span>
-            </div>
-          </div>
-        </Modal>
-      )}
+        <form onSubmit={(e) => { e.preventDefault(); ask(input); }} className="mt-6 flex gap-2">
+          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about staffing, surge capacity, scheduling policy…"
+            className="flex-1 rounded-xl bg-slate-900/60 border border-slate-800 px-4 py-2.5 text-sm text-slate-200 placeholder:text-slate-600" />
+          <Button type="submit" disabled={busy || input.trim().length < 3} icon={<Send className="w-4 h-4" />}>Ask</Button>
+        </form>
+      </Card>
     </div>
   );
 };

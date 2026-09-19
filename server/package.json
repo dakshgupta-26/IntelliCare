@@ -6,6 +6,7 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "dev:local": "tsx watch --env-file=.env.dev src/index.ts",
     "build": "tsc",
     "test": "tsx src/__tests__/auth_test_runner.ts",
     "start": "node dist/index.js"

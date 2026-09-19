@@ -24,6 +24,7 @@ export type AppRoute =
   | '/app/models'
   | '/app/clinical-ai'
   | '/app/forecasting'
+  | '/app/appointments'
   | '/app/optimization'
   | '/app/scenarios'
   | '/app/knowledge'
