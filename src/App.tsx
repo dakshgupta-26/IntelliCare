@@ -64,6 +64,7 @@ import { ActivityPage } from './pages/app/ActivityPage';
 import { SettingsPage } from './pages/app/SettingsPage';
 import { ProfilePage } from './pages/app/ProfilePage';
 import { AdminPage } from './pages/app/AdminPage';
+import { AppointmentsPage } from './pages/app/AppointmentsPage';
 
 export function App() {
   // Router store integration
@@ -134,7 +135,8 @@ export function App() {
       '/technology': 'Technology Ecosystem',
       '/app/dashboard': 'Command Dashboard',
       '/app/resources': 'Resource Telemetry',
-      '/app/models': 'ML Model Studio',
+      '/app/models': 'Model Evaluation',
+      '/app/appointments': 'Appointments',
       '/app/clinical-ai': 'Clinical Deterioration & Risk AI',
       '/app/forecasting': 'Demand Forecasting',
       '/app/optimization': 'MILP Allocation',
@@ -171,6 +173,8 @@ export function App() {
         appContent = <MLStudioPage />;
       } else if (currentPath === '/app/clinical-ai') {
         appContent = <ClinicalAIPage />;
+      } else if (currentPath === '/app/appointments') {
+        appContent = <AppointmentsPage />;
       } else if (currentPath === '/app/forecasting') {
         appContent = <ForecastingPage />;
       } else if (currentPath === '/app/optimization') {
