@@ -112,7 +112,7 @@ export const AlertsPage: React.FC = () => {
 
       {/* 3. Filter Controls */}
       <div className="p-4 rounded-2xl bg-surface-100 dark:bg-[#0a1628] border border-slate-700/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <span className="text-slate-400">Status:</span>
           <select
             value={statusFilter}

@@ -442,7 +442,7 @@ export const AdminPage: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Role Filter */}
           <div className="flex items-center gap-1.5 bg-surface-200/50 dark:bg-[#030814] border border-slate-800 rounded-xl px-3 py-1.5">
             <Filter className="w-3.5 h-3.5 text-slate-400" />
