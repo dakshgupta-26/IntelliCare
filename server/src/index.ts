@@ -16,7 +16,7 @@ try {
 
 dotenv.config();
 
-import { config } from './config/env';
+import { config, isDevMode } from './config/env';
 import { connectMongoDB } from './config/db';
 import { db } from './storage/db';
 import { authRoutes } from './routes/authRoutes';
@@ -184,6 +184,10 @@ if (process.env.NODE_ENV !== 'test') {
 
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`⚡ IntelliCare API Server running on port ${PORT}`);
+    if (isDevMode) {
+      console.log('🧪 LOCAL DEV MODE: local MongoDB, placeholder secrets, OTP codes & links printed below, OAuth disabled');
+      console.log('🧪 Seeded logins (password IntelliCare@2026!): sarah.chen@intellicare.health (admin), alex.ross@, marcus.vance@, elena.rostova@, david.kim@');
+    }
     console.log(`⚡ Database: MongoDB (${config.mongodbUri})`);
     console.log(`⚡ Authentication Endpoints: http://localhost:${PORT}/auth`);
     console.log(`⚡ Mailjet Status: ${config.mailjet.isConfigured ? 'CONNECTED' : 'LOCAL SIMULATOR (Console Preview)'}`);
