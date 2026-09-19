@@ -9,17 +9,29 @@ export const VerifyEmailPage: React.FC = () => {
   const verifyEmail = useAuthStore((state) => state.verifyEmail);
   const resendOtp = useAuthStore((state) => state.resendOtp);
   const unverifiedEmail = useAuthStore((state) => state.unverifiedEmail);
+  const devOtp = useAuthStore((state) => state.devOtp);
+  const setUnverifiedEmail = useAuthStore((state) => state.setUnverifiedEmail);
   const navigate = useRouterStore((state) => state.navigate);
+  const getSearchParam = useRouterStore((state) => state.getSearchParam);
 
-  // Extract email from store or URL query parameter
-  const [email] = useState(() => {
-    if (unverifiedEmail) return unverifiedEmail;
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('email') || '';
+  // Extract email from store, router, or URL query parameter
+  const resolvedInitialEmail =
+    unverifiedEmail ||
+    getSearchParam('email') ||
+    (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('email') || '' : '');
+
+  const [email, setEmail] = useState(resolvedInitialEmail);
+  const [isEditingEmail, setIsEditingEmail] = useState(!resolvedInitialEmail);
+  const [emailInput, setEmailInput] = useState(resolvedInitialEmail);
+
+  // Keep email synced if store or search changes
+  useEffect(() => {
+    if (!email && resolvedInitialEmail) {
+      setEmail(resolvedInitialEmail);
+      setEmailInput(resolvedInitialEmail);
+      setIsEditingEmail(false);
     }
-    return '';
-  });
+  }, [resolvedInitialEmail, email]);
 
   const [digits, setDigits] = useState<string[]>(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,10 +64,12 @@ export const VerifyEmailPage: React.FC = () => {
     return () => clearInterval(timer);
   }, [countdown]);
 
-  // Focus first input on mount
+  // Focus first input on mount if email exists
   useEffect(() => {
-    inputRefs.current[0]?.focus();
-  }, []);
+    if (email && !isEditingEmail) {
+      inputRefs.current[0]?.focus();
+    }
+  }, [email, isEditingEmail]);
 
   const handleDigitChange = (index: number, val: string) => {
     // Only accept numbers
@@ -98,7 +112,27 @@ export const VerifyEmailPage: React.FC = () => {
     }
   };
 
+  const handleSaveCustomEmail = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = emailInput.trim();
+    if (!trimmed || !trimmed.includes('@')) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
+    setEmail(trimmed);
+    setUnverifiedEmail(trimmed);
+    setIsEditingEmail(false);
+    setErrorMessage(null);
+  };
+
   const submitVerification = async (otpValue?: string) => {
+    const activeEmail = email.trim();
+    if (!activeEmail) {
+      setErrorMessage('Please enter your registered clinical email address.');
+      setIsEditingEmail(true);
+      return;
+    }
+
     const fullOtp = otpValue || digits.join('');
     if (fullOtp.length !== 6) {
       setErrorMessage('Please enter all 6 digits of your verification code.');
@@ -109,11 +143,11 @@ export const VerifyEmailPage: React.FC = () => {
     setErrorMessage(null);
 
     try {
-      await verifyEmail(email, fullOtp);
-      setSuccessMessage('Email verified successfully! Redirecting to Workspace...');
+      await verifyEmail(activeEmail, fullOtp);
+      setSuccessMessage('Email verified successfully! Launching operational workspace...');
       setTimeout(() => {
         navigate('/app/dashboard');
-      }, 1200);
+      }, 1000);
     } catch (err: any) {
       setErrorMessage(err.message || 'Verification failed. Please check the code and try again.');
       // Clear digits on error
@@ -125,12 +159,19 @@ export const VerifyEmailPage: React.FC = () => {
   };
 
   const handleResend = async () => {
+    const activeEmail = email.trim();
+    if (!activeEmail) {
+      setErrorMessage('Please specify your registered email address first.');
+      setIsEditingEmail(true);
+      return;
+    }
+
     if (!canResend || isResending) return;
     setIsResending(true);
     setErrorMessage(null);
 
     try {
-      await resendOtp(email);
+      await resendOtp(activeEmail);
       setSuccessMessage('A fresh verification code has been dispatched to your email.');
       setCountdown(60);
       setCanResend(false);
@@ -153,21 +194,73 @@ export const VerifyEmailPage: React.FC = () => {
             className="inline-flex items-center justify-center group focus:outline-none cursor-pointer"
             aria-label="IntelliCare Home"
           >
-            <IntelliCareLogo variant="with-tagline" size="lg" showBadge badgeText="VERIFY" animated />
+            <IntelliCareLogo variant="with-tagline" size="lg" showBadge badgeText="SECURITY GATEWAY" animated />
           </button>
 
           <h1 className="text-xl font-display font-bold text-white tracking-tight pt-2">
-            Verify Your Email Address
+            Verify Your Clinical Identity
           </h1>
           <p className="text-xs text-slate-300 font-sans max-w-sm mx-auto leading-relaxed">
             We sent a single-use 6-digit verification code to:
             <br />
-            <strong className="text-cyan-400 font-mono text-xs">{maskedEmail}</strong>
+            <span className="inline-flex items-center gap-1.5 mt-1">
+              <strong className="text-cyan-400 font-mono text-xs">{maskedEmail}</strong>
+              <button
+                type="button"
+                onClick={() => setIsEditingEmail(!isEditingEmail)}
+                className="text-[10px] text-slate-400 hover:text-cyan-300 underline font-sans cursor-pointer"
+              >
+                {isEditingEmail ? 'Cancel' : 'Change'}
+              </button>
+            </span>
           </p>
         </div>
 
         {/* Verification Card */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-[#070D1A] border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl space-y-6">
+        <div className="p-6 sm:p-8 rounded-3xl bg-[#070D1A] border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl space-y-5">
+          {/* Email Editing Panel if needed */}
+          {isEditingEmail && (
+            <form onSubmit={handleSaveCustomEmail} className="p-3.5 rounded-xl bg-black/40 border border-white/[0.1] space-y-2">
+              <label className="text-[11px] font-mono text-slate-300 block">
+                Enter your registered hospital email:
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  placeholder="name@hospital.health"
+                  className="flex-1 px-3 py-1.5 rounded-lg bg-[#040813] border border-white/[0.1] text-xs font-mono text-cyan-300 focus:outline-none focus:border-cyan-400"
+                  required
+                />
+                <Button type="submit" variant="secondary" size="sm">
+                  Save
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {/* Developer Mode Helper Banner (local testing without email delay) */}
+          {devOtp && (
+            <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs flex items-center justify-between font-mono animate-in fade-in">
+              <div>
+                <span className="text-slate-400 text-[11px]">Dev Verification Code: </span>
+                <span className="font-bold text-cyan-300 tracking-wider text-sm">{devOtp}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const split = devOtp.slice(0, 6).split('');
+                  setDigits(split);
+                  submitVerification(devOtp);
+                }}
+                className="px-2.5 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 text-[11px] font-bold transition-all cursor-pointer"
+              >
+                Auto-fill Code
+              </button>
+            </div>
+          )}
+
           {errorMessage && (
             <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2 animate-in fade-in duration-150 font-sans">
               <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
@@ -210,7 +303,7 @@ export const VerifyEmailPage: React.FC = () => {
             disabled={isLoading || digits.join('').length !== 6}
             onClick={() => submitVerification()}
           >
-            {isLoading ? 'Verifying...' : 'Verify & Continue'}
+            {isLoading ? 'Verifying Credentials...' : 'Verify & Continue'}
           </Button>
 
           {/* Resend Cooldown Section */}

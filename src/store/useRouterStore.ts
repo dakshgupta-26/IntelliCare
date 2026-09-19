@@ -36,37 +36,83 @@ export type AppRoute =
   | '/app/profile'
   | '/admin';
 
+export interface ParsedUrl {
+  pathname: string;
+  search: string;
+  hash: string;
+}
+
+export const parseUrl = (rawPath: string): ParsedUrl => {
+  let target = rawPath || '/';
+  if (target.startsWith('http://') || target.startsWith('https://')) {
+    try {
+      const parsed = new URL(target);
+      target = parsed.pathname + parsed.search + parsed.hash;
+    } catch {}
+  }
+  const [pathAndQuery, hash = ''] = target.split('#');
+  const [pathname = '/', search = ''] = pathAndQuery.split('?');
+  const cleanPath = pathname.toLowerCase().replace(/\/+$/, '') || '/';
+  return {
+    pathname: cleanPath,
+    search: search ? `?${search}` : '',
+    hash: hash ? `#${hash}` : ''
+  };
+};
+
 interface RouterStore {
   currentPath: string;
+  search: string;
   routeParams: Record<string, string>;
+  getSearchParam: (key: string) => string | null;
   navigate: (path: string) => void;
   initRouter: () => () => void;
 }
 
-const normalizePath = (path: string): string => {
-  const cleanPath = path.toLowerCase().replace(/\/$/, '') || '/';
-  return cleanPath;
+const getInitialUrl = (): ParsedUrl => {
+  if (typeof window !== 'undefined') {
+    return parseUrl(window.location.pathname + window.location.search + window.location.hash);
+  }
+  return { pathname: '/', search: '', hash: '' };
 };
 
-export const useRouterStore = create<RouterStore>((set) => ({
-  currentPath: typeof window !== 'undefined' ? normalizePath(window.location.pathname) : '/',
+const initial = getInitialUrl();
+
+export const useRouterStore = create<RouterStore>((set, get) => ({
+  currentPath: initial.pathname,
+  search: initial.search,
   routeParams: {},
 
-  navigate: (path: string) => {
+  getSearchParam: (key: string): string | null => {
     if (typeof window !== 'undefined') {
-      if (window.location.pathname !== path) {
-        window.history.pushState({}, '', path);
+      const sp = new URLSearchParams(get().search || window.location.search);
+      return sp.get(key);
+    }
+    const sp = new URLSearchParams(get().search);
+    return sp.get(key);
+  },
+
+  navigate: (path: string) => {
+    const { pathname, search, hash } = parseUrl(path);
+    if (typeof window !== 'undefined') {
+      const fullUrl = pathname + search + hash;
+      const currentFull = window.location.pathname + window.location.search + window.location.hash;
+      if (currentFull !== fullUrl) {
+        window.history.pushState({}, '', fullUrl);
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    set({ currentPath: normalizePath(path) });
+    set({ currentPath: pathname, search });
   },
 
   initRouter: () => {
     if (typeof window === 'undefined') return () => {};
 
     const handlePopState = () => {
-      set({ currentPath: normalizePath(window.location.pathname) });
+      const { pathname, search } = parseUrl(
+        window.location.pathname + window.location.search + window.location.hash
+      );
+      set({ currentPath: pathname, search });
     };
 
     window.addEventListener('popstate', handlePopState);

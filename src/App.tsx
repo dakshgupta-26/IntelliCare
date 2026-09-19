@@ -69,6 +69,7 @@ export function App() {
   // Router store integration
   const currentPath = useRouterStore((state) => state.currentPath);
   const initRouter = useRouterStore((state) => state.initRouter);
+  const navigate = useRouterStore((state) => state.navigate);
 
   useEffect(() => {
     const cleanup = initRouter();
@@ -98,6 +99,15 @@ export function App() {
   useEffect(() => {
     initAuth();
   }, [initAuth]);
+
+  // If already authenticated with verified email, automatically transition to workspace from auth entrypoints
+  useEffect(() => {
+    if (isInitialized && isAuthenticated && currentUser?.emailVerified) {
+      if (['/login', '/signup', '/register'].includes(currentPath)) {
+        navigate('/app/dashboard');
+      }
+    }
+  }, [isInitialized, isAuthenticated, currentUser, currentPath, navigate]);
 
   // Initialize smooth scrolling for editorial marketing pages only (native scrolling for dashboard)
   useLenis(isMarketingRoute);

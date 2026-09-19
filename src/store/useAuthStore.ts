@@ -11,6 +11,7 @@ interface AuthState {
   error: string | null;
   activeRole: UserRole;
   unverifiedEmail: string | null;
+  devOtp: string | null;
   isRoleSwitchingOpen: boolean;
   availableUsers: User[];
 
@@ -52,6 +53,7 @@ interface AuthState {
   switchRole: (role: UserRole) => Promise<void>;
   switchUser: (userId: string) => Promise<void>;
   setUnverifiedEmail: (email: string | null) => void;
+  setDevOtp: (otp: string | null) => void;
   setRoleSwitchingOpen: (open: boolean) => void;
   hasPermission: (permission: Permission) => boolean;
 }
@@ -64,6 +66,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   error: null,
   activeRole: SAMPLE_USERS[0].role,
   unverifiedEmail: null,
+  devOtp: null,
   isRoleSwitchingOpen: false,
   availableUsers: SAMPLE_USERS,
   activeSessions: [],
@@ -122,6 +125,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isAuthenticated: true,
         activeRole: data.user.role,
         unverifiedEmail: null,
+        devOtp: null,
         isLoading: false
       });
       return true;
@@ -129,6 +133,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (err.code === 'EMAIL_VERIFICATION_REQUIRED') {
         set({
           unverifiedEmail: err.email || email,
+          devOtp: err.devOtp || null,
           isLoading: false,
           error: 'Email verification required.'
         });
@@ -143,8 +148,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const data = await AuthApi.register(name, email, password, confirmPassword, organizationName, role, title, departmentName);
-      set({ unverifiedEmail: email, isLoading: false });
-      return { devOtp: data.devOtp };
+      set({
+        unverifiedEmail: email,
+        devOtp: data?.devOtp || null,
+        isLoading: false
+      });
+      return { devOtp: data?.devOtp };
     } catch (err: any) {
       set({ isLoading: false, error: err.message || 'Registration failed.' });
       throw err;
@@ -160,6 +169,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isAuthenticated: true,
         activeRole: data.user.role,
         unverifiedEmail: null,
+        devOtp: null,
         isLoading: false
       });
       return true;
@@ -170,7 +180,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   resendOtp: async (email) => {
-    return AuthApi.resendOtp(email);
+    try {
+      const data = await AuthApi.resendOtp(email);
+      if (data?.devOtp) {
+        set({ devOtp: data.devOtp });
+      }
+      return data;
+    } catch (err: any) {
+      throw err;
+    }
   },
 
   logout: async () => {
@@ -317,6 +335,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   setUnverifiedEmail: (email) => set({ unverifiedEmail: email }),
+  setDevOtp: (otp) => set({ devOtp: otp }),
   setRoleSwitchingOpen: (open) => set({ isRoleSwitchingOpen: open }),
 
   hasPermission: (permission: Permission) => {

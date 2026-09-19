@@ -91,12 +91,10 @@ export const RegisterPanel: React.FC<RegisterPanelProps> = ({ onSuccess, classNa
     setIsLoading(true);
 
     try {
-      const combinedName = clinicalTitle.trim()
-        ? `${fullName.trim()}, ${clinicalTitle.trim()}`
-        : fullName.trim();
+      const cleanName = fullName.trim();
 
-      await register(
-        combinedName,
+      const res = await register(
+        cleanName,
         email.trim(),
         password,
         confirmPassword,
@@ -108,9 +106,10 @@ export const RegisterPanel: React.FC<RegisterPanelProps> = ({ onSuccess, classNa
       setIsSuccess(true);
 
       setTimeout(() => {
-        if (onSuccess) onSuccess(email);
-        navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`);
-      }, 700);
+        if (onSuccess) onSuccess(email.trim());
+        const devParam = res?.devOtp ? `&devOtp=${encodeURIComponent(res.devOtp)}` : '';
+        navigate(`/verify-email?email=${encodeURIComponent(email.trim())}${devParam}`);
+      }, 600);
     } catch (err: any) {
       setErrorMessage(
         err.message || 'Registration failed. Please verify your credentials and try again.'
@@ -391,6 +390,18 @@ export const RegisterPanel: React.FC<RegisterPanelProps> = ({ onSuccess, classNa
         <div className="pt-1 flex items-center justify-center gap-1.5 text-[10px] font-mono text-slate-400">
           <ShieldCheck className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
           <span>Protected by AES-256 GCM • HIPAA & SOC-2 Type II Enforced</span>
+        </div>
+
+        {/* Existing Account Link */}
+        <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between text-xs font-sans text-slate-400">
+          <span>Already registered?</span>
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="text-cyan-400 hover:text-cyan-300 font-bold transition-colors cursor-pointer"
+          >
+            Sign In to Workspace →
+          </button>
         </div>
       </form>
     </div>
