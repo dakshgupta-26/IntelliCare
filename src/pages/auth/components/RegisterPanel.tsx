@@ -93,7 +93,7 @@ export const RegisterPanel: React.FC<RegisterPanelProps> = ({ onSuccess, classNa
     try {
       const cleanName = fullName.trim();
 
-      const res = await register(
+      await register(
         cleanName,
         email.trim(),
         password,
@@ -107,8 +107,7 @@ export const RegisterPanel: React.FC<RegisterPanelProps> = ({ onSuccess, classNa
 
       setTimeout(() => {
         if (onSuccess) onSuccess(email.trim());
-        const devParam = res?.devOtp ? `&devOtp=${encodeURIComponent(res.devOtp)}` : '';
-        navigate(`/verify-email?email=${encodeURIComponent(email.trim())}${devParam}`);
+        navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`);
       }, 600);
     } catch (err: any) {
       setErrorMessage(

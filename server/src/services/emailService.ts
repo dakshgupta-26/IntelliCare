@@ -4,11 +4,12 @@ export interface EmailSendResult {
   success: boolean;
   messageId?: string;
   error?: string;
-  devOtp?: string;
   devResetUrl?: string;
 }
 
 export class EmailService {
+  public static lastSentOtp?: { email: string; otp: string };
+
   /**
    * Helper to format the official IntelliCare dark responsive email wrapper.
    */
@@ -137,8 +138,8 @@ export class EmailService {
     `;
 
     console.log(`\n🔑 [EMAIL VERIFICATION OTP] Email: ${email} | Code: ${otp} (Valid ${expiresInMinutes}m)\n`);
+    EmailService.lastSentOtp = { email, otp };
     const res = await this.sendViaMailjet(email, name, subject, this.wrapTemplate(subject, body));
-    res.devOtp = otp;
     return res;
   }
 

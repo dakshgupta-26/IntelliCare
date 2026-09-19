@@ -9,7 +9,6 @@ export const VerifyEmailPage: React.FC = () => {
   const verifyEmail = useAuthStore((state) => state.verifyEmail);
   const resendOtp = useAuthStore((state) => state.resendOtp);
   const unverifiedEmail = useAuthStore((state) => state.unverifiedEmail);
-  const devOtp = useAuthStore((state) => state.devOtp);
   const setUnverifiedEmail = useAuthStore((state) => state.setUnverifiedEmail);
   const navigate = useRouterStore((state) => state.navigate);
   const getSearchParam = useRouterStore((state) => state.getSearchParam);
@@ -238,27 +237,6 @@ export const VerifyEmailPage: React.FC = () => {
                 </Button>
               </div>
             </form>
-          )}
-
-          {/* Developer Mode Helper Banner (local testing without email delay) */}
-          {devOtp && (
-            <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs flex items-center justify-between font-mono animate-in fade-in">
-              <div>
-                <span className="text-slate-400 text-[11px]">Dev Verification Code: </span>
-                <span className="font-bold text-cyan-300 tracking-wider text-sm">{devOtp}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  const split = devOtp.slice(0, 6).split('');
-                  setDigits(split);
-                  submitVerification(devOtp);
-                }}
-                className="px-2.5 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 text-[11px] font-bold transition-all cursor-pointer"
-              >
-                Auto-fill Code
-              </button>
-            </div>
           )}
 
           {errorMessage && (

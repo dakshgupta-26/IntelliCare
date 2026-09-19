@@ -128,9 +128,7 @@ export class AuthController {
       return res.status(201).json({
         success: true,
         message: 'Account created. Verification code dispatched to your email.',
-        email: cleanEmail,
-        // In non-production environments, provide dev helper OTP for testing
-        devOtp: config.nodeEnv !== 'production' ? emailResult.devOtp : undefined
+        email: cleanEmail
       });
     } catch (err: any) {
       console.error('[Register Error]', err);
@@ -308,8 +306,7 @@ export class AuthController {
 
       return res.status(200).json({
         success: true,
-        message: 'New verification code dispatched to your email.',
-        devOtp: config.nodeEnv !== 'production' ? emailResult.devOtp : undefined
+        message: 'New verification code dispatched to your email.'
       });
     } catch (err: any) {
       console.error('[ResendOtp Error]', err);

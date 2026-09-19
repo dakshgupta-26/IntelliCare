@@ -4,6 +4,7 @@ import http from 'http';
 async function runTests() {
   const { app } = await import('../index');
   const { db } = await import('../storage/db');
+  const { EmailService } = await import('../services/emailService');
   console.log('🧪 Starting IntelliCare Enterprise Authentication Test Suite...\n');
 
   let passedCount = 0;
@@ -60,9 +61,9 @@ async function runTests() {
     });
     const regJson: any = await regRes.json();
     assert(regRes.status === 201 && regJson.success === true, 'User registration succeeds', JSON.stringify(regJson));
-    assert(Boolean(regJson.devOtp), 'Registration generates secure OTP for verification');
-
-    const otp = regJson.devOtp;
+    assert(!regJson.devOtp, 'Registration strictly hides OTP from client response');
+    const otp = EmailService.lastSentOtp?.otp || '';
+    assert(Boolean(otp), 'Registration generated and dispatched secure OTP via email service');
 
     // 4. Attempt Login Before Email Verification (Should be 403 Forbidden)
     const unverifiedLoginRes = await fetch(`${baseUrl}/auth/login`, {

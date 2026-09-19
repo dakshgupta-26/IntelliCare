@@ -163,7 +163,6 @@ export class AuthApi {
       error.status = response.status;
       error.code = data?.code;
       error.email = data?.email;
-      error.devOtp = data?.devOtp;
       error.devResetUrl = data?.devResetUrl;
       throw error;
     }
