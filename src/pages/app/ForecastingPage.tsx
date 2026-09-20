@@ -1,352 +1,176 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import { RefreshCw } from 'lucide-react';
 import {
-  Cpu,
-  RefreshCw
-} from 'lucide-react';
-import { useForecastStore } from '../../store/useForecastStore';
-import { useHospitalStore } from '../../store/useHospitalStore';
-import { useRouterStore } from '../../store/useRouterStore';
-import { ForecastHorizon, ForecastModelType } from '../../types/forecasting';
+  Area, CartesianGrid, ComposedChart, Legend, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
+} from 'recharts';
+import { mlApi } from '../../services/mlApi';
+import { useMLQuery } from '../../hooks/useMLQuery';
+import { UNIT_LABEL, UnitId } from '../../types/ml';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import { MLStatus, PageHeader, Stat, chartTheme } from '../../components/ml/MLStatus';
+
+const UNITS: UnitId[] = ['ICU', 'GENERAL', 'EMERGENCY'];
+const hourLabel = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
 export const ForecastingPage: React.FC = () => {
-  const navigate = useRouterStore((state) => state.navigate);
-  const forecastData = useForecastStore((state) => state.forecastData);
-  const selectedHorizon = useForecastStore((state) => state.selectedHorizon);
-  const setHorizon = useForecastStore((state) => state.setHorizon);
-  const selectedModel = useForecastStore((state) => state.selectedModel);
-  const setModel = useForecastStore((state) => state.setModel);
-  const selectedDepartmentId = useForecastStore((state) => state.selectedDepartmentId);
-  const setDepartmentId = useForecastStore((state) => state.setDepartmentId);
-  const showConfidenceBands = useForecastStore((state) => state.showConfidenceBands);
-  const setShowConfidenceBands = useForecastStore((state) => state.setShowConfidenceBands);
-  const showSurgeAnomaly = useForecastStore((state) => state.showSurgeAnomaly);
-  const setShowSurgeAnomaly = useForecastStore((state) => state.setShowSurgeAnomaly);
-  const isGeneratingForecast = useForecastStore((state) => state.isGeneratingForecast);
-  const triggerForecastRefresh = useForecastStore((state) => state.triggerForecastRefresh);
+  const [unit, setUnit] = useState<UnitId>('ICU');
+  const forecasts = useMLQuery(() => mlApi.forecasts());
+  const metrics = useMLQuery(() => mlApi.metrics());
+  const f = forecasts.data?.[unit];
 
-  const departments = useHospitalStore((state) => state.departments);
+  const chartData = useMemo(() => {
+    if (!f) return [];
+    const n = f.history.length;
+    const history = f.history.map((h, i) => ({ t: i - (n - 1), actual: h.value }));
+    // Anchor every forecast series at the last observed value so the lines join the history.
+    const last = history[history.length - 1];
+    Object.assign(last, { lstm: f.current, xgboost: f.current, band: [f.current, f.current] });
+    const future = f.forecast.map((p) => ({
+      t: p.horizon_h,
+      lstm: p.lstm,
+      xgboost: p.xgboost,
+      ensemble: p.ensemble,
+      band: [p.lower, p.upper],
+    }));
+    return [...history, ...future];
+  }, [f]);
 
-  const horizons: ForecastHorizon[] = ['6H', '12H', '24H', '48H', '72H'];
-  const models: { type: ForecastModelType; label: string; tag: string }[] = [
-    { type: 'LSTM', label: 'Multi-Horizon LSTM (Primary)', tag: 'Neural Recurrent' },
-    { type: 'XGBOOST', label: 'XGBoost Regressor (Baseline)', tag: 'Gradient Boosted Trees' },
-    { type: 'RANDOM_FOREST', label: 'Random Forest Regressor', tag: 'Bootstrap Bagged Trees' },
-    { type: 'ENSEMBLE', label: 'Bayesian Super-Ensemble', tag: 'Dynamic Stacking' }
-  ];
+  const unitMetrics = metrics.data?.forecasting[unit];
+  const peak = f ? f.forecast.reduce((a, b) => (b.upper > a.upper ? b : a)) : null;
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* 1. Heading & Overview */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-mono text-cyan-400 uppercase tracking-wider font-bold">
-              Predictive Inference Engine
-            </span>
-            <span className="text-slate-600">•</span>
-            <Badge variant="cyan" size="sm">
-              DEMO / EVALUATION DATASET
-            </Badge>
+      <PageHeader
+        eyebrow="Predictive demand engine"
+        title="Demand Forecasting"
+        subtitle="Bed demand forecast 2, 6, 12 and 24 hours ahead by an LSTM network and an XGBoost regressor, with 95% intervals from test-set residuals."
+        actions={
+          <Button variant="secondary" size="sm" icon={<RefreshCw className="w-3.5 h-3.5" />} onClick={forecasts.reload}>
+            Re-run inference
+          </Button>
+        }
+      />
+
+      <div className="flex flex-wrap gap-2">
+        {UNITS.map((u) => (
+          <button
+            key={u}
+            onClick={() => setUnit(u)}
+            className={`px-4 py-2 rounded-xl text-sm border transition-colors ${
+              unit === u ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300' : 'border-slate-800 text-slate-400 hover:text-white'
+            }`}
+          >
+            {UNIT_LABEL[u]}
+          </button>
+        ))}
+      </div>
+
+      <MLStatus loading={forecasts.loading && !f} error={forecasts.error} onRetry={forecasts.reload} label="Running forecast models" />
+
+      {f && peak && (
+        <>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <Stat label="Current census" value={`${f.current} / ${f.capacity}`} hint={`${Math.round((f.current / f.capacity) * 100)}% of staffed beds`} />
+            <Stat
+              label="24h forecast (ensemble)"
+              value={f.forecast[f.forecast.length - 1].ensemble}
+              hint={`95% interval ${f.forecast[f.forecast.length - 1].lower} – ${f.forecast[f.forecast.length - 1].upper}`}
+            />
+            <Stat
+              label="Worst case in next 24h"
+              value={peak.upper}
+              tone={peak.upper > f.capacity ? 'bad' : peak.upper > f.capacity * 0.9 ? 'warn' : 'good'}
+              hint={peak.upper > f.capacity ? `Exceeds capacity at +${peak.horizon_h}h` : `Within capacity (peak at +${peak.horizon_h}h)`}
+            />
+            <Stat label="As of" value={hourLabel(f.as_of)} hint={new Date(f.as_of).toLocaleDateString()} />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-white tracking-tight">
-            Demand Intelligence
-          </h1>
-          <p className="mt-1 text-sm text-slate-400">
-            "Understand what is likely to happen next." Multi-horizon patient arrivals and acuity surge forecasts.
+
+          <Card variant="solid" className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-white">{UNIT_LABEL[unit]}: last 48h and forecast</h2>
+              <Badge variant="slate" size="sm">synthetic evaluation data</Badge>
+            </div>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={chartData} margin={{ top: 8, right: 16, left: -8, bottom: 0 }}>
+                  <CartesianGrid stroke={chartTheme.grid} strokeDasharray="3 3" />
+                  <XAxis dataKey="t" type="number" domain={[-47, 24]} ticks={[-36, -24, -12, 0, 6, 12, 24]}
+                    tickFormatter={(t: number) => (t === 0 ? 'now' : t > 0 ? `+${t}h` : `${t}h`)} stroke={chartTheme.axis} fontSize={11} />
+                  <YAxis stroke={chartTheme.axis} fontSize={11} domain={['auto', 'auto']} />
+                  <Tooltip contentStyle={chartTheme.tooltip} labelStyle={{ color: '#e2e8f0' }}
+                    labelFormatter={(t: number) => (t === 0 ? 'Now' : t > 0 ? `Forecast +${t}h` : `${-t}h ago`)} />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <ReferenceLine x={0} stroke="#334155" />
+                  <Area dataKey="band" name="95% interval" stroke="none" fill="#06b6d4" fillOpacity={0.12} />
+                  <Line dataKey="actual" name="Observed" stroke="#e2e8f0" dot={false} strokeWidth={1.5} />
+                  <Line dataKey="lstm" name="LSTM" stroke="#a78bfa" strokeWidth={2} dot={{ r: 3 }} connectNulls />
+                  <Line dataKey="xgboost" name="XGBoost" stroke="#22d3ee" strokeWidth={2} dot={{ r: 3 }} connectNulls />
+                  <ReferenceLine y={f.capacity} stroke="#f43f5e" strokeDasharray="6 4" label={{ value: 'Staffed beds', fill: '#f43f5e', fontSize: 11, position: 'insideTopLeft' }} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+
+          <Card variant="solid" className="p-4 sm:p-6 overflow-x-auto">
+            <h2 className="text-sm font-semibold text-white mb-1">Forecast by horizon</h2>
+            <p className="text-xs text-slate-400 mb-4">Ensemble = mean of the two models; this is what the optimizer plans against.</p>
+            <table className="w-full text-sm">
+              <thead className="text-[11px] font-mono uppercase text-slate-500">
+                <tr className="text-left">
+                  <th className="py-2 pr-4">Horizon</th><th className="pr-4">LSTM</th><th className="pr-4">XGBoost</th>
+                  <th className="pr-4">Ensemble</th><th className="pr-4">95% interval</th><th>vs capacity</th>
+                </tr>
+              </thead>
+              <tbody className="text-slate-200 tabular-nums">
+                {f.forecast.map((p) => (
+                  <tr key={p.horizon_h} className="border-t border-slate-800/80">
+                    <td className="py-2 pr-4 font-mono">+{p.horizon_h}h</td>
+                    <td className="pr-4">{p.lstm}</td>
+                    <td className="pr-4">{p.xgboost}</td>
+                    <td className="pr-4 font-semibold">{p.ensemble}</td>
+                    <td className="pr-4 text-slate-400">{p.lower} – {p.upper}</td>
+                    <td>
+                      <Badge size="sm" variant={p.upper > f.capacity ? 'rose' : p.ensemble > f.capacity * 0.9 ? 'amber' : 'emerald'}>
+                        {Math.round((p.ensemble / f.capacity) * 100)}%
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+        </>
+      )}
+
+      {unitMetrics && (
+        <Card variant="solid" className="p-4 sm:p-6 overflow-x-auto">
+          <h2 className="text-sm font-semibold text-white mb-1">Model accuracy on held-out data ({UNIT_LABEL[unit]})</h2>
+          <p className="text-xs text-slate-400 mb-4">
+            Mean absolute error in beds over the last 60 days, which neither model saw during training. Persistence is the naive baseline
+            ("occupancy stays the same"); a model is useful only if it beats it.
           </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
-          <Button
-            variant="secondary"
-            size="sm"
-            icon={<RefreshCw className={`w-3.5 h-3.5 ${isGeneratingForecast ? 'animate-spin' : ''}`} />}
-            onClick={() => triggerForecastRefresh()}
-            disabled={isGeneratingForecast}
-          >
-            {isGeneratingForecast ? 'Inferring...' : 'Refresh Inference'}
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="sm"
-            icon={<Cpu className="w-3.5 h-3.5 text-cyan-400" />}
-            onClick={() => navigate('/app/models')}
-          >
-            ML Model Studio →
-          </Button>
-
-          <Button
-            variant="primary"
-            size="sm"
-            icon={<Cpu className="w-3.5 h-3.5" />}
-            onClick={() => navigate('/app/optimization')}
-          >
-            Send to Optimizer →
-          </Button>
-        </div>
-      </div>
-
-      {/* 2. Controls Ribbon: Department, Horizon, Model, Toggles */}
-      <div className="p-5 rounded-2xl bg-surface-100 dark:bg-[#0a1628] border border-slate-700/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
-        {/* Department Selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-slate-400">Department:</span>
-          <select
-            value={selectedDepartmentId}
-            onChange={(e) => setDepartmentId(e.target.value)}
-            className="bg-surface-200/80 dark:bg-[#07111f] border border-slate-700/80 dark:border-slate-800 rounded-xl py-1.5 px-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-cyan/40 appearance-none cursor-pointer"
-          >
-            {departments.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name} ({d.code})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Horizon Selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-slate-400">Horizon:</span>
-          <div className="flex items-center bg-surface-200/80 dark:bg-[#07111f] p-1 rounded-xl border border-slate-800">
-            {horizons.map((h) => (
-              <button
-                key={h}
-                onClick={() => setHorizon(h)}
-                className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                  selectedHorizon === h
-                    ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                {h}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Model Architecture Selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-slate-400">Model:</span>
-          <select
-            value={selectedModel}
-            onChange={(e) => setModel(e.target.value as any)}
-            className="bg-surface-200/80 dark:bg-[#07111f] border border-slate-700/80 dark:border-slate-800 rounded-xl py-1.5 px-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-cyan/40 appearance-none cursor-pointer"
-          >
-            {models.map((m) => (
-              <option key={m.type} value={m.type}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Confidence interval and Anomaly toggle */}
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showConfidenceBands}
-              onChange={(e) => setShowConfidenceBands(e.target.checked)}
-              className="rounded bg-surface-200 border-slate-700 text-cyan-400 focus:ring-cyan-400"
-            />
-            <span className="text-slate-300">95% CI Bounds</span>
-          </label>
-
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showSurgeAnomaly}
-              onChange={(e) => setShowSurgeAnomaly(e.target.checked)}
-              className="rounded bg-surface-200 border-slate-700 text-rose-400 focus:ring-rose-400"
-            />
-            <span className="text-rose-300">Surge Anomaly Scenario</span>
-          </label>
-        </div>
-      </div>
-
-      {/* 3. Main Forecast SVG Visualization Chart */}
-      <div className="p-6 rounded-3xl bg-surface-100 dark:bg-[#0a1628] border border-slate-700/80 dark:border-slate-800 shadow-xl space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h3 className="text-lg font-display font-bold text-white tracking-tight">
-              Emergency Department Patient Arrival Forecast
-            </h3>
-            <p className="text-xs font-mono text-slate-400">
-              Conformal Prediction Bounds (95% CI) • Peak Expected at 20:00 (146 pts/hr)
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-0.5 bg-slate-300 rounded-full" />
-              <span className="text-slate-400">Historical Actual</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-0.5 bg-cyan-400 rounded-full" />
-              <span className="text-cyan-300 font-bold">LSTM Primary</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-0.5 bg-indigo-400 rounded-full border-dashed" />
-              <span className="text-indigo-300">XGBoost Baseline</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-0.5 bg-emerald-400 rounded-full" />
-              <span className="text-emerald-300">Random Forest</span>
-            </div>
-          </div>
-        </div>
-
-        {/* SVG Curve Canvas */}
-        <div className="relative h-72 w-full pt-4">
-          <svg className="w-full h-full overflow-visible" viewBox="0 0 800 240" preserveAspectRatio="none">
-            {/* Grid lines */}
-            {[0, 50, 100, 150, 200].map((v) => (
-              <g key={v}>
-                <line
-                  x1="0"
-                  y1={220 - v * 1.05}
-                  x2="800"
-                  y2={220 - v * 1.05}
-                  stroke="currentColor"
-                  className="text-slate-800/80"
-                  strokeDasharray="4 4"
-                />
-                <text x="0" y={216 - v * 1.05} className="text-[9px] font-mono fill-slate-500">
-                  {v} pts
-                </text>
-              </g>
-            ))}
-
-            {/* Current Time Cutoff (T = 16:00) */}
-            <line x1="400" y1="10" x2="400" y2="220" stroke="#06b6d4" strokeWidth="1.5" strokeDasharray="3 3" />
-            <text x="406" y="24" className="text-[10px] font-mono fill-cyan-400 font-bold">
-              CURRENT (16:00) ➔ FUTURE INFERENCE
-            </text>
-
-            {/* 95% Confidence Interval Shaded Band */}
-            {showConfidenceBands && (
-              <path
-                d="M 400,88 L 460,70 L 530,55 L 600,75 L 670,110 L 740,145 L 800,152 L 800,175 L 740,185 L 670,140 L 600,105 L 530,85 L 460,95 L 400,105 Z"
-                fill="url(#confidence-band-glow)"
-                opacity="0.35"
-              />
-            )}
-
-            {/* Surge Anomaly Curve (If Toggled) */}
-            {showSurgeAnomaly && (
-              <polyline
-                fill="none"
-                stroke="#f43f5e"
-                strokeWidth="2"
-                strokeDasharray="4 4"
-                points="400,80 460,45 530,30 600,60 670,105 740,145 800,150"
-              />
-            )}
-
-            {/* Historical Actual Line (00:00 to 16:00) */}
-            <polyline
-              fill="none"
-              stroke="#cbd5e1"
-              strokeWidth="2.5"
-              points="0,178 60,184 120,190 180,170 240,142 300,123 360,105 400,90"
-            />
-
-            {/* Random Forest Baseline Forecast Line (16:00 to 06:00) */}
-            <polyline
-              fill="none"
-              stroke="#10b981"
-              strokeWidth="1.8"
-              strokeDasharray="2 2"
-              points="400,94 460,86 530,78 600,90 670,120 740,148 800,152"
-            />
-
-            {/* XGBoost Baseline Forecast Line (16:00 to 06:00) */}
-            <polyline
-              fill="none"
-              stroke="#818cf8"
-              strokeWidth="2"
-              strokeDasharray="3 3"
-              points="400,98 460,90 530,85 600,95 670,125 740,155 800,160"
-            />
-
-            {/* LSTM Primary Forecast Line (16:00 to 06:00) */}
-            <polyline
-              fill="none"
-              stroke="#06b6d4"
-              strokeWidth="3"
-              points="400,90 460,78 530,68 600,85 670,118 740,150 800,155"
-            />
-
-            {/* Peak Anchor Callout */}
-            <g>
-              <circle cx="530" cy="68" r="5" fill="#06b6d4" className="animate-ping" />
-              <circle cx="530" cy="68" r="4" fill="#06b6d4" />
-              <rect x="490" y="32" width="85" height="24" rx="6" fill="#07111f" stroke="#06b6d4" strokeWidth="1" />
-              <text x="496" y="48" className="text-[10px] font-mono font-bold fill-cyan-300">
-                Peak: 146 pts/hr
-              </text>
-            </g>
-
-            <defs>
-              <linearGradient id="confidence-band-glow" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.1" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-
-        {/* X-Axis Time Labels */}
-        <div className="flex justify-between items-center text-[10px] font-mono text-slate-400 px-1 border-t border-slate-800/80 pt-2">
-          {forecastData.points.map((p, idx) => (
-            <span key={idx} className={p.isPeakArrivalWindow ? 'text-cyan-400 font-bold' : ''}>
-              {p.hourLabel.split(' ')[0]}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* 4. Model Evaluation & Statistical Performance Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Metric 1: MAE */}
-        <div className="p-5 rounded-2xl bg-surface-100 dark:bg-[#0a1628] border border-slate-700/80 dark:border-slate-800">
-          <span className="text-xs font-mono text-slate-400 block">Mean Absolute Error (MAE)</span>
-          <div className="text-2xl font-bold font-mono text-cyan-400 mt-1">
-            {forecastData.metrics.mae} <span className="text-xs text-slate-400">pts</span>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">Evaluated on 142,800 test steps</p>
-        </div>
-
-        {/* Metric 2: RMSE */}
-        <div className="p-5 rounded-2xl bg-surface-100 dark:bg-[#0a1628] border border-slate-700/80 dark:border-slate-800">
-          <span className="text-xs font-mono text-slate-400 block">Root Mean Squared Error</span>
-          <div className="text-2xl font-bold font-mono text-teal-400 mt-1">
-            {forecastData.metrics.rmse} <span className="text-xs text-slate-400">pts</span>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">Low sensitivity to outlier swings</p>
-        </div>
-
-        {/* Metric 3: MAPE */}
-        <div className="p-5 rounded-2xl bg-surface-100 dark:bg-[#0a1628] border border-slate-700/80 dark:border-slate-800">
-          <span className="text-xs font-mono text-slate-400 block">Mean Absolute % Error</span>
-          <div className="text-2xl font-bold font-mono text-indigo-400 mt-1">
-            {forecastData.metrics.mape}%
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">Industry benchmark standard &lt; 8.0%</p>
-        </div>
-
-        {/* Metric 4: Inference Latency */}
-        <div className="p-5 rounded-2xl bg-surface-100 dark:bg-[#0a1628] border border-slate-700/80 dark:border-slate-800">
-          <span className="text-xs font-mono text-slate-400 block">Inference Latency</span>
-          <div className="text-2xl font-bold font-mono text-emerald-400 mt-1">
-            {forecastData.metrics.inferenceLatencyMs} <span className="text-xs text-slate-400">ms</span>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">Sub-100ms multi-horizon roll forward</p>
-        </div>
-      </div>
+          <table className="w-full text-sm">
+            <thead className="text-[11px] font-mono uppercase text-slate-500">
+              <tr className="text-left">
+                <th className="py-2 pr-4">Model</th>
+                {Object.keys(unitMetrics.XGBoost).map((h) => <th key={h} className="pr-4">MAE {h}</th>)}
+                {Object.keys(unitMetrics.XGBoost).map((h) => <th key={h} className="pr-4">MAPE {h}</th>)}
+              </tr>
+            </thead>
+            <tbody className="text-slate-200 tabular-nums">
+              {(['LSTM', 'XGBoost', 'Persistence'] as const).map((m) => (
+                <tr key={m} className="border-t border-slate-800/80">
+                  <td className={`py-2 pr-4 ${m === 'Persistence' ? 'text-slate-500' : 'font-medium'}`}>{m}</td>
+                  {Object.values(unitMetrics[m]).map((v, i) => <td key={i} className="pr-4">{v.MAE}</td>)}
+                  {Object.values(unitMetrics[m]).map((v, i) => <td key={`p${i}`} className="pr-4 text-slate-400">{v.MAPE}%</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      )}
     </div>
   );
 };

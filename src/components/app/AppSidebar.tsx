@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Activity,
+  CalendarClock,
   LayoutDashboard,
   Boxes,
   TrendingUp,
@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { useRouterStore } from '../../store/useRouterStore';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useRecommendationStore } from '../../store/useRecommendationStore';
+import { useMLStore } from '../../store/useMLStore';
 import { useAlertStore } from '../../store/useAlertStore';
 import { useLayoutStore } from '../../store/useLayoutStore';
 import { IntelliCareLogo } from '../brand/IntelliCareLogo';
@@ -37,7 +37,11 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ isMobile = false }) => {
   const currentUser = useAuthStore((state) => state.currentUser);
   const hasPermission = useAuthStore((state) => state.hasPermission);
   const setRoleSwitchingOpen = useAuthStore((state) => state.setRoleSwitchingOpen);
-  const pendingRecsCount = useRecommendationStore((state) => state.getPendingCount());
+  const pendingRecsCount = useMLStore((state) => state.pendingCount);
+  const refreshPending = useMLStore((state) => state.refreshPending);
+  useEffect(() => {
+    refreshPending();
+  }, [refreshPending]);
   const criticalAlertsCount = useAlertStore((state) => state.getCriticalCount());
   const setMobileSidebarOpen = useLayoutStore((state) => state.setMobileSidebarOpen);
 
@@ -63,21 +67,21 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ isMobile = false }) => {
     },
     {
       id: 'models',
-      label: 'ML Model Studio',
+      label: 'Model Evaluation',
       path: '/app/models',
       icon: <Sparkles className="w-4 h-4 text-cyan-400" />
-    },
-    {
-      id: 'clinical-ai',
-      label: 'Clinical AI & Risk',
-      path: '/app/clinical-ai',
-      icon: <Activity className="w-4 h-4 text-emerald-400" />
     },
     {
       id: 'forecasting',
       label: 'Forecasting',
       path: '/app/forecasting',
       icon: <TrendingUp className="w-4 h-4" />
+    },
+    {
+      id: 'appointments',
+      label: 'Appointments',
+      path: '/app/appointments',
+      icon: <CalendarClock className="w-4 h-4" />
     },
     {
       id: 'optimization',

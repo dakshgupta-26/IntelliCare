@@ -1,0 +1,308 @@
+{
+  "generated_at": "2026-09-20T16:31:20",
+  "forecasting": {
+    "ICU": {
+      "XGBoost": {
+        "2h": {
+          "MAE": 1.822,
+          "RMSE": 2.499,
+          "MAPE": 1.89
+        },
+        "6h": {
+          "MAE": 2.805,
+          "RMSE": 3.904,
+          "MAPE": 2.89
+        },
+        "12h": {
+          "MAE": 3.356,
+          "RMSE": 4.733,
+          "MAPE": 3.43
+        },
+        "24h": {
+          "MAE": 3.504,
+          "RMSE": 5.13,
+          "MAPE": 3.56
+        }
+      },
+      "LSTM": {
+        "2h": {
+          "MAE": 3.034,
+          "RMSE": 4.313,
+          "MAPE": 3.07
+        },
+        "6h": {
+          "MAE": 3.245,
+          "RMSE": 4.622,
+          "MAPE": 3.28
+        },
+        "12h": {
+          "MAE": 3.377,
+          "RMSE": 4.913,
+          "MAPE": 3.43
+        },
+        "24h": {
+          "MAE": 3.643,
+          "RMSE": 5.4,
+          "MAPE": 3.7
+        }
+      },
+      "Persistence": {
+        "2h": {
+          "MAE": 2.218,
+          "RMSE": 2.925,
+          "MAPE": 2.32
+        },
+        "6h": {
+          "MAE": 4.58,
+          "RMSE": 5.686,
+          "MAPE": 4.79
+        },
+        "12h": {
+          "MAE": 6.329,
+          "RMSE": 7.668,
+          "MAPE": 6.62
+        },
+        "24h": {
+          "MAE": 5.111,
+          "RMSE": 6.776,
+          "MAPE": 5.31
+        }
+      }
+    },
+    "GENERAL": {
+      "XGBoost": {
+        "2h": {
+          "MAE": 20.358,
+          "RMSE": 27.429,
+          "MAPE": 2.01
+        },
+        "6h": {
+          "MAE": 31.382,
+          "RMSE": 41.426,
+          "MAPE": 3.07
+        },
+        "12h": {
+          "MAE": 38.166,
+          "RMSE": 50.804,
+          "MAPE": 3.73
+        },
+        "24h": {
+          "MAE": 39.937,
+          "RMSE": 53.894,
+          "MAPE": 3.88
+        }
+      },
+      "LSTM": {
+        "2h": {
+          "MAE": 35.589,
+          "RMSE": 48.926,
+          "MAPE": 3.44
+        },
+        "6h": {
+          "MAE": 37.907,
+          "RMSE": 51.446,
+          "MAPE": 3.67
+        },
+        "12h": {
+          "MAE": 37.741,
+          "RMSE": 51.745,
+          "MAPE": 3.67
+        },
+        "24h": {
+          "MAE": 42.765,
+          "RMSE": 58.196,
+          "MAPE": 4.16
+        }
+      },
+      "Persistence": {
+        "2h": {
+          "MAE": 36.072,
+          "RMSE": 53.056,
+          "MAPE": 3.62
+        },
+        "6h": {
+          "MAE": 88.928,
+          "RMSE": 109.505,
+          "MAPE": 8.99
+        },
+        "12h": {
+          "MAE": 125.441,
+          "RMSE": 151.996,
+          "MAPE": 12.7
+        },
+        "24h": {
+          "MAE": 102.07,
+          "RMSE": 137.278,
+          "MAPE": 10.24
+        }
+      }
+    },
+    "EMERGENCY": {
+      "XGBoost": {
+        "2h": {
+          "MAE": 1.467,
+          "RMSE": 2.088,
+          "MAPE": 2.71
+        },
+        "6h": {
+          "MAE": 2.179,
+          "RMSE": 3.151,
+          "MAPE": 4.05
+        },
+        "12h": {
+          "MAE": 2.729,
+          "RMSE": 3.985,
+          "MAPE": 4.94
+        },
+        "24h": {
+          "MAE": 2.986,
+          "RMSE": 4.427,
+          "MAPE": 5.33
+        }
+      },
+      "LSTM": {
+        "2h": {
+          "MAE": 2.27,
+          "RMSE": 3.253,
+          "MAPE": 4.11
+        },
+        "6h": {
+          "MAE": 2.424,
+          "RMSE": 3.549,
+          "MAPE": 4.51
+        },
+        "12h": {
+          "MAE": 2.715,
+          "RMSE": 4.112,
+          "MAPE": 4.95
+        },
+        "24h": {
+          "MAE": 2.923,
+          "RMSE": 4.495,
+          "MAPE": 5.11
+        }
+      },
+      "Persistence": {
+        "2h": {
+          "MAE": 6.813,
+          "RMSE": 7.782,
+          "MAPE": 12.46
+        },
+        "6h": {
+          "MAE": 18.262,
+          "RMSE": 20.584,
+          "MAPE": 34.16
+        },
+        "12h": {
+          "MAE": 25.948,
+          "RMSE": 29.089,
+          "MAPE": 49.63
+        },
+        "24h": {
+          "MAE": 5.431,
+          "RMSE": 7.437,
+          "MAPE": 10.0
+        }
+      }
+    }
+  },
+  "appointments": {
+    "no_show": {
+      "RandomForest": {
+        "ROC_AUC": 0.674,
+        "accuracy": 0.753,
+        "precision": 0.369,
+        "recall": 0.389,
+        "F1": 0.379
+      },
+      "XGBoost": {
+        "ROC_AUC": 0.673,
+        "accuracy": 0.748,
+        "precision": 0.357,
+        "recall": 0.378,
+        "F1": 0.367
+      },
+      "selected": "RandomForest",
+      "top_features": {
+        "prior_no_show_rate": 0.238,
+        "lead_days": 0.171,
+        "distance_km": 0.133,
+        "sms_reminder": 0.095,
+        "prior_no_shows": 0.094,
+        "prior_appointments": 0.069
+      }
+    },
+    "fairness": {
+      "gender": {
+        "groups": {
+          "F": {
+            "n": 4042,
+            "flag_rate": 0.206,
+            "actual_no_show_rate": 0.195,
+            "true_positive_rate": 0.363
+          },
+          "M": {
+            "n": 3958,
+            "flag_rate": 0.203,
+            "actual_no_show_rate": 0.192,
+            "true_positive_rate": 0.417
+          }
+        },
+        "demographic_parity_gap": 0.003,
+        "equal_opportunity_gap": 0.054
+      },
+      "age_band": {
+        "groups": {
+          "18-35": {
+            "n": 2239,
+            "flag_rate": 0.21,
+            "actual_no_show_rate": 0.236,
+            "true_positive_rate": 0.369
+          },
+          "0-17": {
+            "n": 1829,
+            "flag_rate": 0.206,
+            "actual_no_show_rate": 0.189,
+            "true_positive_rate": 0.406
+          },
+          "60+": {
+            "n": 1334,
+            "flag_rate": 0.185,
+            "actual_no_show_rate": 0.133,
+            "true_positive_rate": 0.371
+          },
+          "36-60": {
+            "n": 2598,
+            "flag_rate": 0.208,
+            "actual_no_show_rate": 0.192,
+            "true_positive_rate": 0.406
+          }
+        },
+        "demographic_parity_gap": 0.025,
+        "equal_opportunity_gap": 0.037
+      },
+      "max_allowed_parity_gap": 0.05,
+      "passed": true
+    },
+    "age_ablation": {
+      "ROC_AUC_without_age": 0.674,
+      "ROC_AUC_with_age": 0.683,
+      "age_parity_gap_with_age": 0.154
+    },
+    "duration": {
+      "RandomForest": {
+        "MAE_min": 2.89,
+        "R2": 0.655
+      },
+      "XGBoost": {
+        "MAE_min": 2.84,
+        "R2": 0.666
+      },
+      "FixedSlotBaseline": {
+        "MAE_min": 4.4,
+        "R2": 0.284
+      },
+      "selected": "XGBoost"
+    }
+  }
+}
