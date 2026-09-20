@@ -190,8 +190,8 @@ export const ResourcePressureSection: React.FC = () => {
                     key={idx}
                     className="flex items-center justify-between text-slate-300 py-0.5 border-b border-slate-800/50"
                   >
-                    <span className="text-slate-300">{eq.name}</span>
-                    <div className="flex items-center gap-2">
+                    <span className="text-slate-300 truncate min-w-0">{eq.name}</span>
+                    <div className="flex items-center gap-2 shrink-0">
                       <span className="text-cyan-400 font-bold">{eq.inUse}/{eq.total}</span>
                       {eq.maintenance > 0 ? (
                         <span className="text-[10px] text-amber-400">({eq.maintenance} maint)</span>
