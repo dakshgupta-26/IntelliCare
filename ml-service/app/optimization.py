@@ -16,15 +16,17 @@ from ortools.sat.python import cp_model
 
 from .config import CLINIC_CLOSE_MIN, CLINIC_OPEN_MIN, DEPARTMENTS, UNITS
 
+# Surge and float capacity assumed at ~10% of beds and ~15% of the nurse establishment;
+# ventilators at roughly one per ICU bed plus a small emergency reserve.
 DEFAULT_POOLS = {
-    "surge_beds": 30,        # flexible beds that can be opened in GENERAL or EMERGENCY
-    "icu_convertible": 6,    # step-down beds that can be upgraded to ICU
-    "float_nurses": 12,
-    "overtime_cap": 4,       # max overtime nurses per unit per shift
-    "ventilators": 26,
+    "surge_beds": 155,       # flexible beds that can be opened in GENERAL or EMERGENCY
+    "icu_convertible": 24,   # step-down beds that can be upgraded to ICU
+    "float_nurses": 54,
+    "overtime_cap": 20,      # max overtime nurses per unit per shift
+    "ventilators": 140,
 }
 UNIT_LABEL = {"ICU": "ICU", "GENERAL": "General Ward", "EMERGENCY": "Emergency"}
-STANDING_VENTILATORS = {"ICU": 18, "EMERGENCY": 3, "GENERAL": 0}  # routinely stationed; only extra moves are decisions
+STANDING_VENTILATORS = {"ICU": 110, "EMERGENCY": 12, "GENERAL": 0}  # routinely stationed; only extra moves are decisions
 VENT_NEED = {"ICU": 0.45, "EMERGENCY": 0.08, "GENERAL": 0.0}  # ventilators per patient
 DEFAULT_WEIGHTS = {"unmet_demand": 10.0, "ratio_violation": 8.0, "overtime": 2.0, "transfer": 1.0, "idle": 0.5}
 
