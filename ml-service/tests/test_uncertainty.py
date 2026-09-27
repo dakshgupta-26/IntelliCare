@@ -58,6 +58,7 @@ def test_oracle_regret_nonnegative(small_backtest):
     for model, by_tau in small_backtest["backtest"]["12"].items():
         for tau, stats in by_tau.items():
             assert stats["regret"] >= -1e-6, f"{model} @ {tau}: regret {stats['regret']}"
+            assert stats["deployed"] >= 0
 
 
 def test_backtest_deterministic(census):
@@ -101,3 +102,5 @@ class TestBacktestReportEndpoints:
         body = r.json()
         assert body["planning_basis"] == "recommended"
         assert body["risk_level"] in (0.5, 0.8, 0.9, 0.95)
+        rec = client.get("/uncertainty/report").json()["recommended"]["12"]
+        assert body["planning_model"] == rec["model"] and body["risk_level"] == rec["risk_level"]

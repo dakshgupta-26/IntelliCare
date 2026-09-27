@@ -22,7 +22,7 @@ const RISK_CHOICES: { key: RiskChoice; label: string }[] = [
 ];
 const basisLabel = (r: AllocationResult) => {
   const pct = r.risk_level != null ? `${Math.round(r.risk_level * 100)}%` : null;
-  if (r.planning_basis === 'recommended') return `recommended · ${pct} plan`;
+  if (r.planning_basis === 'recommended') return `recommended · ${r.planning_model ?? ''} ${pct} plan`;
   if (r.planning_basis === 'risk_level') return `${pct} plan`;
   return 'expected (point) demand';
 };
@@ -54,9 +54,8 @@ export const OptimizationPage: React.FC = () => {
     if (!uncertainty.loading) setRiskChoice(hasReport ? 'recommended' : 'point');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uncertainty.loading]);
-  const recommendedPct = uncertainty.data?.recommended[String(horizon)]
-    ? Math.round(uncertainty.data.recommended[String(horizon)].risk_level * 100)
-    : null;
+  const recommendedSetting = uncertainty.data?.recommended[String(horizon)];
+  const recommendedPct = recommendedSetting ? Math.round(recommendedSetting.risk_level * 100) : null;
 
   const run = async () => {
     setLoading(true);
@@ -105,7 +104,7 @@ export const OptimizationPage: React.FC = () => {
                   className={`px-3 py-1.5 rounded-lg text-xs border disabled:opacity-40 disabled:cursor-not-allowed ${
                     riskChoice === c.key ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300' : 'border-slate-800 text-slate-400'
                   }`}>
-                  {c.key === 'recommended' && recommendedPct != null ? `Recommended · ${recommendedPct}%` : c.label}
+                  {c.key === 'recommended' && recommendedSetting && recommendedPct != null ? `Recommended · ${recommendedSetting.model.toUpperCase()} ${recommendedPct}%` : c.label}
                 </button>
               ))}
             </div>

@@ -64,20 +64,22 @@ def load_backtest_report() -> dict | None:
 load_backtest_report()  # prime the cache at startup
 
 
-def demand_at(forecasts: dict, horizon_h: int, risk_level: float | None) -> dict:
-    """risk_level=None plans for the point (ensemble) forecast; otherwise for that quantile of
-    demand, from the ensemble's split-conformal quantiles. Falls back to the pre-conformal Gaussian
-    upper bound for risk_level=0.95 if backtest.py has not been run yet."""
+def demand_at(forecasts: dict, horizon_h: int, risk_level: float | None, model: str = "ensemble") -> dict:
+    """risk_level=None plans for the model's point forecast; otherwise for that quantile of demand,
+    using the same model's split-conformal residual quantile (the backtest's planning rule). Falls
+    back to the pre-conformal Gaussian upper bound for risk_level=0.95 if backtest.py has not run."""
     point = lambda u: next(p for p in forecasts[u]["forecast"] if p["horizon_h"] == horizon_h)
+    pred = lambda u: float(forecasts[u]["current"]) if model == "persistence" else float(point(u)[model])
     if risk_level is None:
-        return {u: point(u)["ensemble"] for u in UNITS}
+        return {u: round(max(0.0, pred(u)), 1) for u in UNITS}
+    conformal = forecaster.conformal
     demand = {}
     for u in UNITS:
-        p = point(u)
-        if p["quantiles"] is not None:
-            demand[u] = p["quantiles"][str(risk_level)]
-        elif risk_level == 0.95:
-            demand[u] = p["upper"]
+        if conformal is not None:
+            q = conformal[u][str(horizon_h)][model]["q"][str(risk_level)]
+            demand[u] = round(max(0.0, pred(u) + q), 1)
+        elif risk_level == 0.95 and model == "ensemble":
+            demand[u] = point(u)["upper"]
         else:
             raise HTTPException(409, "Run: uv run python backtest.py")
     return demand
@@ -146,15 +148,15 @@ def optimize(req: OptimizeRequest):
         rec = report["recommended"].get(str(req.horizon_h))
         if rec is None:
             raise HTTPException(409, f"No recommendation for horizon {req.horizon_h}h. Run: uv run python backtest.py")
-        risk_level, planning_basis = rec["risk_level"], "recommended"
+        risk_level, planning_basis, planning_model = rec["risk_level"], "recommended", rec["model"]
     elif req.risk_level is not None:
-        risk_level, planning_basis = req.risk_level, "risk_level"
+        risk_level, planning_basis, planning_model = req.risk_level, "risk_level", "ensemble"
     elif req.conservative:
-        risk_level, planning_basis = 0.95, "risk_level"
+        risk_level, planning_basis, planning_model = 0.95, "risk_level", "ensemble"
     else:
-        risk_level, planning_basis = None, "point"
+        risk_level, planning_basis, planning_model = None, "point", "ensemble"
 
-    demand = demand_at(all_forecasts(), req.horizon_h, risk_level)
+    demand = demand_at(all_forecasts(), req.horizon_h, risk_level, planning_model)
     result = allocate_resources(demand, pools=req.pools, weights=req.weights, use_solver=req.use_solver)
     # Superseded pending recommendations are expired; each new one gets an SOP justification.
     for rec in recommendations.values():
@@ -167,7 +169,7 @@ def optimize(req: OptimizeRequest):
                   "horizon_h": req.horizon_h, **policy.explain(r)})
         recommendations[rid] = r
     result.update({"run_id": run_id, "horizon_h": req.horizon_h, "demand_used": demand,
-                  "risk_level": risk_level, "planning_basis": planning_basis})
+                  "risk_level": risk_level, "planning_basis": planning_basis, "planning_model": planning_model})
     return result
 
 

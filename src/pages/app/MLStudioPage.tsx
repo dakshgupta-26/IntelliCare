@@ -63,8 +63,9 @@ export const MLStudioPage: React.FC = () => {
           }));
           const tradeoffData = TAUS.map(({ key, label }) => ({
             level: label,
+            uncovered: report.backtest[h][rec.model][key].uncovered,
+            deployed: report.backtest[h][rec.model][key].deployed,
             unmet: report.backtest[h][rec.model][key].unmet,
-            idle: report.backtest[h][rec.model][key].idle,
           }));
           return (
             <>
@@ -98,7 +99,7 @@ export const MLStudioPage: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs text-slate-300 mb-2">Trade-off for {rec.model} across risk levels</div>
+                  <div className="text-xs text-slate-300 mb-2">What each risk level trades off ({rec.model}, per decision)</div>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={tradeoffData} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
@@ -107,8 +108,9 @@ export const MLStudioPage: React.FC = () => {
                         <YAxis stroke={chartTheme.axis} fontSize={11} />
                         <Tooltip contentStyle={chartTheme.tooltip} />
                         <Legend wrapperStyle={{ fontSize: 11 }} />
-                        <Line dataKey="unmet" name="Patients without a bed / decision" stroke="#f43f5e" strokeWidth={2} dot={{ r: 3 }} />
-                        <Line dataKey="idle" name="Idle surge beds / decision" stroke="#22d3ee" strokeWidth={2} dot={{ r: 3 }} />
+                        <Line dataKey="uncovered" name="Nurse-ratio breaches (patients)" stroke="#f43f5e" strokeWidth={2} dot={{ r: 3 }} />
+                        <Line dataKey="deployed" name="Extra staff & beds deployed" stroke="#22d3ee" strokeWidth={2} dot={{ r: 3 }} />
+                        <Line dataKey="unmet" name="Patients without a bed" stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="4 3" dot={{ r: 2 }} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>

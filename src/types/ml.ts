@@ -88,6 +88,7 @@ export interface AllocationResult {
   demand_used?: Record<UnitId, number>;
   risk_level?: number | null;
   planning_basis?: 'point' | 'risk_level' | 'recommended';
+  planning_model?: 'persistence' | 'xgboost' | 'lstm' | 'ensemble';
 }
 
 // -------------------------------------------------------------- decision-aware uncertainty engine
@@ -101,6 +102,7 @@ export interface DecisionStats {
   uncovered: number;
   overtime: number;
   idle: number;
+  deployed: number;
 }
 
 export interface CoverageStat {

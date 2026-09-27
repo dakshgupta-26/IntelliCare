@@ -195,7 +195,7 @@ def run_backtest(df: pd.DataFrame, horizons: list[int] | None = None, max_decisi
 
     taus = ["point"] + LEVELS
     stats = {h: {m: {str(tau): {"regret": 0.0, "cost": 0.0, "unmet": 0.0, "uncovered": 0.0,
-                                 "overtime": 0.0, "idle": 0.0, "n": 0} for tau in taus} for m in MODELS}
+                                 "overtime": 0.0, "idle": 0.0, "deployed": 0.0, "n": 0} for tau in taus} for m in MODELS}
              for h in horizons}
     fallbacks = 0
 
@@ -224,6 +224,9 @@ def run_backtest(df: pd.DataFrame, horizons: list[int] | None = None, max_decisi
                     s["uncovered"] += rc["uncovered"]
                     s["overtime"] += rc["overtime"]
                     s["idle"] += rc["idle"]
+                    # Extra resources the plan commits (the price of caution): surge beds + float + overtime nurses.
+                    s["deployed"] += sum(a["surge_beds"] + a["float_nurses"] + a["overtime_nurses"]
+                                         for a in alloc["units"].values())
                     s["n"] += 1
 
     backtest_out = {}
@@ -234,7 +237,7 @@ def run_backtest(df: pd.DataFrame, horizons: list[int] | None = None, max_decisi
             for tau in taus:
                 s = stats[h][m][str(tau)]
                 backtest_out[str(h)][m][str(tau)] = {k: round(s[k] / s["n"], 3) for k in
-                                                      ("regret", "cost", "unmet", "uncovered", "overtime", "idle")}
+                                                      ("regret", "cost", "unmet", "uncovered", "overtime", "idle", "deployed")}
 
     mae_out = {}
     for h in horizons:
