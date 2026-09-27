@@ -1,17 +1,25 @@
-import React from 'react';
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import React, { useState } from 'react';
+import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { mlApi } from '../../services/mlApi';
 import { useMLQuery } from '../../hooks/useMLQuery';
-import { UNIT_LABEL, UnitId } from '../../types/ml';
+import { RiskTau, UNIT_LABEL, UnitId } from '../../types/ml';
 import { Badge } from '../../components/ui/Badge';
 import { Card } from '../../components/ui/Card';
 import { MLStatus, PageHeader, Stat, chartTheme } from '../../components/ml/MLStatus';
 
 const UNITS: UnitId[] = ['ICU', 'GENERAL', 'EMERGENCY'];
+const HORIZONS = [2, 6, 12, 24];
+const MODEL_COLOR: Record<string, string> = { persistence: '#475569', xgboost: '#22d3ee', lstm: '#a78bfa', ensemble: '#34d399' };
+const TAUS: { key: RiskTau; label: string }[] = [
+  { key: 'point', label: 'Point' }, { key: '0.5', label: '50%' }, { key: '0.8', label: '80%' },
+  { key: '0.9', label: '90%' }, { key: '0.95', label: '95%' },
+];
 
 /** Model evaluation report: everything here is read from ml-service/reports/metrics.json (produced by train.py). */
 export const MLStudioPage: React.FC = () => {
   const { data: m, loading, error, reload } = useMLQuery(() => mlApi.metrics());
+  const { data: report, loading: uLoading, error: uError, reload: uReload } = useMLQuery(() => mlApi.uncertaintyReport());
+  const [horizon, setHorizon] = useState(12);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -21,6 +29,123 @@ export const MLStudioPage: React.FC = () => {
         subtitle="Held-out test results for every trained model, produced by `python train.py`. Nothing on this page is hand-entered."
         actions={m && <Badge variant="slate" size="sm">trained {new Date(m.generated_at).toLocaleString()}</Badge>}
       />
+
+      <Card variant="solid" className="p-4 sm:p-6 space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold text-white">Decision-Aware Uncertainty Engine</h2>
+            <p className="text-xs text-slate-400 mt-1 max-w-2xl">
+              Prediction intervals are built from real held-out forecast errors (split conformal prediction), then
+              replayed through the resource optimizer at every risk level and scored against a perfect-foresight
+              oracle plan — so the recommendation is chosen by the real cost of the decision it produces, not just
+              forecast accuracy.
+            </p>
+          </div>
+          <div className="flex gap-1.5 shrink-0">
+            {HORIZONS.map((h) => (
+              <button key={h} onClick={() => setHorizon(h)}
+                className={`px-3 py-1.5 rounded-lg text-xs border ${horizon === h ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300' : 'border-slate-800 text-slate-400'}`}>
+                {h}h
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <MLStatus loading={uLoading} error={uError} onRetry={uReload} label="Loading decision backtest" />
+
+        {report && (() => {
+          const h = String(horizon);
+          const rec = report.recommended[h];
+          const ranking = report.ranking[h];
+          const regretData = TAUS.map(({ key, label }) => ({
+            level: label,
+            ...Object.fromEntries(report.models.map((mo) => [mo, report.backtest[h][mo][key].regret])),
+          }));
+          const tradeoffData = TAUS.map(({ key, label }) => ({
+            level: label,
+            unmet: report.backtest[h][rec.model][key].unmet,
+            idle: report.backtest[h][rec.model][key].idle,
+          }));
+          return (
+            <>
+              <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4">
+                <p className="text-sm text-white">
+                  Recommended: plan at the <span className="font-semibold text-cyan-300">{Math.round(rec.risk_level * 100)}%</span> level
+                  using <span className="font-semibold text-cyan-300">{rec.model}</span>
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
+                  Mean regret {rec.regret} vs. the perfect-foresight oracle plan, at horizon +{horizon}h.
+                  {ranking && <> Accuracy rank: {ranking.accuracy_rank.join(' > ')}. Decision rank: {ranking.decision_rank.join(' > ')}.</>}
+                </p>
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-4">
+                <div>
+                  <div className="text-xs text-slate-300 mb-2">Mean decision regret by risk level (lower is better)</div>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={regretData} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
+                        <CartesianGrid stroke={chartTheme.grid} strokeDasharray="3 3" vertical={false} />
+                        <XAxis dataKey="level" stroke={chartTheme.axis} fontSize={11} />
+                        <YAxis stroke={chartTheme.axis} fontSize={11} />
+                        <Tooltip contentStyle={chartTheme.tooltip} />
+                        <Legend wrapperStyle={{ fontSize: 11 }} />
+                        {report.models.map((mo) => (
+                          <Bar key={mo} dataKey={mo} fill={MODEL_COLOR[mo]} radius={[3, 3, 0, 0]} />
+                        ))}
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-slate-300 mb-2">Trade-off for {rec.model} across risk levels</div>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={tradeoffData} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
+                        <CartesianGrid stroke={chartTheme.grid} strokeDasharray="3 3" vertical={false} />
+                        <XAxis dataKey="level" stroke={chartTheme.axis} fontSize={11} />
+                        <YAxis stroke={chartTheme.axis} fontSize={11} />
+                        <Tooltip contentStyle={chartTheme.tooltip} />
+                        <Legend wrapperStyle={{ fontSize: 11 }} />
+                        <Line dataKey="unmet" name="Patients without a bed / decision" stroke="#f43f5e" strokeWidth={2} dot={{ r: 3 }} />
+                        <Line dataKey="idle" name="Idle surge beds / decision" stroke="#22d3ee" strokeWidth={2} dot={{ r: 3 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <div className="text-xs text-slate-300 mb-2">Conformal coverage, ensemble, horizon +{horizon}h</div>
+                <table className="w-full text-sm">
+                  <thead className="text-[11px] font-mono uppercase text-slate-500">
+                    <tr className="text-left"><th className="py-2 pr-4">Unit</th><th className="pr-4">Nominal</th><th className="pr-4">Empirical coverage</th><th>Mean width (beds)</th></tr>
+                  </thead>
+                  <tbody className="tabular-nums text-slate-200">
+                    {UNITS.flatMap((u) => report.levels.map((lvl) => {
+                      const c = report.coverage[u]?.[h]?.ensemble?.[String(lvl)];
+                      if (!c) return null;
+                      return (
+                        <tr key={u + lvl} className="border-t border-slate-800/80">
+                          <td className="py-2 pr-4">{UNIT_LABEL[u]}</td>
+                          <td className="pr-4">{Math.round(lvl * 100)}%</td>
+                          <td className="pr-4">
+                            <Badge size="sm" variant={Math.abs(c.coverage - lvl) <= 0.05 ? 'emerald' : 'amber'}>
+                              {(c.coverage * 100).toFixed(1)}%
+                            </Badge>
+                          </td>
+                          <td>{c.mean_width}</td>
+                        </tr>
+                      );
+                    }))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          );
+        })()}
+      </Card>
+
       <MLStatus loading={loading} error={error} onRetry={reload} label="Loading evaluation report" />
 
       {m && (

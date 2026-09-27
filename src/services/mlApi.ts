@@ -1,6 +1,6 @@
 import type {
   AllocationResult, Appointment, AuditEntry, ClinicEvent, ClinicMetrics, DoctorStatus, ModelMetrics,
-  NoShowPrediction, RagAnswer, Recommendation, ScenarioPreset, ScenarioResult, UnitForecast, UnitId,
+  NoShowPrediction, RagAnswer, Recommendation, ScenarioPreset, ScenarioResult, UncertaintyReport, UnitForecast, UnitId,
 } from '../types/ml';
 
 export const ML_API_URL = import.meta.env.VITE_ML_API_URL || 'http://localhost:8000';
@@ -52,8 +52,11 @@ export const mlApi = {
 
   forecasts: () => request<Record<UnitId, UnitForecast>>('/forecast'),
 
-  optimize: (body: { horizon_h: number; conservative: boolean; weights?: Record<string, number>; use_solver?: boolean }) =>
-    request<AllocationResult>('/optimize', body),
+  optimize: (body: {
+    horizon_h: number; conservative?: boolean; risk_level?: number; use_recommended?: boolean;
+    weights?: Record<string, number>; use_solver?: boolean;
+  }) => request<AllocationResult>('/optimize', body),
+  uncertaintyReport: () => request<UncertaintyReport>('/uncertainty/report'),
   recommendations: (status?: string) =>
     request<Recommendation[]>(`/recommendations${status ? `?status=${status}` : ''}`),
   decide: (id: string, body: { decision: 'APPROVE' | 'REJECT' | 'MODIFY'; actor: string; note?: string; quantity?: number }) =>

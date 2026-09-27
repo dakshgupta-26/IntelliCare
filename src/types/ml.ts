@@ -15,6 +15,8 @@ export interface ForecastPoint {
   ensemble: number;
   lower: number;
   upper: number;
+  quantiles: { '0.5': number; '0.8': number; '0.9': number; '0.95': number } | null;
+  interval_method: 'conformal' | 'gaussian';
 }
 
 export interface UnitForecast {
@@ -84,6 +86,50 @@ export interface AllocationResult {
   run_id?: string;
   horizon_h?: number;
   demand_used?: Record<UnitId, number>;
+  risk_level?: number | null;
+  planning_basis?: 'point' | 'risk_level' | 'recommended';
+}
+
+// -------------------------------------------------------------- decision-aware uncertainty engine
+export type ForecastModelName = 'persistence' | 'xgboost' | 'lstm' | 'ensemble';
+export type RiskTau = 'point' | '0.5' | '0.8' | '0.9' | '0.95';
+
+export interface DecisionStats {
+  regret: number;
+  cost: number;
+  unmet: number;
+  uncovered: number;
+  overtime: number;
+  idle: number;
+}
+
+export interface CoverageStat {
+  coverage: number;
+  mean_width: number;
+}
+
+export interface RiskRecommendation {
+  model: ForecastModelName;
+  risk_level: number;
+  regret: number;
+}
+
+export interface UncertaintyReport {
+  generated_at: string;
+  windows: {
+    calibration: { start: string; end: string; origins: number };
+    evaluation: { start: string; end: string; origins: number };
+    decision_points: number;
+    decision_every_h: number;
+  };
+  levels: number[];
+  models: ForecastModelName[];
+  coverage: Record<UnitId, Record<string, Record<ForecastModelName, Record<string, CoverageStat>>>>;
+  backtest: Record<string, Record<ForecastModelName, Record<RiskTau, DecisionStats>>>;
+  mae: Record<string, Record<ForecastModelName, number>>;
+  ranking: Record<string, { accuracy_rank: ForecastModelName[]; decision_rank: ForecastModelName[] }>;
+  recommended: Record<string, RiskRecommendation>;
+  solver_fallbacks: number;
 }
 
 export interface ScenarioPreset {

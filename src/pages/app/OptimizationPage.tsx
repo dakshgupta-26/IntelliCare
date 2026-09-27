@@ -1,15 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowRight, Cpu, Play } from 'lucide-react';
 import { mlApi } from '../../services/mlApi';
 import { AllocationResult, UNIT_LABEL, UnitId } from '../../types/ml';
 import { useRouterStore } from '../../store/useRouterStore';
 import { useMLStore } from '../../store/useMLStore';
+import { useMLQuery } from '../../hooks/useMLQuery';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { MLStatus, PageHeader, Stat } from '../../components/ml/MLStatus';
 
 const HORIZONS = [2, 6, 12, 24];
+type RiskChoice = 'recommended' | 'point' | '0.5' | '0.8' | '0.9' | '0.95';
+const RISK_CHOICES: { key: RiskChoice; label: string }[] = [
+  { key: 'recommended', label: 'Recommended' },
+  { key: 'point', label: 'Expected (point)' },
+  { key: '0.5', label: '50%' },
+  { key: '0.8', label: '80%' },
+  { key: '0.9', label: '90%' },
+  { key: '0.95', label: '95%' },
+];
+const basisLabel = (r: AllocationResult) => {
+  const pct = r.risk_level != null ? `${Math.round(r.risk_level * 100)}%` : null;
+  if (r.planning_basis === 'recommended') return `recommended · ${pct} plan`;
+  if (r.planning_basis === 'risk_level') return `${pct} plan`;
+  return 'expected (point) demand';
+};
 const WEIGHT_LABELS: Record<string, string> = {
   unmet_demand: 'Unmet bed demand',
   ratio_violation: 'Nurse-ratio violation',
@@ -24,18 +40,32 @@ export const OptimizationPage: React.FC = () => {
   const navigate = useRouterStore((s) => s.navigate);
   const refreshPending = useMLStore((s) => s.refreshPending);
   const [horizon, setHorizon] = useState(12);
-  const [conservative, setConservative] = useState(true);
+  const [riskChoice, setRiskChoice] = useState<RiskChoice>('recommended');
   const [useSolver, setUseSolver] = useState(true);
   const [weights, setWeights] = useState<Record<string, number>>(DEFAULT_WEIGHTS);
   const [result, setResult] = useState<AllocationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const uncertainty = useMLQuery(() => mlApi.uncertaintyReport().catch(() => null));
+  const hasReport = !!uncertainty.data;
+  // Default to the recommendation once we know whether one exists; otherwise plan for the mean.
+  useEffect(() => {
+    if (!uncertainty.loading) setRiskChoice(hasReport ? 'recommended' : 'point');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uncertainty.loading]);
+  const recommendedPct = uncertainty.data?.recommended[String(horizon)]
+    ? Math.round(uncertainty.data.recommended[String(horizon)].risk_level * 100)
+    : null;
+
   const run = async () => {
     setLoading(true);
     setError(null);
     try {
-      setResult(await mlApi.optimize({ horizon_h: horizon, conservative, weights, use_solver: useSolver }));
+      const body: Parameters<typeof mlApi.optimize>[0] = { horizon_h: horizon, weights, use_solver: useSolver };
+      if (riskChoice === 'recommended') body.use_recommended = true;
+      else if (riskChoice !== 'point') body.risk_level = Number(riskChoice);
+      setResult(await mlApi.optimize(body));
       refreshPending();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -66,13 +96,28 @@ export const OptimizationPage: React.FC = () => {
             </div>
           </div>
 
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input type="checkbox" checked={conservative} onChange={(e) => setConservative(e.target.checked)} className="mt-1 accent-cyan-500" />
-            <span className="text-sm text-slate-300">
-              Plan for worst case
-              <span className="block text-xs text-slate-500">Use the upper 95% forecast bound instead of the mean.</span>
-            </span>
-          </label>
+          <div>
+            <label className="text-[11px] font-mono uppercase tracking-wider text-slate-500">Plan for</label>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {RISK_CHOICES.map((c) => (
+                <button key={c.key} onClick={() => setRiskChoice(c.key)}
+                  disabled={c.key === 'recommended' && !hasReport}
+                  className={`px-3 py-1.5 rounded-lg text-xs border disabled:opacity-40 disabled:cursor-not-allowed ${
+                    riskChoice === c.key ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300' : 'border-slate-800 text-slate-400'
+                  }`}>
+                  {c.key === 'recommended' && recommendedPct != null ? `Recommended · ${recommendedPct}%` : c.label}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-slate-500">
+              {riskChoice === 'recommended'
+                ? 'The lowest-regret (model, risk level) from the decision backtest for this horizon.'
+                : riskChoice === 'point'
+                ? 'Plan for the mean forecast, with no safety margin.'
+                : `Plan for the ${Math.round(Number(riskChoice) * 100)}% case, from split-conformal demand quantiles.`}
+              {!hasReport && ' Run `uv run python backtest.py` to enable the recommendation and non-95% risk levels.'}
+            </p>
+          </div>
 
           <div className="space-y-3">
             <div className="text-[11px] font-mono uppercase tracking-wider text-slate-500">Objective weights (penalty per unit)</div>
@@ -123,7 +168,7 @@ export const OptimizationPage: React.FC = () => {
               </div>
 
               <Card variant="solid" className="p-4 sm:p-6 overflow-x-auto">
-                <h2 className="text-sm font-semibold text-white mb-4">Allocation by unit ({horizon}h {conservative ? 'worst-case' : 'expected'} demand)</h2>
+                <h2 className="text-sm font-semibold text-white mb-4">Allocation by unit ({horizon}h {basisLabel(result)})</h2>
                 <table className="w-full text-sm">
                   <thead className="text-[11px] font-mono uppercase text-slate-500">
                     <tr className="text-left">
