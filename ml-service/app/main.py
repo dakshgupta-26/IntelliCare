@@ -33,6 +33,9 @@ clinic = ClinicDay(predictor)
 clinic_lock = threading.Lock()
 recommendations: dict[str, dict] = {}
 audit_log: list[dict] = []
+RISK_LEVELS = (0.5, 0.8, 0.9, 0.95)
+
+_backtest_cache: dict = {"mtime": None, "data": None}
 
 
 def now() -> str:
@@ -43,9 +46,41 @@ def all_forecasts() -> dict:
     return {u: forecaster.forecast(u) for u in UNITS}
 
 
-def demand_at(forecasts: dict, horizon_h: int, conservative: bool) -> dict:
+def load_backtest_report() -> dict | None:
+    """reports/decision_backtest.json, produced by `uv run python backtest.py`. Cached in memory;
+    re-read only when the file's mtime changes."""
+    path = REPORT_DIR / "decision_backtest.json"
+    if not path.exists():
+        _backtest_cache["mtime"] = None
+        _backtest_cache["data"] = None
+        return None
+    mtime = path.stat().st_mtime
+    if _backtest_cache["mtime"] != mtime:
+        _backtest_cache["data"] = json.loads(path.read_text())
+        _backtest_cache["mtime"] = mtime
+    return _backtest_cache["data"]
+
+
+load_backtest_report()  # prime the cache at startup
+
+
+def demand_at(forecasts: dict, horizon_h: int, risk_level: float | None) -> dict:
+    """risk_level=None plans for the point (ensemble) forecast; otherwise for that quantile of
+    demand, from the ensemble's split-conformal quantiles. Falls back to the pre-conformal Gaussian
+    upper bound for risk_level=0.95 if backtest.py has not been run yet."""
     point = lambda u: next(p for p in forecasts[u]["forecast"] if p["horizon_h"] == horizon_h)
-    return {u: point(u)["upper" if conservative else "ensemble"] for u in UNITS}
+    if risk_level is None:
+        return {u: point(u)["ensemble"] for u in UNITS}
+    demand = {}
+    for u in UNITS:
+        p = point(u)
+        if p["quantiles"] is not None:
+            demand[u] = p["quantiles"][str(risk_level)]
+        elif risk_level == 0.95:
+            demand[u] = p["upper"]
+        else:
+            raise HTTPException(409, "Run: uv run python backtest.py")
+    return demand
 
 
 # --------------------------------------------------------------------------- system
@@ -61,6 +96,14 @@ def model_metrics():
     if not path.exists():
         raise HTTPException(404, "Run `uv run python train.py` first")
     return json.loads(path.read_text())
+
+
+@app.get("/uncertainty/report")
+def uncertainty_report():
+    report = load_backtest_report()
+    if report is None:
+        raise HTTPException(404, "Run: uv run python backtest.py")
+    return report
 
 
 # ---------------------------------------------------------------------- forecasting
@@ -80,7 +123,9 @@ def forecast_unit(unit: str):
 # --------------------------------------------------------------------- optimization
 class OptimizeRequest(BaseModel):
     horizon_h: int = 12
-    conservative: bool = Field(False, description="Plan for the upper 95% forecast bound instead of the mean")
+    conservative: bool = Field(False, description="Plan for the 95% risk level instead of the mean (legacy alias for risk_level=0.95)")
+    risk_level: float | None = Field(None, description="Plan for this quantile of demand: one of 0.5, 0.8, 0.9, 0.95")
+    use_recommended: bool = Field(False, description="Use the lowest-regret (model, risk level) from the decision backtest for this horizon")
     weights: dict[str, float] | None = None
     pools: dict[str, int] | None = None
     use_solver: bool = True
@@ -90,7 +135,26 @@ class OptimizeRequest(BaseModel):
 def optimize(req: OptimizeRequest):
     if req.horizon_h not in FORECAST_HORIZONS:
         raise HTTPException(400, f"horizon_h must be one of {FORECAST_HORIZONS}")
-    demand = demand_at(all_forecasts(), req.horizon_h, req.conservative)
+    if req.risk_level is not None and req.risk_level not in RISK_LEVELS:
+        raise HTTPException(400, f"risk_level must be one of {RISK_LEVELS}")
+
+    # Precedence: use_recommended -> risk_level -> conservative (= risk_level 0.95) -> point forecast.
+    if req.use_recommended:
+        report = load_backtest_report()
+        if report is None:
+            raise HTTPException(409, "Run: uv run python backtest.py")
+        rec = report["recommended"].get(str(req.horizon_h))
+        if rec is None:
+            raise HTTPException(409, f"No recommendation for horizon {req.horizon_h}h. Run: uv run python backtest.py")
+        risk_level, planning_basis = rec["risk_level"], "recommended"
+    elif req.risk_level is not None:
+        risk_level, planning_basis = req.risk_level, "risk_level"
+    elif req.conservative:
+        risk_level, planning_basis = 0.95, "risk_level"
+    else:
+        risk_level, planning_basis = None, "point"
+
+    demand = demand_at(all_forecasts(), req.horizon_h, risk_level)
     result = allocate_resources(demand, pools=req.pools, weights=req.weights, use_solver=req.use_solver)
     # Superseded pending recommendations are expired; each new one gets an SOP justification.
     for rec in recommendations.values():
@@ -102,7 +166,8 @@ def optimize(req: OptimizeRequest):
         r.update({"id": rid, "run_id": run_id, "status": "PENDING", "created_at": now(),
                   "horizon_h": req.horizon_h, **policy.explain(r)})
         recommendations[rid] = r
-    result.update({"run_id": run_id, "horizon_h": req.horizon_h, "demand_used": demand})
+    result.update({"run_id": run_id, "horizon_h": req.horizon_h, "demand_used": demand,
+                  "risk_level": risk_level, "planning_basis": planning_basis})
     return result
 
 
