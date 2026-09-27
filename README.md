@@ -39,6 +39,7 @@ The pipeline is end-to-end and real: models are trained from data by `train.py`,
 | 4 | **Appointment scheduling** | Conflict-free schedule from predicted durations, with no-show-aware overbooking | OR-Tools CP-SAT: per-doctor no-overlap, per-department room capacity, minimal-disruption rescheduling |
 | 5 | **Policy grounding (RAG)** | Cites the SOP behind every recommendation and answers policy questions | TF-IDF vector index over 7 hospital SOPs; optional LLM synthesis; extractive fallback |
 | 6 | **Scenario simulation** | Stress-tests mass casualty, viral surge, staff shortage and ICU outage without touching live data | Re-forecast → re-optimize → baseline vs scenario deltas and bottleneck timing |
+| 7 | **Decision-aware uncertainty** | Judges forecasts by the cost of the decisions they produce, not just error: split-conformal intervals, risk-level planning, and a backtest that scores every model x risk level against a perfect-foresight oracle | Split-conformal prediction (50/80/90/95%) + optimizer replay over ~116 held-out decision points x 4 horizons |
 
 Every solver has a **deterministic fallback**: if the MILP, CP-SAT or LLM fails, priority rules take over so the system still answers.
 
