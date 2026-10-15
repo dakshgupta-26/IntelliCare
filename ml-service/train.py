@@ -7,7 +7,7 @@ import time
 
 import pandas as pd
 
-from app import appointments, forecasting
+from app import appointments, forecasting, uncertainty
 from app.config import DATA_DIR, REPORT_DIR
 from app.data_gen import generate_all
 
@@ -46,19 +46,51 @@ def to_markdown(m: dict) -> str:
     return "\n".join(lines)
 
 
+def to_markdown_uncertainty(report: dict) -> str:
+    h = "12"
+    lines = ["## Decision-aware uncertainty", "",
+             "Split-conformal prediction intervals from real out-of-sample residuals, and a backtest that "
+             "replays the resource optimizer over held-out days for every model x risk level, scored against "
+             "a perfect-foresight oracle plan.", "",
+             f"Calibration: {report['windows']['calibration']['origins']} origins "
+             f"({report['windows']['calibration']['start']} to {report['windows']['calibration']['end']}). "
+             f"Evaluation: {report['windows']['evaluation']['origins']} origins "
+             f"({report['windows']['evaluation']['start']} to {report['windows']['evaluation']['end']}), "
+             f"{report['windows']['decision_points']} decision points every {report['windows']['decision_every_h']}h. "
+             f"Solver fallbacks: {report['solver_fallbacks']}.", "",
+             "### 90% conformal coverage per unit, horizon +12h (ensemble)", "",
+             "| Unit | Nominal | Empirical coverage | Mean width (beds) |", "|---|---|---|---|"]
+    for unit, by_h in report["coverage"].items():
+        c = by_h[h]["ensemble"]["0.9"]
+        lines.append(f"| {unit} | 90% | {c['coverage'] * 100:.1f}% | {c['mean_width']} |")
+    lines += ["", "### Mean decision regret vs the oracle plan, horizon +12h", "",
+              "| Model | point | 50% | 80% | 90% | 95% |", "|---|---|---|---|---|---|"]
+    for model in report["models"]:
+        row = report["backtest"][h][model]
+        lines.append(f"| {model} | " + " | ".join(str(row[t]["regret"]) for t in ("point", "0.5", "0.8", "0.9", "0.95")) + " |")
+    rec = report["recommended"][h]
+    lines += ["", f"**Recommendation (horizon +12h): plan at the {rec['risk_level'] * 100:.0f}% level using "
+              f"{rec['model']}** (mean regret {rec['regret']}).", "",
+              f"Accuracy rank (by MAE): {' > '.join(report['ranking'][h]['accuracy_rank'])}. "
+              f"Decision rank (by best-risk-level regret): {' > '.join(report['ranking'][h]['decision_rank'])}.", ""]
+    return "\n".join(lines)
+
+
 def main():
     t0 = time.time()
-    print("1/3 generating synthetic hospital data ...")
+    print("1/4 generating synthetic hospital data ...")
     generate_all()
-    print("2/3 training forecasters (XGBoost + LSTM, 3 units x 4 horizons) ...")
+    print("2/4 training forecasters (XGBoost + LSTM, 3 units x 4 horizons) ...")
     fc = forecasting.train_all(pd.read_csv(DATA_DIR / "bed_census.csv", parse_dates=["timestamp"]))
-    print("3/3 training appointment models (no-show + duration) ...")
+    print("3/4 training appointment models (no-show + duration) ...")
     ap = appointments.train(pd.read_csv(DATA_DIR / "appointments.csv"))
     metrics = {"generated_at": pd.Timestamp.now().isoformat(timespec="seconds"), "forecasting": fc, "appointments": ap}
     REPORT_DIR.mkdir(exist_ok=True)
     (REPORT_DIR / "metrics.json").write_text(json.dumps(metrics, indent=2))
-    (REPORT_DIR / "metrics.md").write_text(to_markdown(metrics))
-    print(f"done in {time.time() - t0:.0f}s -> reports/metrics.md")
+    print("4/4 decision-aware backtest (conformal calibration + optimizer replay, a couple of minutes) ...")
+    backtest_report = uncertainty.run_all(pd.read_csv(DATA_DIR / "bed_census.csv", parse_dates=["timestamp"]))
+    (REPORT_DIR / "metrics.md").write_text(to_markdown(metrics) + "\n" + to_markdown_uncertainty(backtest_report))
+    print(f"done in {time.time() - t0:.0f}s -> reports/metrics.md, reports/decision_backtest.json")
 
 
 if __name__ == "__main__":

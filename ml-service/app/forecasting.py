@@ -150,6 +150,10 @@ class Forecaster:
             self.lstm[u] = net
         with open(ARTIFACT_DIR / "forecast_residuals.json") as f:
             self.residuals = json.load(f)
+        conformal_path = ARTIFACT_DIR / "conformal.json"
+        # Written by uncertainty.run_all() (uv run python backtest.py). Real out-of-sample residual
+        # quantiles, verified on held-out days; falls back to the Gaussian band until it exists.
+        self.conformal = json.loads(conformal_path.read_text()) if conformal_path.exists() else None
 
     def forecast(self, unit: str) -> dict:
         df, scale = self.df, UNITS[unit]["beds"]
@@ -163,15 +167,25 @@ class Forecaster:
             xgb_val = float(self.xgb[unit][h].predict(latest)[0])
             lstm_val = float(lstm_pred[j])
             ensemble = (xgb_val + lstm_val) / 2
-            band = 1.96 * (self.residuals[unit]["XGBoost"][str(h)] + self.residuals[unit]["LSTM"][str(h)]) / 2
+            q = self.conformal[unit][str(h)]["ensemble"]["q"] if self.conformal else None
+            if q is not None:
+                lower, upper = ensemble + q["0.025"], ensemble + q["0.975"]
+                quantiles = {lvl: round(max(0.0, ensemble + q[lvl]), 1) for lvl in ("0.5", "0.8", "0.9", "0.95")}
+                interval_method = "conformal"
+            else:
+                band = 1.96 * (self.residuals[unit]["XGBoost"][str(h)] + self.residuals[unit]["LSTM"][str(h)]) / 2
+                lower, upper = ensemble - band, ensemble + band
+                quantiles, interval_method = None, "gaussian"
             points.append({
                 "horizon_h": h,
                 "timestamp": (now + pd.Timedelta(hours=h)).isoformat(),
                 "xgboost": round(xgb_val, 1),
                 "lstm": round(lstm_val, 1),
                 "ensemble": round(ensemble, 1),
-                "lower": round(ensemble - band, 1),
-                "upper": round(ensemble + band, 1),
+                "lower": round(lower, 1),
+                "upper": round(upper, 1),
+                "quantiles": quantiles,
+                "interval_method": interval_method,
             })
         history = df[["timestamp", unit]].tail(48)
         return {

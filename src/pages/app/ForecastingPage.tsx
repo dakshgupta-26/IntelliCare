@@ -39,13 +39,18 @@ export const ForecastingPage: React.FC = () => {
 
   const unitMetrics = metrics.data?.forecasting[unit];
   const peak = f ? f.forecast.reduce((a, b) => (b.upper > a.upper ? b : a)) : null;
+  const conformal = f?.forecast[0]?.interval_method === 'conformal';
 
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
         eyebrow="Predictive demand engine"
         title="Demand Forecasting"
-        subtitle="Bed demand forecast 2, 6, 12 and 24 hours ahead by an LSTM network and an XGBoost regressor, with 95% intervals from test-set residuals."
+        subtitle={
+          conformal
+            ? 'Bed demand forecast 2, 6, 12 and 24 hours ahead by an LSTM network and an XGBoost regressor, with 95% intervals calibrated by split conformal prediction on held-out days.'
+            : 'Bed demand forecast 2, 6, 12 and 24 hours ahead by an LSTM network and an XGBoost regressor, with 95% intervals from test-set residuals.'
+        }
         actions={
           <Button variant="secondary" size="sm" icon={<RefreshCw className="w-3.5 h-3.5" />} onClick={forecasts.reload}>
             Re-run inference
@@ -103,7 +108,7 @@ export const ForecastingPage: React.FC = () => {
                     labelFormatter={(t: number) => (t === 0 ? 'Now' : t > 0 ? `Forecast +${t}h` : `${-t}h ago`)} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
                   <ReferenceLine x={0} stroke="#334155" />
-                  <Area dataKey="band" name="95% interval" stroke="none" fill="#06b6d4" fillOpacity={0.12} />
+                  <Area dataKey="band" name={conformal ? '95% conformal interval' : '95% interval'} stroke="none" fill="#06b6d4" fillOpacity={0.12} />
                   <Line dataKey="actual" name="Observed" stroke="#e2e8f0" dot={false} strokeWidth={1.5} />
                   <Line dataKey="lstm" name="LSTM" stroke="#a78bfa" strokeWidth={2} dot={{ r: 3 }} connectNulls />
                   <Line dataKey="xgboost" name="XGBoost" stroke="#22d3ee" strokeWidth={2} dot={{ r: 3 }} connectNulls />

@@ -324,7 +324,7 @@ export const AppointmentsPage: React.FC = () => {
             </Button>
           </div>
         </div>
-        {busy && <p className="mt-3 text-xs text-cyan-300">Re-optimizing schedule (solver time limit 3 s)…</p>}
+        {busy && <p className="mt-3 text-xs text-cyan-300">Re-optimizing the rest of the day (usually 4–8 s)…</p>}
         {error && <p className="mt-3 text-xs text-rose-400 flex items-center gap-1.5"><AlertOctagon className="w-3.5 h-3.5" />{error}</p>}
       </Card>
 

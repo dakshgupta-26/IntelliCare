@@ -178,6 +178,7 @@ PRIORITY_WEIGHT = {"ROUTINE": 1, "URGENT": 4, "EMERGENCY": 50}
 STABILITY_WEIGHT = 3        # per minute a confirmed booking is shifted
 DOCTOR_CHANGE_PENALTY = 40  # for handing a booked patient to a different doctor
 OVERBOOK_FACTOR = 0.6  # how aggressively high no-show risk shortens the reserved slot
+DETERMINISTIC_WORK = 1.0  # CP-SAT deterministic time units per solve
 
 
 def slot_length(predicted_duration: float, no_show_prob: float, priority: str = "ROUTINE") -> int:
@@ -187,7 +188,7 @@ def slot_length(predicted_duration: float, no_show_prob: float, priority: str = 
 
 
 def schedule_appointments(requests: list[dict], unavailable_doctors: set[str] = frozenset(),
-                          time_limit_s: float = 3.0, use_solver: bool = True) -> dict:
+                          time_limit_s: float = 15.0, use_solver: bool = True) -> dict:
     """requests: {id, department, requested_min, predicted_duration, no_show_prob, priority,
     fixed_doctor?, fixed_start?}. Returns assignments + unscheduled ids."""
     t0 = time.perf_counter()
@@ -263,9 +264,13 @@ def schedule_appointments(requests: list[dict], unavailable_doctors: set[str] = 
             for lit in choices.values():
                 m.AddHint(lit, 0)
 
+    # Deterministic search: a fixed amount of solver work (not wall-clock time) on one worker,
+    # so the same inputs always give the same schedule. The wall-clock limit is only a safety cap.
     solver = cp_model.CpSolver()
+    solver.parameters.max_deterministic_time = DETERMINISTIC_WORK
     solver.parameters.max_time_in_seconds = time_limit_s
-    solver.parameters.num_workers = 8
+    solver.parameters.num_workers = 1
+    solver.parameters.random_seed = 7
     status = solver.Solve(m)
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         return _greedy_schedule(requests, doctors, t0, reason="SOLVER_FAILED")
