@@ -13,7 +13,6 @@ export const DemandForecastSection: React.FC = () => {
   const setShowConfidenceBands = useForecastStore((state) => state.setShowConfidenceBands);
   const navigate = useRouterStore((state) => state.navigate);
 
-  const [activeSignal, setActiveSignal] = useState<'arrivals' | 'icu' | 'beds'>('arrivals');
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
 
   const horizons: ForecastHorizon[] = ['6H', '12H', '24H', '48H'];
@@ -114,39 +113,10 @@ export const DemandForecastSection: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* Signal Switcher */}
-            <div className="flex items-center gap-1 bg-[#050c18] p-1 rounded-xl border border-slate-800">
-              <button
-                onClick={() => setActiveSignal('arrivals')}
-                className={`px-2 py-0.5 rounded-lg text-xs font-mono transition-colors cursor-pointer ${
-                  activeSignal === 'arrivals'
-                    ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                ED Arrivals
-              </button>
-              <button
-                onClick={() => setActiveSignal('icu')}
-                className={`px-2 py-0.5 rounded-lg text-xs font-mono transition-colors cursor-pointer ${
-                  activeSignal === 'icu'
-                    ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                ICU Demand
-              </button>
-              <button
-                onClick={() => setActiveSignal('beds')}
-                className={`px-2 py-0.5 rounded-lg text-xs font-mono transition-colors cursor-pointer ${
-                  activeSignal === 'beds'
-                    ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Total Beds
-              </button>
-            </div>
+            {/* Signal shown in this chart */}
+            <span className="px-2.5 py-1 rounded-xl bg-[#050c18] border border-slate-800 text-xs font-mono font-bold text-cyan-300">
+              ED Arrivals
+            </span>
 
             {/* Horizon Switcher */}
             <div className="flex items-center gap-1 bg-[#050c18] p-1 rounded-xl border border-slate-800">

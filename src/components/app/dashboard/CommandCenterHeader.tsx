@@ -63,7 +63,8 @@ export const CommandCenterHeader: React.FC<CommandCenterHeaderProps> = ({
   // The temporary title becomes the suggested file name.
   const handleExportPdf = () => {
     const originalTitle = document.title;
-    const date = new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     document.title = `IntelliCare-Dashboard-${date}`;
     const restore = () => {
       document.title = originalTitle;

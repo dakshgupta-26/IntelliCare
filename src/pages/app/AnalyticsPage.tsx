@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   ArrowUpRight,
   ArrowDownRight
@@ -8,7 +8,6 @@ import { Badge } from '../../components/ui/Badge';
 
 export const AnalyticsPage: React.FC = () => {
   const departments = useHospitalStore((state) => state.departments);
-  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('7d');
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -32,21 +31,9 @@ export const AnalyticsPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Time range filters */}
-        <div className="flex items-center gap-2 bg-surface-100 dark:bg-[#0a1628] p-1 rounded-xl border border-slate-800 shrink-0 text-xs font-mono">
-          {(['7d', '30d', '90d'] as const).map((r) => (
-            <button
-              key={r}
-              onClick={() => setTimeRange(r)}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                timeRange === r
-                  ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Past {r.toUpperCase()}
-            </button>
-          ))}
+        {/* Reporting window */}
+        <div className="px-3 py-1.5 rounded-xl bg-surface-100 dark:bg-[#0a1628] border border-slate-800 shrink-0 text-xs font-mono font-bold text-cyan-300">
+          Past 30 days
         </div>
       </div>
 
