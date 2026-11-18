@@ -21,15 +21,15 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   }, [currentPath, setMobileSidebarOpen]);
 
   return (
-    <div className="flex h-screen w-full bg-[#050814] text-slate-100 overflow-hidden font-sans selection:bg-brand-cyan/20 selection:text-brand-cyan">
+    <div className="flex h-screen w-full bg-[#050814] text-slate-100 overflow-hidden print:block print:h-auto print:overflow-visible font-sans selection:bg-brand-cyan/20 selection:text-brand-cyan">
       {/* Desktop Left Application Sidebar (lg and up) */}
-      <div className="hidden lg:flex h-full shrink-0">
+      <div className="hidden lg:flex h-full shrink-0 print:!hidden">
         <AppSidebar />
       </div>
 
       {/* Mobile Drawer Overlay Sidebar (< lg) */}
       {isMobileSidebarOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
+        <div className="lg:hidden fixed inset-0 z-50 flex print:hidden">
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-navy-950/80 backdrop-blur-sm transition-opacity duration-300 animate-fade-in"
@@ -45,12 +45,14 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       )}
 
       {/* Main App Container */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden print:block print:h-auto print:overflow-visible">
         {/* Top Command & Scoping Header */}
-        <AppHeader />
+        <div className="print:hidden">
+          <AppHeader />
+        </div>
 
         {/* Dynamic View Scroll Area */}
-        <main className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 sm:p-4 lg:p-5">
+        <main className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 sm:p-4 lg:p-5 print:overflow-visible print:p-0">
           <div className="max-w-[1700px] mx-auto space-y-4 sm:space-y-5">
             {children}
           </div>
