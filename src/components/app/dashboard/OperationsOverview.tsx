@@ -17,6 +17,9 @@ interface DepartmentItem {
   occupancy: number;
   totalBeds: number;
   availableBeds: number;
+  // Non-inpatient units count treatment/recovery bays rather than beds.
+  capacityLabel?: string; // e.g. 'Recovery Bays' (defaults to 'Avail Beds')
+  capacityUnit?: string;  // e.g. 'bays' (defaults to 'beds')
   activeStaff: number;
   requiredStaff: number;
   staffPercent: number;
@@ -115,6 +118,8 @@ const DEPARTMENTS_EXTENDED: DepartmentItem[] = [
     occupancy: 86.5,
     totalBeds: 12,
     availableBeds: 2,
+    capacityLabel: 'Recovery Bays',
+    capacityUnit: 'bays',
     activeStaff: 14,
     requiredStaff: 16,
     staffPercent: 87.5,
@@ -131,6 +136,8 @@ const DEPARTMENTS_EXTENDED: DepartmentItem[] = [
     occupancy: 68.0,
     totalBeds: 8,
     availableBeds: 3,
+    capacityLabel: 'Infusion Bays',
+    capacityUnit: 'bays',
     activeStaff: 12,
     requiredStaff: 12,
     staffPercent: 100,
@@ -234,9 +241,9 @@ export const OperationsOverview: React.FC = () => {
 
                   <div className="space-y-1 pt-2 border-t border-slate-800/80 text-[10px] font-mono">
                     <div className="flex justify-between text-slate-400">
-                      <span>Avail Beds:</span>
+                      <span>{dept.capacityLabel ?? 'Avail Beds'}:</span>
                       <span className={dept.availableBeds <= 3 ? 'text-rose-400 font-bold' : 'text-slate-200'}>
-                        {dept.availableBeds} beds
+                        {dept.availableBeds} {dept.capacityUnit ?? 'beds'}
                       </span>
                     </div>
                     <div className="flex justify-between text-slate-400">
@@ -308,7 +315,7 @@ export const OperationsOverview: React.FC = () => {
                     </td>
                     <td className="py-2.5">
                       <span className={dept.availableBeds <= 3 ? 'text-rose-400 font-bold' : 'text-slate-300'}>
-                        {dept.availableBeds} of {dept.totalBeds}
+                        {dept.availableBeds} of {dept.totalBeds}{dept.capacityUnit ? ` ${dept.capacityUnit}` : ''}
                       </span>
                     </td>
                     <td className="py-2.5 text-slate-300">
@@ -350,7 +357,7 @@ export const OperationsOverview: React.FC = () => {
         <div className="flex items-center gap-2 text-slate-300">
           <Activity className="w-3.5 h-3.5 text-cyan-400" />
           <span>
-            Selected: <strong className="text-white">{selectedDept.name}</strong> &bull; {selectedDept.availableBeds} beds free &bull; {selectedDept.activeStaff} staff active
+            Selected: <strong className="text-white">{selectedDept.name}</strong> &bull; {selectedDept.availableBeds} {selectedDept.capacityUnit ?? 'beds'} free &bull; {selectedDept.activeStaff} staff active
           </span>
         </div>
         <button
