@@ -3,19 +3,15 @@ import {
   Building2,
   Search,
   Bell,
-  Sun,
-  Moon,
   Sparkles,
   Sliders,
   ChevronDown,
   User,
   Shield,
   LogOut,
-  Menu,
-  Radio
+  Menu
 } from 'lucide-react';
 import { useHospitalStore } from '../../store/useHospitalStore';
-import { useThemeStore } from '../../store/useThemeStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useCommandPaletteStore } from '../../store/useCommandPaletteStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
@@ -26,14 +22,8 @@ import { OperationalRiskModal } from './dashboard/OperationalRiskModal';
 
 export const AppHeader: React.FC = () => {
   const selectedHospital = useHospitalStore((state) => state.selectedHospital);
-  const setSelectedHospital = useHospitalStore((state) => state.setSelectedHospital);
   const availableHospitals = useHospitalStore((state) => state.availableHospitals);
-  const selectedDepartmentId = useHospitalStore((state) => state.selectedDepartmentId);
-  const setSelectedDepartmentId = useHospitalStore((state) => state.setSelectedDepartmentId);
-  const departments = useHospitalStore((state) => state.departments);
 
-  const theme = useThemeStore((state) => state.resolvedTheme);
-  const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const togglePalette = useCommandPaletteStore((state) => state.toggleOpen);
   const toggleNotifications = useNotificationStore((state) => state.toggleDrawer);
   const unreadNotificationsCount = useNotificationStore((state) => state.getUnreadCount());
@@ -68,14 +58,13 @@ export const AppHeader: React.FC = () => {
               <Menu className="w-4 h-4 text-cyan-400" />
             </button>
 
-            {/* 1. Hospital Context Selector */}
+            {/* Hospital context (single site in this version, not switchable) */}
             <div
-              className="relative bg-[#091526] hover:bg-[#0c1c34] border border-slate-800 hover:border-slate-700 rounded-xl px-2.5 sm:px-3 py-1.5 transition-colors group cursor-pointer"
+              className="relative bg-[#091526] border border-slate-800 rounded-xl px-2.5 sm:px-3 py-1.5"
               style={{ width: 'clamp(200px, 17vw, 270px)' }}
               title={`${selectedHospitalObj.name} (Main Campus • Operational)`}
             >
-              {/* Internal 3-column CSS Grid: [icon] [text container (min-w-0)] [chevron] */}
-              <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
+              <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2">
                 <Building2 className="w-4 h-4 text-cyan-400 shrink-0" />
 
                 <div className="min-w-0 overflow-hidden text-left leading-tight">
@@ -91,73 +80,7 @@ export const AppHeader: React.FC = () => {
                     </span>
                   </div>
                 </div>
-
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 group-hover:text-cyan-400 transition-colors" />
               </div>
-
-              {/* Native Dropdown Overlay */}
-              <select
-                value={selectedHospital}
-                onChange={(e) => setSelectedHospital(e.target.value)}
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                title="Switch Hospital Context"
-                aria-label="Select active hospital facility"
-              >
-                {availableHospitals.map((h) => (
-                  <option key={h.id} value={h.id} className="bg-[#07111f] text-white">
-                    {h.name} ({h.city})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* 2. Department Context Selector */}
-            <div
-              className="relative bg-[#091526] hover:bg-[#0c1c34] border border-slate-800 hover:border-slate-700 rounded-xl px-2.5 sm:px-3 py-1.5 transition-colors group cursor-pointer hidden md:block"
-              style={{ width: 'clamp(165px, 14vw, 220px)' }}
-              title={
-                selectedDepartmentId === 'all'
-                  ? 'All Departments (Hospital-wide · 7 Units)'
-                  : departments.find((d) => d.id === selectedDepartmentId)?.name
-              }
-            >
-              {/* Internal 3-column CSS Grid: [icon] [text container (min-w-0)] [chevron] */}
-              <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
-                <Radio className="w-4 h-4 text-indigo-400 shrink-0" />
-
-                <div className="min-w-0 overflow-hidden text-left leading-tight">
-                  <div className="text-xs font-mono font-bold text-slate-200 truncate">
-                    {selectedDepartmentId === 'all'
-                      ? 'All Departments'
-                      : departments.find((d) => d.id === selectedDepartmentId)?.name || 'Department'}
-                  </div>
-                  <div className="text-[10px] font-mono text-slate-400 mt-0.5 truncate">
-                    {selectedDepartmentId === 'all'
-                      ? 'Hospital-wide · 7 Units'
-                      : `${departments.find((d) => d.id === selectedDepartmentId)?.code || 'Filtered'} Unit`}
-                  </div>
-                </div>
-
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 group-hover:text-indigo-400 transition-colors" />
-              </div>
-
-              {/* Native Dropdown Overlay */}
-              <select
-                value={selectedDepartmentId}
-                onChange={(e) => setSelectedDepartmentId(e.target.value)}
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                title="Scope by Department"
-                aria-label="Select clinical department"
-              >
-                <option value="all" className="bg-[#07111f] text-white">
-                  All Departments (Hospital-wide · 7 Units)
-                </option>
-                {departments.map((d) => (
-                  <option key={d.id} value={d.id} className="bg-[#07111f] text-white">
-                    {d.name} ({d.code})
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
 
@@ -229,20 +152,6 @@ export const AppHeader: React.FC = () => {
               <Sliders className="w-3.5 h-3.5 text-purple-200 shrink-0" />
               <span className="hidden sm:inline">Run Scenario →</span>
               <span className="sm:hidden">Scenario</span>
-            </button>
-
-            {/* Theme Toggle Button */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-surface-200/80 transition-colors cursor-pointer shrink-0"
-              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-              aria-label="Change theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-cyan-400" />
-              )}
             </button>
 
             {/* Notifications Popover Trigger */}
