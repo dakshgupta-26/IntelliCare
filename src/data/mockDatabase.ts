@@ -939,10 +939,18 @@ export const INITIAL_ALERTS: OperationalAlert[] = [
 // --------------------------------------------------------------------------
 // Activity & Cryptographic Audit Logs
 // --------------------------------------------------------------------------
+// Sample audit entries are timestamped relative to when the app loads, so the
+// ledger always shows recent activity (same "YYYY-MM-DD HH:MM:SS" format, local time).
+const auditTimestamp = (secondsAgo: number): string => {
+  const d = new Date(Date.now() - secondsAgo * 1000);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+};
+
 export const INITIAL_AUDIT_LOGS: AuditLogRecord[] = [
   {
     id: 'aud-001',
-    timestamp: '2026-08-22 15:42:21',
+    timestamp: auditTimestamp(720),
     action: 'OPTIMIZATION_EXECUTED',
     actorName: 'OR-Tools Automated Engine',
     actorEmail: 'system.solver@intellicare.health',
@@ -957,7 +965,7 @@ export const INITIAL_AUDIT_LOGS: AuditLogRecord[] = [
   },
   {
     id: 'aud-002',
-    timestamp: '2026-08-22 14:28:44',
+    timestamp: auditTimestamp(5137),
     action: 'RECOMMENDATION_APPROVED',
     actorName: 'Dr. Sarah Chen, MD',
     actorEmail: 'sarah.chen@intellicare.health',
@@ -972,7 +980,7 @@ export const INITIAL_AUDIT_LOGS: AuditLogRecord[] = [
   },
   {
     id: 'aud-003',
-    timestamp: '2026-08-22 14:02:11',
+    timestamp: auditTimestamp(6730),
     action: 'SCENARIO_SIMULATED',
     actorName: 'Elena Rostova, RN',
     actorEmail: 'elena.rostova@intellicare.health',
@@ -987,7 +995,7 @@ export const INITIAL_AUDIT_LOGS: AuditLogRecord[] = [
   },
   {
     id: 'aud-004',
-    timestamp: '2026-08-22 13:15:00',
+    timestamp: auditTimestamp(9561),
     action: 'RESOURCE_OVERRIDDEN',
     actorName: 'Dr. Marcus Vance, DO',
     actorEmail: 'marcus.vance@intellicare.health',
