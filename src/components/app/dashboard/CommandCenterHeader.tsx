@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Sliders,
-  RefreshCw
+  RefreshCw,
+  FileDown
 } from 'lucide-react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useRouterStore } from '../../../store/useRouterStore';
@@ -58,6 +59,20 @@ export const CommandCenterHeader: React.FC<CommandCenterHeaderProps> = ({
     }, 600);
   };
 
+  // Export the dashboard as a PDF through the browser's print dialog ("Save as PDF").
+  // The temporary title becomes the suggested file name.
+  const handleExportPdf = () => {
+    const originalTitle = document.title;
+    const date = new Date().toISOString().slice(0, 10);
+    document.title = `IntelliCare-Dashboard-${date}`;
+    const restore = () => {
+      document.title = originalTitle;
+      window.removeEventListener('afterprint', restore);
+    };
+    window.addEventListener('afterprint', restore);
+    window.print();
+  };
+
   const getShiftName = () => {
     const hour = new Date().getHours();
     if (hour >= 7 && hour < 15) return 'DAY SHIFT (07:00 – 15:00)';
@@ -103,7 +118,7 @@ export const CommandCenterHeader: React.FC<CommandCenterHeaderProps> = ({
       </div>
 
       {/* Right: Live Telemetry Indicator & Primary Actions */}
-      <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 shrink-0">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 shrink-0 print:hidden">
         {/* Real-time Streaming Pulse */}
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#091424] border border-slate-800 text-xs font-mono">
           <div className="flex items-center gap-1.5 text-emerald-400">
@@ -128,6 +143,16 @@ export const CommandCenterHeader: React.FC<CommandCenterHeaderProps> = ({
             <RefreshCw className="w-3 h-3" />
           </button>
         </div>
+
+        {/* Export the dashboard data to PDF */}
+        <button
+          onClick={handleExportPdf}
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#091424] hover:bg-[#0E1A2E] border border-slate-700 hover:border-cyan-400/50 text-slate-200 hover:text-cyan-300 font-mono text-xs font-bold transition-all cursor-pointer"
+          title="Export dashboard to PDF"
+        >
+          <FileDown className="w-3.5 h-3.5" />
+          <span>Export PDF</span>
+        </button>
 
         {/* Primary Action: Run Scenario */}
         <button
